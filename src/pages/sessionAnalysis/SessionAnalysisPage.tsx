@@ -25,6 +25,30 @@ function toSeries(samples: CarTelemetrySample[], pick: (s: CarTelemetrySample) =
   return samples.map((s) => [s.lapDistance, pick(s)]);
 }
 
+/**
+ * Domínio Y calculado a partir dos dados reais, com margem - domínios fixos
+ * cortam o gráfico fora quando o valor real passa do esperado (ex: um delta
+ * acumulado maior que os ±2s hardcoded antes, ou uma velocidade de pico
+ * maior que 330km/h num carro bem configurado).
+ */
+function computeYDomain(seriesList: ChartSeries[], fallback: [number, number], marginRatio = 0.15): [number, number] {
+  let min = Infinity;
+  let max = -Infinity;
+  for (const series of seriesList) {
+    for (const [, y] of series.points) {
+      if (y < min) min = y;
+      if (y > max) max = y;
+    }
+  }
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return fallback;
+  if (min === max) {
+    min -= 1;
+    max += 1;
+  }
+  const margin = (max - min) * marginRatio;
+  return [min - margin, max + margin];
+}
+
 export default function SessionAnalysisPage() {
   const { id } = useParams();
   const sessionId = Number(id);
@@ -126,6 +150,15 @@ export default function SessionAnalysisPage() {
     { label: "Delta", color: deltaEnd >= 0 ? "var(--danger)" : "var(--good)", area: true, points: deltaPoints },
   ];
 
+  const [speedYMinRaw, speedYMax] = computeYDomain(speedSeries, [0, 330]);
+  const speedYMin = Math.max(0, speedYMinRaw); // velocidade nunca é negativa
+
+  const [deltaYMinRaw, deltaYMaxRaw] = computeYDomain(deltaSeries, [-2, 2]);
+  // o eixo zero do delta divergente precisa ficar sempre visível, mesmo que
+  // os dados fiquem só de um lado (ex: principal sempre atrás da comparação)
+  const deltaYMin = Math.min(deltaYMinRaw, -0.1);
+  const deltaYMax = Math.max(deltaYMaxRaw, 0.1);
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -180,8 +213,8 @@ export default function SessionAnalysisPage() {
                 series={deltaSeries}
                 xMin={0}
                 xMax={distanceDomain}
-                yMin={-2}
-                yMax={2}
+                yMin={deltaYMin}
+                yMax={deltaYMax}
                 diverging
                 height={100}
                 xFormatter={(x) => `${Math.round(x)}m`}
@@ -206,8 +239,8 @@ export default function SessionAnalysisPage() {
                 series={speedSeries}
                 xMin={0}
                 xMax={distanceDomain}
-                yMin={0}
-                yMax={330}
+                yMin={speedYMin}
+                yMax={speedYMax}
                 xFormatter={(x) => `${Math.round(x)}m`}
                 yFormatter={(y) => `${Math.round(y)}`}
                 ariaLabel="Velocidade por distância"

@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from "react";
 import type { SessionSummary } from "@/types/rest";
 import { formatSessionDateTime, formatSessionDuration } from "@/utils/formatDate";
 import { formatLapTime } from "@/utils/formatLapTime";
@@ -9,6 +10,13 @@ interface SessionsTableProps {
 }
 
 export function SessionsTable({ sessions, onSelect }: SessionsTableProps) {
+  function handleKeyDown(event: KeyboardEvent<HTMLTableRowElement>, id: number) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect(id);
+    }
+  }
+
   return (
     <table className={styles.table}>
       <thead>
@@ -24,7 +32,14 @@ export function SessionsTable({ sessions, onSelect }: SessionsTableProps) {
         {sessions.map((session) => {
           const { date, time } = formatSessionDateTime(session.startedAt);
           return (
-            <tr key={session.id} onClick={() => onSelect(session.id)}>
+            <tr
+              key={session.id}
+              tabIndex={0}
+              role="button"
+              aria-label={`Abrir sessão de ${date} ${time}`}
+              onClick={() => onSelect(session.id)}
+              onKeyDown={(event) => handleKeyDown(event, session.id)}
+            >
               <td>
                 <span className={styles.date}>{date}</span>
                 <span className={styles.time}>{time}</span>
