@@ -1,0 +1,52 @@
+.pedals {
+  display: flex;
+  gap: 14px;
+  flex: 1;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.track {
+  width: 100%;
+  max-width: 26px;
+  flex: 1;
+  background: var(--panel-inset);
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  min-height: 90px;
+}
+
+.fill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+}
+
+.fillThrottle {
+  background: var(--good);
+}
+
+.fillBrake {
+  background: var(--danger);
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}

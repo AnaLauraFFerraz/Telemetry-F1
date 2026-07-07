@@ -1,0 +1,33 @@
+.wrap {
+  margin-top: 2px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 6px;
+}
+
+.sectors {
+  display: flex;
+  gap: 6px;
+}
+
+.sector {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--panel-inset);
+}
+
+.done {
+  background: var(--ink-faint);
+}
+
+.active {
+  background: var(--accent);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--accent) 60%, transparent);
+}

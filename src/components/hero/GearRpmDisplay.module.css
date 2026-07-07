@@ -1,0 +1,61 @@
+.instrument {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.main {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+.gear {
+  font-family: var(--font-mono);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 0.85;
+  color: var(--ink);
+  background: var(--panel-inset);
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+  padding: 6px 16px 10px;
+}
+
+.rpmCol {
+  flex: 1;
+}
+
+.rpmNumeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rpmSuffix {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.rpmBar {
+  margin-top: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--panel-inset);
+  overflow: hidden;
+}
+
+.rpmBarFill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--good), var(--warn) 70%, var(--danger));
+}

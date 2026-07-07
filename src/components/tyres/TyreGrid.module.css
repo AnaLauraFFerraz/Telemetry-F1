@@ -1,0 +1,97 @@
+.stage {
+  position: relative;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carOutline {
+  position: absolute;
+  opacity: 0.9;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  padding: 4px 30px;
+}
+
+.box {
+  border-radius: 5px;
+  border: 1px solid var(--hairline);
+  background: var(--panel-inset);
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.hot {
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--hairline));
+  background: color-mix(in srgb, var(--danger) 10%, var(--panel-inset));
+}
+
+.ideal {
+  border-color: color-mix(in srgb, var(--good) 45%, var(--hairline));
+  background: color-mix(in srgb, var(--good) 8%, var(--panel-inset));
+}
+
+.cold {
+  border-color: color-mix(in srgb, var(--accent-cool) 50%, var(--hairline));
+  background: color-mix(in srgb, var(--accent-cool) 9%, var(--panel-inset));
+}
+
+.pos {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.temp {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.hot .temp {
+  color: var(--danger);
+}
+
+.ideal .temp {
+  color: var(--good);
+}
+
+.cold .temp {
+  color: var(--accent-cool);
+}
+
+.sub {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  color: var(--ink-dim);
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--ink-dim);
+}
+
+.legendDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}

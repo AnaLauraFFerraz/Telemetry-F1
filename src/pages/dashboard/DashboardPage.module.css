@@ -1,0 +1,123 @@
+.dash {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.statusGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusSub {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.sessionInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.posChip {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  padding: 3px 9px;
+  border-radius: 3px;
+  letter-spacing: 0.03em;
+}
+
+.lapCounter {
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+.lapCounter .value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.nav {
+  display: flex;
+  gap: 14px;
+  margin-left: 6px;
+  padding-left: 16px;
+  border-left: 1px solid var(--hairline);
+}
+
+.navLink {
+  font-size: 12px;
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--accent-cool);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr 0.7fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.pedalsInstrument {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 14px;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr 1fr;
+  gap: 18px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.panelTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 12px;
+}
+
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .panels {
+    grid-template-columns: 1fr;
+  }
+}

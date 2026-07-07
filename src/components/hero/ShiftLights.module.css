@@ -1,0 +1,26 @@
+.strip {
+  display: flex;
+  gap: 3px;
+}
+
+.light {
+  flex: 1;
+  height: 7px;
+  border-radius: 1px;
+  background: var(--panel-inset);
+}
+
+.good {
+  background: var(--good);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--good) 70%, transparent);
+}
+
+.warn {
+  background: var(--warn);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--warn) 70%, transparent);
+}
+
+.danger {
+  background: var(--danger);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--danger) 80%, transparent);
+}

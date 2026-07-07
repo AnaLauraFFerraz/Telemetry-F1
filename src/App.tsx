@@ -1,10 +1,11 @@
 import AppRouter from "./router/router.tsx";
+import { TelemetryProvider } from "./context/TelemetryProvider";
 
 function App() {
   return (
-    <div className="App">
+    <TelemetryProvider>
       <AppRouter />
-    </div>
+    </TelemetryProvider>
   )
 }
 

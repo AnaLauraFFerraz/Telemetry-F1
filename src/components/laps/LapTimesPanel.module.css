@@ -1,0 +1,46 @@
+.laptimes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 10px;
+  background: var(--panel-inset);
+  border-radius: 5px;
+  border: 1px solid transparent;
+}
+
+.current {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.best {
+  border-color: color-mix(in srgb, var(--best) 45%, transparent);
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.current .time {
+  color: var(--accent);
+}
+
+.best .time {
+  color: var(--best);
+}
