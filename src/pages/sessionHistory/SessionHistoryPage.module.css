@@ -1,0 +1,44 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.navLink {
+  font-size: 12px;
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--accent-cool);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.header h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.count {
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+.empty,
+.state {
+  color: var(--ink-dim);
+  font-size: 13px;
+}
