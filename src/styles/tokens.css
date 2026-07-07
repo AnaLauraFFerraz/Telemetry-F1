@@ -1,0 +1,33 @@
+/**
+ * Sistema de design do app - modo escuro único e deliberado. Um painel de
+ * cockpit não tem uma variante "clara" de verdade, então não criamos uma.
+ * Portado do mockup aprovado (artifacts de UI da Fase de design visual).
+ */
+:root {
+  --ground: #17151b;
+  --panel: #211f28;
+  --panel-2: #2a2733;
+  --panel-inset: #1a1820;
+  --hairline: #3a3644;
+
+  --ink: #edeae3;
+  --ink-dim: #938fa0;
+  --ink-faint: #625f6e;
+
+  --accent: #e8a33d;
+  --accent-cool: #4fd1e0;
+  --best: #b892ff;
+
+  --good: #3ddc84;
+  --warn: #f5c242;
+  --danger: #ff4f4f;
+
+  --tyre-fl: #f2846b;
+  --tyre-fr: #e88bb0;
+  --tyre-rl: #7eb6e0;
+  --tyre-rr: #7fd8b8;
+
+  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", Consolas, "SFMono-Regular", Menlo,
+    monospace;
+  --font-sans: ui-sans-serif, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
