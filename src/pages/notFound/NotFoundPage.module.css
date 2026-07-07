@@ -1,0 +1,27 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.title {
+  font-size: 22px;
+  margin: 0 0 8px;
+}
+
+.sub {
+  color: var(--ink-dim);
+  font-size: 13px;
+  margin: 0 0 20px;
+}
+
+.link {
+  color: var(--accent-cool);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
