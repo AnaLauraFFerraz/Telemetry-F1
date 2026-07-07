@@ -1,0 +1,152 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.back {
+  font-size: 12px;
+  color: var(--ink-dim);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-top: 4px;
+}
+
+.stats {
+  display: flex;
+  gap: 22px;
+}
+
+.stat {
+  text-align: right;
+}
+
+.statLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.statBest .statValue {
+  color: var(--best);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 16px 18px;
+}
+
+.panelTitle {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.panelSub {
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin: 0 0 14px;
+}
+
+.chartsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chartPanel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 14px 16px 8px;
+}
+
+.chartHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chartLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.legend {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+.swatch {
+  display: inline-block;
+  width: 9px;
+  height: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+  border-radius: 1px;
+}
+
+.state {
+  color: var(--ink-dim);
+  font-size: 13px;
+}
