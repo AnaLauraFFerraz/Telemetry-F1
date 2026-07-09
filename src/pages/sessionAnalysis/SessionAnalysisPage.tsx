@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSessionDetail } from "@/api/useSessionDetail";
 import { useLapTelemetry } from "@/api/useLapTelemetry";
+import { useCoachAnalysis } from "@/api/useCoachAnalysis";
 import { LapsTable } from "@/components/sessions/LapsTable";
 import { CoachPanel } from "@/components/coach/CoachPanel";
-import { Chart, type ChartSeries } from "@/components/chart/Chart";
+import { TrackMap } from "@/components/coach/TrackMap";
+import { Chart, type ChartSeries, type ChartMarker, type ChartHighlightRange } from "@/components/chart/Chart";
 import { computeDelta } from "@/components/chart/computeDelta";
+import { topOpportunities } from "@/utils/coachInsights";
 import { findBestLap } from "@/utils/laps";
 import { formatLapTime } from "@/utils/formatLapTime";
 import { formatSessionDateTime } from "@/utils/formatDate";
@@ -26,12 +29,6 @@ function toSeries(samples: CarTelemetrySample[], pick: (s: CarTelemetrySample) =
   return samples.map((s) => [s.lapDistance, pick(s)]);
 }
 
-/**
- * Domínio Y calculado a partir dos dados reais, com margem - domínios fixos
- * cortam o gráfico fora quando o valor real passa do esperado (ex: um delta
- * acumulado maior que os ±2s hardcoded antes, ou uma velocidade de pico
- * maior que 330km/h num carro bem configurado).
- */
 function computeYDomain(seriesList: ChartSeries[], fallback: [number, number], marginRatio = 0.15): [number, number] {
   let min = Infinity;
   let max = -Infinity;
@@ -57,6 +54,8 @@ export default function SessionAnalysisPage() {
   const result = useSessionDetail(sessionId);
 
   const [comparisonLapNumber, setComparisonLapNumber] = useState<number | null>(null);
+  const [highlightedCornerIndex, setHighlightedCornerIndex] = useState<number | null>(null);
+  const { state: coachState, analyze: analyzeCoach } = useCoachAnalysis(sessionId);
 
   const laps = result.status === "success" ? result.data.laps : [];
   const bestLap = findBestLap(laps);
@@ -71,13 +70,18 @@ export default function SessionAnalysisPage() {
     if (best && latest && best.lapNumber !== latest.lapNumber) {
       setComparisonLapNumber(best.lapNumber);
     }
-    // roda só até uma comparação ser definida, não a cada mudança de comparisonLapNumber
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
   function handleToggleCompare(lapNumber: number) {
     if (lapNumber === primaryLapNumber) return; // volta atual não é des-selecionável
     setComparisonLapNumber((prev) => (prev === lapNumber ? null : lapNumber));
+  }
+
+  function handleAnalyzeCoach() {
+    if (primaryLapNumber === null || comparisonLapNumber === null) return;
+    setHighlightedCornerIndex(null);
+    analyzeCoach(primaryLapNumber, comparisonLapNumber);
   }
 
   const primaryTelemetry = useLapTelemetry(sessionId, primaryLapNumber);
@@ -151,12 +155,32 @@ export default function SessionAnalysisPage() {
     { label: "Delta", color: deltaEnd >= 0 ? "var(--danger)" : "var(--good)", area: true, points: deltaPoints },
   ];
 
+  const isCoachStale =
+    coachState.status !== "idle" && (coachState.lapA !== primaryLapNumber || coachState.lapB !== comparisonLapNumber);
+  const insights = coachState.status === "success" && !isCoachStale ? coachState.data.insights : null;
+
+  const opportunities = insights ? topOpportunities(insights) : [];
+  const cornerMarkers: ChartMarker[] = opportunities.map((c, i) => ({
+    x: c.corner.apexDistance,
+    label: `${i + 1}`,
+    active: c.corner.index === highlightedCornerIndex,
+  }));
+  const highlightedCorner = opportunities.find((c) => c.corner.index === highlightedCornerIndex) ?? null;
+  const highlightRange: ChartHighlightRange | null = highlightedCorner
+    ? { xStart: highlightedCorner.corner.brakingStartDistance, xEnd: highlightedCorner.corner.exitDistance }
+    : null;
+
+  const primaryMapPoints: [number, number][] = primaryData
+    ? primaryData.motion.map((m) => [m.worldPosition.x, m.worldPosition.z])
+    : [];
+  const comparisonMapPoints: [number, number][] = comparisonData
+    ? comparisonData.motion.map((m) => [m.worldPosition.x, m.worldPosition.z])
+    : [];
+
   const [speedYMinRaw, speedYMax] = computeYDomain(speedSeries, [0, 330]);
-  const speedYMin = Math.max(0, speedYMinRaw); // velocidade nunca é negativa
+  const speedYMin = Math.max(0, speedYMinRaw);
 
   const [deltaYMinRaw, deltaYMaxRaw] = computeYDomain(deltaSeries, [-2, 2]);
-  // o eixo zero do delta divergente precisa ficar sempre visível, mesmo que
-  // os dados fiquem só de um lado (ex: principal sempre atrás da comparação)
   const deltaYMin = Math.min(deltaYMinRaw, -0.1);
   const deltaYMax = Math.max(deltaYMaxRaw, 0.1);
 
@@ -204,7 +228,27 @@ export default function SessionAnalysisPage() {
               />
             </div>
 
-            <CoachPanel sessionId={sessionId} primaryLapNumber={primaryLapNumber} comparisonLapNumber={comparisonLapNumber} />
+            <CoachPanel
+              state={coachState}
+              isStale={isCoachStale}
+              primaryLapNumber={primaryLapNumber}
+              comparisonLapNumber={comparisonLapNumber}
+              onAnalyze={handleAnalyzeCoach}
+              highlightedCornerIndex={highlightedCornerIndex}
+              onHighlightCorner={setHighlightedCornerIndex}
+            />
+
+            {comparisonLapNumber !== null && (
+              <div className={styles.panel}>
+                <div className={styles.panelTitle}>Traçado</div>
+                <TrackMap
+                  primaryPoints={primaryMapPoints}
+                  comparisonPoints={comparisonMapPoints}
+                  primaryLabel={`Volta ${primaryLapNumber}`}
+                  comparisonLabel={`Volta ${comparisonLapNumber}`}
+                />
+              </div>
+            )}
           </div>
 
           <div className={styles.chartsCol}>
@@ -225,6 +269,8 @@ export default function SessionAnalysisPage() {
                 xFormatter={(x) => `${Math.round(x)}m`}
                 yFormatter={(y) => `${y >= 0 ? "+" : ""}${y.toFixed(2)}s`}
                 ariaLabel="Delta de tempo acumulado entre as duas voltas selecionadas"
+                markers={cornerMarkers}
+                highlightRange={highlightRange}
               />
             </div>
 
@@ -249,6 +295,8 @@ export default function SessionAnalysisPage() {
                 xFormatter={(x) => `${Math.round(x)}m`}
                 yFormatter={(y) => `${Math.round(y)}`}
                 ariaLabel="Velocidade por distância"
+                markers={cornerMarkers}
+                highlightRange={highlightRange}
               />
             </div>
 
@@ -275,6 +323,8 @@ export default function SessionAnalysisPage() {
                 xFormatter={(x) => `${Math.round(x)}m`}
                 yFormatter={(y) => `${Math.round(y)}%`}
                 ariaLabel="Acelerador e freio por distância"
+                markers={cornerMarkers}
+                highlightRange={highlightRange}
               />
             </div>
 
