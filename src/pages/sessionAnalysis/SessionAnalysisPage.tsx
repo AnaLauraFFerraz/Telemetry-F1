@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSessionDetail } from "@/api/useSessionDetail";
 import { useLapTelemetry } from "@/api/useLapTelemetry";
 import { LapsTable } from "@/components/sessions/LapsTable";
+import { CoachPanel } from "@/components/coach/CoachPanel";
 import { Chart, type ChartSeries } from "@/components/chart/Chart";
 import { computeDelta } from "@/components/chart/computeDelta";
 import { findBestLap } from "@/utils/laps";
@@ -191,15 +192,19 @@ export default function SessionAnalysisPage() {
         <p className={styles.state}>Nenhuma volta completada nessa sessão ainda.</p>
       ) : (
         <div className={styles.grid}>
-          <div className={styles.panel}>
-            <div className={styles.panelTitle}>Voltas</div>
-            <div className={styles.panelSub}>Marque uma volta pra comparar com a mais recente</div>
-            <LapsTable
-              laps={laps}
-              bestLapTimeMs={bestLap?.lapTimeMs ?? null}
-              selectedLapNumbers={selectedLapNumbers}
-              onToggleCompare={handleToggleCompare}
-            />
+          <div className={styles.sidebarCol}>
+            <div className={styles.panel}>
+              <div className={styles.panelTitle}>Voltas</div>
+              <div className={styles.panelSub}>Marque uma volta pra comparar com a mais recente</div>
+              <LapsTable
+                laps={laps}
+                bestLapTimeMs={bestLap?.lapTimeMs ?? null}
+                selectedLapNumbers={selectedLapNumbers}
+                onToggleCompare={handleToggleCompare}
+              />
+            </div>
+
+            <CoachPanel sessionId={sessionId} primaryLapNumber={primaryLapNumber} comparisonLapNumber={comparisonLapNumber} />
           </div>
 
           <div className={styles.chartsCol}>

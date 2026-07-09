@@ -1,0 +1,77 @@
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 16px 18px;
+}
+
+.panelTitle {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.panelSub {
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin: 0 0 14px;
+}
+
+.state {
+  color: var(--ink-dim);
+  font-size: 13px;
+  margin: 0;
+}
+
+.stateError {
+  color: var(--danger);
+  font-size: 12px;
+  margin: 0 0 12px;
+}
+
+.analyzeButton {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ground);
+  background: var(--accent);
+  border: none;
+  border-radius: 5px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.analyzeButton:disabled {
+  background: var(--panel-2);
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+.cachedBadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-cool);
+  background: var(--panel-inset);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 2px 7px;
+  margin-bottom: 10px;
+}
+
+.analysisText {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.paragraph {
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}

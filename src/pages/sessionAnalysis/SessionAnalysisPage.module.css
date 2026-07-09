@@ -75,6 +75,12 @@
   align-items: start;
 }
 
+.sidebarCol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;
