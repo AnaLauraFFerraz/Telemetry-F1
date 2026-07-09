@@ -30,6 +30,37 @@
   stroke-width: 1;
 }
 
+.highlightRange {
+  fill: var(--accent);
+  opacity: 0.12;
+}
+
+.marker line {
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+
+.marker text {
+  fill: var(--ink-faint);
+}
+
+.markerActive line {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: none;
+}
+
+.markerActive text {
+  fill: var(--accent);
+  font-weight: 700;
+}
+
+.markerLabel {
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+
 .tooltip {
   position: absolute;
   top: 6px;

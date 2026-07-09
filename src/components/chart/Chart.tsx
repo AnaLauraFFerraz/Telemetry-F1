@@ -10,6 +10,17 @@ export interface ChartSeries {
   area?: boolean;
 }
 
+export interface ChartMarker {
+  x: number;
+  label?: string;
+  active?: boolean;
+}
+
+export interface ChartHighlightRange {
+  xStart: number;
+  xEnd: number;
+}
+
 interface ChartProps {
   series: ChartSeries[];
   xMin: number;
@@ -21,6 +32,10 @@ interface ChartProps {
   yFormatter?: (y: number) => string;
   height?: number;
   ariaLabel: string;
+  /** Marcadores verticais (ex: curvas detectadas pelo Coach) - só leitura, sem interação própria. */
+  markers?: ChartMarker[];
+  /** Faixa destacada (ex: curva selecionada no painel Coach). */
+  highlightRange?: ChartHighlightRange | null;
 }
 
 const SVG_WIDTH = 600;
@@ -29,8 +44,20 @@ const PAD_RIGHT = 10;
 const PAD_TOP = 10;
 const PAD_BOTTOM = 22;
 
-/** Componente de gráfico SVG genérico, sem lib externa - reutilizado pelos 4 gráficos da Tela 2. */
-export function Chart({ series, xMin, xMax, yMin, yMax, diverging, xFormatter, yFormatter, height = 170, ariaLabel }: ChartProps) {
+export function Chart({
+  series,
+  xMin,
+  xMax,
+  yMin,
+  yMax,
+  diverging,
+  xFormatter,
+  yFormatter,
+  height = 170,
+  ariaLabel,
+  markers,
+  highlightRange,
+}: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const plotWidth = SVG_WIDTH - PAD_LEFT - PAD_RIGHT;
   const plotHeight = height - PAD_TOP - PAD_BOTTOM;
@@ -55,6 +82,16 @@ export function Chart({ series, xMin, xMax, yMin, yMax, diverging, xFormatter, y
   return (
     <div className={styles.wrap} ref={containerRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
       <svg viewBox={`0 0 ${SVG_WIDTH} ${height}`} className={styles.svg} role="img" aria-label={ariaLabel}>
+        {highlightRange && (
+          <rect
+            x={sx(Math.max(highlightRange.xStart, xMin))}
+            y={PAD_TOP}
+            width={Math.max(0, sx(Math.min(highlightRange.xEnd, xMax)) - sx(Math.max(highlightRange.xStart, xMin)))}
+            height={plotHeight}
+            className={styles.highlightRange}
+          />
+        )}
+
         {gridLines.map((gy) => (
           <g key={gy}>
             <line x1={PAD_LEFT} y1={sy(gy)} x2={SVG_WIDTH - PAD_RIGHT} y2={sy(gy)} className={styles.grid} />
@@ -81,6 +118,21 @@ export function Chart({ series, xMin, xMax, yMin, yMax, diverging, xFormatter, y
               {areaD && <path d={areaD} fill={s.color} opacity={0.16} stroke="none" />}
               <path d={d} fill="none" stroke={s.color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               <circle cx={sx(last[0])} cy={sy(last[1])} r={3} fill={s.color} />
+            </g>
+          );
+        })}
+
+        {markers?.map((marker, i) => {
+          if (marker.x < xMin || marker.x > xMax) return null;
+          const mx = sx(marker.x);
+          return (
+            <g key={i} className={marker.active ? styles.markerActive : styles.marker}>
+              <line x1={mx} y1={PAD_TOP} x2={mx} y2={height - PAD_BOTTOM} />
+              {marker.label && (
+                <text x={mx} y={PAD_TOP + 9} textAnchor="middle" className={styles.markerLabel}>
+                  {marker.label}
+                </text>
+              )}
             </g>
           );
         })}
