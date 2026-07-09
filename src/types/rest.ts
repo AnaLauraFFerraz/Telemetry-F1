@@ -66,3 +66,69 @@ export interface LapTelemetryResponse {
   carTelemetry: CarTelemetrySample[];
   motion: MotionSample[];
 }
+
+/**
+ * Espelha TelemetryF1_API/src/analysis/types.ts (LapInsights e afins) - o
+ * JSON de insights que o endpoint de coaching devolve junto da análise em
+ * texto. Mesma regra de duplicação intencional dos outros tipos deste
+ * arquivo: repos separados, atualizar manualmente se o backend mudar.
+ */
+export type Wheel = "rearLeft" | "rearRight" | "frontLeft" | "frontRight";
+export type CornerSeverity = "slow" | "medium" | "fast";
+
+export interface Corner {
+  index: number;
+  apexDistance: number;
+  apexSpeed: number;
+  brakingStartDistance: number;
+  exitDistance: number;
+  severity: CornerSeverity;
+}
+
+export interface BrakingInsight {
+  brakingPointDiffM: number | null;
+  peakBrakeDiff: number | null;
+  trailBrakingPrimary: boolean;
+  trailBrakingComparison: boolean;
+}
+
+export interface ThrottleInsight {
+  throttleOnDiffM: number | null;
+  coastingTimePrimaryS: number;
+  coastingTimeComparisonS: number;
+  throttleOscillationPrimary: number;
+  throttleOscillationComparison: number;
+}
+
+export interface LineDeviationInsight {
+  maxLateralDeviationM: number;
+  avgLateralDeviationM: number;
+}
+
+export interface TyreWindowInsight {
+  wheel: Wheel;
+  distanceStart: number;
+  distanceEnd: number;
+  avgTempC: number;
+  status: "cold" | "hot";
+}
+
+export interface CornerInsight {
+  corner: Corner;
+  deltaLossS: number;
+  braking: BrakingInsight;
+  throttle: ThrottleInsight;
+  lineDeviation: LineDeviationInsight | null;
+}
+
+export interface LapInsights {
+  totalDeltaS: number;
+  corners: CornerInsight[];
+  tyreWindowExcursions: TyreWindowInsight[];
+}
+
+export interface CoachAnalysisResponse {
+  analysis: string;
+  insights: LapInsights;
+  cached: boolean;
+}

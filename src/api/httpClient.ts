@@ -18,3 +18,16 @@ export async function httpGet<T>(path: string): Promise<T> {
   }
   return res.json() as Promise<T>;
 }
+
+export async function httpPost<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${env.httpApiUrl}${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const errBody = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new ApiError(res.status, errBody?.error ?? res.statusText);
+  }
+  return res.json() as Promise<T>;
+}
