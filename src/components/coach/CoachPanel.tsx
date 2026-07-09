@@ -1,30 +1,30 @@
-import { useCoachAnalysis } from "@/api/useCoachAnalysis";
+import type { CoachAnalysisState } from "@/api/useCoachAnalysis";
+import { topOpportunities } from "@/utils/coachInsights";
 import styles from "./CoachPanel.module.css";
 
 interface CoachPanelProps {
-  sessionId: number;
+  state: CoachAnalysisState;
+  isStale: boolean;
   primaryLapNumber: number | null;
   comparisonLapNumber: number | null;
+  onAnalyze: () => void;
+  highlightedCornerIndex: number | null;
+  onHighlightCorner: (index: number | null) => void;
 }
 
-export function CoachPanel({ sessionId, primaryLapNumber, comparisonLapNumber }: CoachPanelProps) {
-  const { state, analyze } = useCoachAnalysis(sessionId);
-
+export function CoachPanel({
+  state,
+  isStale,
+  primaryLapNumber,
+  comparisonLapNumber,
+  onAnalyze,
+  highlightedCornerIndex,
+  onHighlightCorner,
+}: CoachPanelProps) {
   const canAnalyze = primaryLapNumber !== null && comparisonLapNumber !== null;
-  // Resultado (ou erro) de um par antigo - usuário trocou a volta de
-  // comparação depois de já ter analisado/tentado. Trata como se nada
-  // tivesse acontecido ainda, em vez de mostrar um resultado ou erro que
-  // não corresponde mais à seleção atual da tabela.
-  const isStale =
-    state.status !== "idle" && (state.lapA !== primaryLapNumber || state.lapB !== comparisonLapNumber);
   const showLoading = state.status === "loading" && !isStale;
   const showError = state.status === "error" && !isStale;
   const showResult = state.status === "success" && !isStale;
-
-  function handleAnalyze() {
-    if (primaryLapNumber === null || comparisonLapNumber === null) return;
-    analyze(primaryLapNumber, comparisonLapNumber);
-  }
 
   return (
     <div className={styles.panel}>
@@ -39,7 +39,7 @@ export function CoachPanel({ sessionId, primaryLapNumber, comparisonLapNumber }:
       {showError && state.status === "error" && (
         <>
           <p className={styles.stateError}>{state.error}</p>
-          <button className={styles.analyzeButton} onClick={handleAnalyze} disabled={!canAnalyze}>
+          <button className={styles.analyzeButton} onClick={onAnalyze} disabled={!canAnalyze}>
             Tentar de novo
           </button>
         </>
@@ -48,6 +48,28 @@ export function CoachPanel({ sessionId, primaryLapNumber, comparisonLapNumber }:
       {showResult && state.status === "success" && (
         <>
           {state.data.cached && <div className={styles.cachedBadge}>Análise em cache</div>}
+
+          {(() => {
+            const opportunities = topOpportunities(state.data.insights);
+            if (opportunities.length === 0) return null;
+            return (
+              <div className={styles.chips}>
+                {opportunities.map((c, i) => {
+                  const active = highlightedCornerIndex === c.corner.index;
+                  return (
+                    <button
+                      key={c.corner.index}
+                      className={active ? styles.chipActive : styles.chip}
+                      onClick={() => onHighlightCorner(active ? null : c.corner.index)}
+                    >
+                      {i + 1}. {Math.round(c.corner.apexDistance)}m · +{c.deltaLossS.toFixed(2)}s
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
           <div className={styles.analysisText}>
             {state.data.analysis.split(/\n{2,}/).map((paragraph, i) => (
               <p key={i} className={styles.paragraph}>
@@ -65,7 +87,7 @@ export function CoachPanel({ sessionId, primaryLapNumber, comparisonLapNumber }:
               ? `Compare a volta ${primaryLapNumber} com a volta ${comparisonLapNumber} e receba onde priorizar o próximo treino.`
               : "Marque uma volta na tabela ao lado pra comparar antes de pedir uma análise."}
           </p>
-          <button className={styles.analyzeButton} onClick={handleAnalyze} disabled={!canAnalyze}>
+          <button className={styles.analyzeButton} onClick={onAnalyze} disabled={!canAnalyze}>
             Analisar diferença
           </button>
         </>
