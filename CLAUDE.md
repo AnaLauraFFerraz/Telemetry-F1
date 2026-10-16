@@ -66,6 +66,9 @@ These are also listed under "Known limitations" in the README. When a limitation
 - Open the app at `http://localhost:5173`. The dev server may bind only to the IPv6 loopback, in which case `http://127.0.0.1:5173` shows nothing.
 - Reconnection is exponential backoff `min(1000 * 2^attempt, 15000)` ms, retried forever. There is no client-side heartbeat, and the `disconnected` state is never set.
 - The chart crosshair/tooltip is mouse-only.
+- The primary lap is always the most recent one; only the comparison lap is selectable.
+- Dashboard tyre colours (`components/tyres/tyreColor.ts`) use 70–110 °C, while the API's analysis uses 85–105 °C.
+- A missing `VITE_*` variable throws at module load, before React renders: blank page.
 - Without the backend's `ANTHROPIC_API_KEY`, the coach panel shows the 503 message.
 
 ## How to work in this repo
