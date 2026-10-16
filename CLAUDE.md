@@ -59,6 +59,15 @@ The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: wh
 - Never rewrite published git history.
 - New features follow Spec Driven Development: spec, plan and tasks are committed before the implementation.
 
+## Spec Driven Development
+
+Spec Kit 1.2.0 (Claude Code integration, PowerShell scripts). The constitution is `.specify/memory/constitution.md`; read it before planning.
+
+- Flow: `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → (`/speckit-analyze`) → `/speckit-implement` → `/speckit-converge`.
+- Each feature lives in `specs/NNN-short-name/` (`spec.md`, `plan.md`, `tasks.md`, ...). Commit those artifacts (`docs:`) before any implementation commit.
+- The API repo owns the REST/WebSocket contract. A feature that depends on a contract change references the API spec instead of redefining the contract here.
+- The project existed before SDD was adopted; only features from `specs/001` onward were built this way.
+
 ## Known pitfalls
 
 These are also listed under "Known limitations" in the README. When a limitation is fixed, remove it from both this file and the README in the same PR.
