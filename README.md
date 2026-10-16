@@ -95,4 +95,5 @@ Planned with Spec Driven Development, mostly on the API side:
 
 1. Real-time replay of recorded sessions (prerequisite for the demo).
 2. Stable API error codes, with this app deciding by code instead of matching message strings.
-3. **Public demo** running from a recorded session, and **CI** (lint, tests, build) on GitHub Actions.
+3. Tyre temperature windows served by the API and consumed here, so the dashboard and the analysis use the same ranges (pending a check on whether the ideal window depends on the compound).
+4. **Public demo** running from a recorded session, and **CI** (lint, tests, build) on GitHub Actions.
