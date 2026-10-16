@@ -61,6 +61,8 @@ The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: wh
 
 ## Known pitfalls
 
+These are also listed under "Known limitations" in the README. When a limitation is fixed, remove it from both this file and the README in the same PR.
+
 - Open the app at `http://localhost:5173`. The dev server may bind only to the IPv6 loopback, in which case `http://127.0.0.1:5173` shows nothing.
 - Reconnection is exponential backoff `min(1000 * 2^attempt, 15000)` ms, retried forever. There is no client-side heartbeat, and the `disconnected` state is never set.
 - The chart crosshair/tooltip is mouse-only.
