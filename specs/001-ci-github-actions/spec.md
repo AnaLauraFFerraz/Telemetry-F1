@@ -219,7 +219,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 ## Assumptions
 
 - A origem do padrão é a spec 002 do repositório `TelemetryF1_API`. Cada decisão herdada dela está escrita nesta spec (checks separados e sempre executados, CI chamando só scripts do `package.json`, permissão só de leitura, critérios do ruleset, procedimento de último recurso, selo sem números, constituição emendada em PR separado); a API é citada como origem, nunca como substituto do texto. Onde o front diverge, esta spec registra o motivo.
-- Os nomes exatos do workflow e dos checks serão fixados no plano; a spec exige apenas que sejam estáveis, únicos e documentados. Seguindo a convenção do projeto (identificadores em inglês), a sugestão inicial é Typecheck, Lint, Test e Build.
+- Os checks se chamam `typecheck`, `lint`, `test` e `build`, em minúsculas e iguais aos scripts do `package.json` que cada um roda, no mesmo padrão da API. O nome do arquivo e do workflow é fixado no plano; a spec exige que todos sejam estáveis, únicos e documentados.
 - O repositório é público ou o plano do GitHub permite rulesets e Actions sem custo adicional para este uso.
 - A configuração do ruleset acontece depois do merge do PR desta feature: o GitHub só lista como obrigatórios checks que já rodaram (a CI roda no próprio PR da feature), e aplicar antes travaria PRs abertos a partir da `main` antiga.
 - A emenda da constituição (mencionar CI, versão do Node) é um PR separado, depois que a CI funcionar, como foi feito na API.
