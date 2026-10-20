@@ -155,9 +155,10 @@ Ajuste da dona do repositório: a filtragem de `node_modules` fica **dentro da f
   - lista vazia reprova com a mensagem em português;
   - N arquivos passam com a contagem;
   - `src/node_modules/x/a.test.ts` e `src\node_modules\x\a.test.ts` são descartados;
-  - nomes parecidos, como `src/node_modules_old/a.test.ts`, são mantidos.
+  - nomes parecidos, como `src/node_modules_old/a.test.ts`, são mantidos;
+  - cada caso de `filterTestFiles` mistura um caminho mantido e um descartado, para que nem a lista sem filtrar nem a lista vazia passem.
 
-  Escrito antes do módulo e falhando primeiro pelo motivo certo: `ERR_MODULE_NOT_FOUND` para `tools/testDiscovery.ts`.
+  Escrito antes do módulo e rodado primeiro contra um esboço de `tools/testDiscovery.ts` que exporta os três nomes com resultados errados (`filterTestFiles` devolve a lista sem filtrar). Cada teste tem de falhar na própria asserção. Um `ERR_MODULE_NOT_FOUND` não serve como primeira falha: todos os testes do arquivo cairiam ao carregar, antes de qualquer asserção, e não daria para saber se algum passaria pelo motivo errado.
 - A ligação com o disco (o `globSync` de verdade) é verificada pelos runs manuais da fase 1 e pela contagem no primeiro run do Linux, não por teste unitário.
 
 ### D11. Documentação
@@ -206,7 +207,7 @@ Commits, nesta ordem, cada um com as correções de documentação do D11:
 1. `.nvmrc` com `22` e `engines.node` `>=22.17`.
 2. Script `typecheck`.
 3. Script `test` com o glob entre aspas duplas.
-4. Guarda: o teste da função pura primeiro, falhando pelo motivo certo; depois `tools/testDiscovery.ts`, `tools/assertTestFiles.ts`, o `pretest` e `tools` no `tsconfig.node.json`.
+4. Guarda: o teste da função pura primeiro, falhando na própria asserção contra um esboço errado (D10); depois `tools/testDiscovery.ts`, `tools/assertTestFiles.ts`, o `pretest` e `tools` no `tsconfig.node.json`.
 
 Verificação no Windows, registrada no research.md:
 - `npm run typecheck` exit 0, e exit 2 com um erro injetado em `src/` e em `tools/` (revertidos);
@@ -260,6 +261,8 @@ A dona do repositório confere `fnm use` no próprio terminal: deve resolver par
 4. **Push direto recusado**: de uma branch descartável criada de `origin/main`, sem tocar na `main` local, `git push origin HEAD:main` tem de ser recusado com `GH013`, mesmo para a administradora. Depois, `git ls-remote --heads origin` confirma a `main` remota inalterada.
 5. **Não refeito aqui**: que um PR roda a própria versão do workflow já foi provado na API (T033, PR #6, run 39473001785) e é citado como origem (research ponto 9).
 6. Um PR `docs:` com a evidência (research.md, prints, marcações em tasks.md e o Status da spec) é o primeiro merge pela regra nova, e o próprio merge serve de prova de que um PR verde e atualizado entra.
+   - O `/speckit-converge` roda na branch desse PR **antes do push**, para que os achados aprovados entrem no mesmo PR.
+   - Esse PR não pode registrar o próprio merge. O registro do merge permitido (número do PR e hora do merge, `mergedAt`, conferidos pela API do GitHub) vai no PR seguinte, o da emenda da constituição (fase 5).
 
 ### Fase 5 — fora desta feature, listada para não esquecer
 
@@ -271,6 +274,8 @@ PR separado de **emenda da constituição do front**, depois que a CI funcionar,
 - o fim da lista manual de testes: "each test file is listed in the `test` script" dá lugar à descoberta automática de `src/**/*.test.ts`.
 
 O `CLAUDE.md` perde a nota de divergência e passa a listar `ci:` no mesmo PR.
+
+O mesmo PR leva, no `research.md` desta spec, o registro do merge do PR de evidência da fase 4: número do PR e `mergedAt`, conferidos pela API do GitHub, com as marcações `[x]` das tarefas desse merge.
 
 ## Artefatos que não se aplicam
 
