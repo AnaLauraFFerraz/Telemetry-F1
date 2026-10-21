@@ -189,9 +189,9 @@ Conteúdo novo, no commit `docs:` da fase 3:
 - A regra "each test file is listed in the `test` script" é emendada **no mesmo commit** que troca a lista pelo glob (`test: discover test files with a quoted glob`), junto com o `CLAUDE.md`. Assim nenhum commit da feature deixa a constituição contrariando o código.
 - A emenda usa o `/speckit-constitution` naquele momento da implementação:
   - a versão é proposta pela regra de versionamento da própria constituição (MAJOR, MINOR ou PATCH), com o motivo da escolha;
-  - o Sync Impact Report fica no topo do arquivo;
+  - o Sync Impact Report **não** fica no arquivo da constituição: vai no corpo do commit da emenda e na descrição do PR da feature. Motivo: a constituição descreve as regras atuais, e o histórico da mudança fica no git; o `/speckit-constitution` trata o relatório como material temporário de revisão;
   - **a proposta é mostrada à dona do repositório antes de ser aplicada**.
-- A Governança pede que emendas passem por um PR que diga o motivo: o corpo do PR da feature registra a emenda parcial e o motivo.
+- A Governança pede que emendas passem por um PR que diga o motivo: o corpo do PR da feature registra a emenda parcial, o motivo e o Sync Impact Report.
 - O resto da emenda continua no PR separado da fase 5.
 
 ## Trade-offs decididos
@@ -288,6 +288,8 @@ PR separado de **emenda da constituição do front**, depois que a CI funcionar,
 - o mínimo Node.js ≥ 22.17;
 - o tipo de commit `ci:` na lista de Conventional Commits;
 - o esclarecimento de que "in separate commits", no fluxo SDD, quer dizer separados da implementação: commits de correção podem tocar mais de um artefato (spec, plan, tasks).
+
+A emenda completa segue a mesma regra do D12: o Sync Impact Report vai no corpo do commit e na descrição do PR da emenda, não no arquivo da constituição.
 
 O fim da lista manual de testes não está nesta lista: entra antes, na emenda parcial do D12.
 
