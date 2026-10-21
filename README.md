@@ -68,7 +68,7 @@ npm test          # Node's built-in runner with --experimental-strip-types; find
 
 The tests cover pure functions: chart path building and nearest-point search, cumulative delta interpolation, track map projection and the coach opportunity ranking. There are no component or hook tests yet.
 
-`npm test` first runs a guard that fails when no test file is found, because `node --test` exits with 0 on an empty glob.
+`npm test` first runs a guard that fails when no test file is found, because `node --test` exits with 0 on an empty glob. The guard also fails when the `test` script in `package.json` does not contain the glob in double quotes, because with single quotes cmd runs zero tests and exits with 0.
 
 ## Technical decisions and trade-offs
 

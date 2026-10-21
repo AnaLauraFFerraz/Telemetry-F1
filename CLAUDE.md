@@ -18,7 +18,7 @@ npm run dev       # Vite dev server on http://localhost:5173
 npm run build     # tsc -b && vite build
 npm run lint      # eslint .
 npm run typecheck  # type-check only (src/, tools/ and vite.config.ts), no bundle
-npm test          # runs the test-discovery guard, then node --experimental-strip-types --test "src/**/*.test.ts"
+npm test          # runs the guard (files found, glob quoted in the script), then node --experimental-strip-types --test "src/**/*.test.ts"
 npm run preview   # serve the production build
 ```
 
