@@ -14,7 +14,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Path aliases (resolvidos em runtime pelo plugin vite-tsconfig-paths) */
+    /* Path aliases (resolvidos em runtime pelo Vite, com resolve.tsconfigPaths) */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
