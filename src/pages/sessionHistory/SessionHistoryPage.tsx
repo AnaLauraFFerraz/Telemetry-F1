@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { useSessions } from "@/api/useSessions";
 import { SessionsTable } from "@/components/sessions/SessionsTable";
 import styles from "./SessionHistoryPage.module.css";

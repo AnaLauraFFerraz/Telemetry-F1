@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useTelemetry } from "@/context/useTelemetry";
 import { useSessions } from "@/api/useSessions";
 import { env } from "@/config/env";
