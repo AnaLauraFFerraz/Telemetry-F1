@@ -52,18 +52,17 @@ The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: wh
 - Coaching is a paid API call on a server cache miss: it only runs on explicit user action, never automatically.
 - Tests cover pure functions only. Test files import with relative paths **including `.ts`** (Node cannot resolve the `@/` alias); a module under test may use `@/` only for type-only imports. Any `*.test.ts` under `src/` is discovered automatically.
 - Documentation refers to roles (the maintainer), not to people. This applies to specs, plans, research, tasks and new records alike.
-- Commits: small, Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`), English subject, **no `Co-Authored-By` trailer**.
+- Commits: small, Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`, `ci:`), English subject, **no `Co-Authored-By` trailer**.
 
 ## Rules
 
 - Never commit secrets (`.env` is gitignored via `*.env`; `.env.example` is tracked).
-- Run `npm test`, `npm run lint` and `npm run build` before every commit; report any failure instead of committing around it.
+- Run `npm run typecheck`, `npm test`, `npm run lint` and `npm run build` before every commit; report any failure instead of committing around it.
 - Documentation must describe only what exists in the code. Partial features are described as partial; no invented metrics or results.
 - Never rewrite published git history.
 - New features follow Spec Driven Development: spec, plan and tasks are committed before the implementation.
 - The check names (`typecheck`, `lint`, `test`, `build`) and the file name `.github/workflows/ci.yml` are a contract with the branch ruleset and the README badge. Renaming a job (`typecheck`, `lint`, `test`, `build`) requires updating the ruleset's required checks in the same change; renaming `ci.yml` requires updating the README badge.
 - Third-party GitHub Actions (owner other than `actions/`) are referenced only by full commit SHA with a version comment (`uses: owner/action@<sha-40>  # vX.Y.Z`). First-party `actions/*` use the major tag.
-- Temporary divergence from the constitution (v1.1.0), until the amendment PR: the constitution still says Node ≥ 22.6 while the project requires ≥ 22.17, and it does not put `npm run typecheck` in the pre-commit gates or the CI as a merge gate. Run `npm run typecheck` before commits anyway; the CI runs it.
 
 ## Spec Driven Development
 
