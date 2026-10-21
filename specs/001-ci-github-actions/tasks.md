@@ -314,7 +314,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Demonstração: `build` (caixa do CSS, T4-A)
 
-- [ ] T044 [US4] Branch `demo/build-css-case` a partir de `origin/main`.
+- [X] T044 [US4] Branch `demo/build-css-case` a partir de `origin/main`.
   - Em `src/components/chart/Chart.tsx`, trocar `import styles from "./Chart.module.css"` por `"./chart.module.css"`.
   - Checagem local esperada no Windows: **`typecheck`, `lint`, `test` e `build` passam todos**. É o objetivo da demonstração: o Windows aceita, só a CI no Linux deve reprovar (research ponto 4).
   - Commitar `chore: demo CSS import case mismatch (do not merge)`.
@@ -322,7 +322,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Registrar: só `build` ✗, com a linha de erro do Vite no log.
   - Se o Linux **não** reprovar, registrar o achado e refazer a demonstração com um import de `./Missing.module.css` inexistente, no mesmo PR, com novo commit e **[PARADA]** antes do push.
   - (FR-024; SC-002; edge case de caixa no Linux)
-- [ ] T045 [US4] **[MANUAL]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-build-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
+- [X] T045 [US4] **[MANUAL]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-build-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
 
 ### Push direto
 
