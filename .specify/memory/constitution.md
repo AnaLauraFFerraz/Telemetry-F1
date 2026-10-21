@@ -30,7 +30,7 @@ The UI shows "—" or an explicit state when data is missing instead of a fabric
 
 ## Technology and Quality Constraints
 
-- React 18, TypeScript in `strict` mode, Vite 5, React Router 6, Node.js ≥ 22.6 for tooling.
+- React 18, TypeScript in `strict` mode, Vite 5, React Router 6, Node.js ≥ 22.17 for tooling (the first release with a stable `fs.globSync`, used by the test-discovery guard), with the major version pinned in `.nvmrc`.
 - Tests use Node's built-in runner with `--experimental-strip-types` and cover pure functions. Test files import with relative paths including `.ts`, and every `*.test.ts` under `src/` is discovered automatically by the glob `src/**/*.test.ts` in the `test` script; no list of test files is kept by hand. New pure logic comes with unit tests.
 - Identifiers, file names and commit messages are in English. UI text, error messages, test names and comments are in Portuguese (pt-BR). Comments are minimal and explain only a non-obvious *why*.
 - Pages use default exports; components and hooks use named exports with an `interface XProps` for props.
@@ -38,12 +38,18 @@ The UI shows "—" or an explicit state when data is missing instead of a fabric
 
 ## Development Workflow
 
-- New features follow Spec Driven Development: the spec, plan and tasks are committed before the implementation, in separate commits.
-- `npm test`, `npm run lint` and `npm run build` pass before every commit. A failure is reported, never committed around.
-- Commits are small Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`) with no `Co-Authored-By` trailer.
+- New features follow Spec Driven Development: the spec, plan and tasks are committed before the implementation, in commits separate from the implementation. A correction commit may touch more than one of those artifacts.
+- `npm run typecheck`, `npm test`, `npm run lint` and `npm run build` pass before every commit. These are the same scripts the CI runs. A failure is reported, never committed around.
+- Commits are small Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`, `ci:`) with no `Co-Authored-By` trailer.
 - Known limitations are listed in both `CLAUDE.md` and `README.md`. The change that fixes a limitation removes it from both.
 - Decisions with trade-offs are presented as options before being made.
 - Published git history is never rewritten.
+
+## Merge Gate
+
+- `main` changes only through a pull request. A merge requires the CI checks `typecheck`, `lint`, `test` and `build` (`.github/workflows/ci.yml`) to pass on a branch that is up to date with `main`.
+- `main` is protected as described in the README: pull request required, branch up to date, linear history, an empty bypass list, and "Rebase and merge" as the only merge method.
+- The only exception is the README's last-resort procedure for a GitHub Actions outage, and every use of it is recorded in the pull request.
 
 ## Governance
 
@@ -51,4 +57,4 @@ This constitution takes precedence over other practices in this repository. `CLA
 
 Amendments are made through a pull request that updates this file and states the reason. Versions follow semantic versioning: MAJOR for removing or redefining a principle, MINOR for adding a principle or section, PATCH for clarifications. Every plan produced with `/speckit-plan` includes a constitution check, and reviews verify compliance.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-20
+**Version**: 1.2.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-20
