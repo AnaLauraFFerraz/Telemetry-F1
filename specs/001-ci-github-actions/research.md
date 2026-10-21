@@ -588,6 +588,28 @@ Pergunta: o cache salvo pela `main` foi restaurado pelos runs seguintes? Fontes:
 
 **Conclusão (o que os logs e a API mostram):** o cache salvo num run de `pull_request` ficou restrito à ref do PR (a `main` não o restaurou e criou o próprio às 01:44:40Z), e os runs posteriores restauraram o cache salvo pela `main`. Isso confirma a hipótese do run do push na `main`. Os PRs de demonstração não tinham cache próprio e restauraram o da branch base. Nada foi alterado no workflow por causa disso.
 
+### `EBADENGINE` com o `package.json` real (T053, US3 cenário 4)
+
+O ponto 5 mediu o aviso com um `package.json` sintético (`engines.node` `>=99`). Aqui, com o real: `git worktree` descartável de `main` (`21109b4`, `engines.node` `>=22.17`) fora do repositório, sem trocar o Node da sessão nem o da mantenedora (`fnm exec` só vale para o comando). `fnm exec --using=22.14.0 node -v` deu `v22.14.0`; `fnm exec --using=22.14.0 npm ci` falhou com `error: Can't spawn program: program not found` porque no Windows o `npm` é um `npm.cmd`, então o comando rodou como `npm.cmd`. O fnm não pediu para instalar nada (a v22.14.0 já estava instalada).
+
+```text
+$ fnm exec --using=22.14.0 npm.cmd -v
+10.9.2
+$ fnm exec --using=22.14.0 npm.cmd ci
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'telemetryf1@0.0.0',
+npm warn EBADENGINE   required: { node: '>=22.17' },
+npm warn EBADENGINE   current: { node: 'v22.14.0', npm: '10.9.2' }
+npm warn EBADENGINE }
+
+added 151 packages, and audited 152 packages in 29s
+...
+27 vulnerabilities (1 low, 3 moderate, 23 high)
+exit=0
+```
+
+O `npm ci` avisa que o ambiente não atende ao mínimo e termina com **exit 0**: é só um aviso, sem `engine-strict` (T2-A), como o ponto 5 mediu. O worktree foi removido (`git worktree remove --force` e `git worktree prune`; `git worktree list` mostra só o repositório). Antes e depois: `node -v` `v22.23.1`, `fnm current` `v22.23.1`, e `fnm list` com as mesmas versões (v18.15.0, v18.20.8, v20.19.0, v20.20.2, v22.14.0, v22.23.1 como padrão, system).
+
 ### Fechamento
 
 - Itens do README que diferiram da interface do GitHub (T034): nenhum foi anotado, então não há correção do README vinda daí.
