@@ -156,13 +156,13 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Guarda confere o script `test` (decidido depois da T018; FR-012 ampliado)
 
-- [ ] T018a [US2] Teste antes: em `src/tooling/testDiscovery.test.ts`, casos de `scriptUsesQuotedPattern(script, pattern)` só com strings:
+- [X] T018a [US2] Teste antes: em `src/tooling/testDiscovery.test.ts`, casos de `scriptUsesQuotedPattern(script, pattern)` só com strings:
   - aspas duplas passa;
   - aspas simples reprova;
   - sem aspas reprova;
   - glob diferente reprova.
   - Rodar contra um esboço (exportado de `tools/testDiscovery.ts`, devolvendo sempre o valor errado para cada caso) e confirmar que cada caso falha na própria asserção, sem `ERR_MODULE_NOT_FOUND`. O esboço não é commitado. (FR-012; plan.md D10)
-- [ ] T018b [US2] Implementar `scriptUsesQuotedPattern` (pura) em `tools/testDiscovery.ts` e ligar a casca `tools/assertTestFiles.ts`: ler `scripts.test` do `package.json`, reprovar com mensagem em português e exit 1 se a função devolver `false`, antes da descoberta. Remover o comentário "Precisa ser igual ao glob do script `test`", que vira verificação. Ajustar a frase da guarda no README e no `CLAUDE.md`. Commitar `test: fail npm test when the test script lacks the quoted glob`. (FR-012; plan.md D9, D10)
+- [X] T018b [US2] Implementar `scriptUsesQuotedPattern` (pura) em `tools/testDiscovery.ts` e ligar a casca `tools/assertTestFiles.ts`: ler `scripts.test` do `package.json`, reprovar com mensagem em português e exit 1 se a função devolver `false`, antes da descoberta. Remover o comentário "Precisa ser igual ao glob do script `test`", que vira verificação. Ajustar a frase da guarda no README e no `CLAUDE.md`. Commitar `test: fail npm test when the test script lacks the quoted glob`. (FR-012; plan.md D9, D10)
 - [ ] T018c [US2] Provar: com aspas simples temporárias no `package.json`, `npm test` reprova no `pretest` com a mensagem clara; reverter com `git checkout` e conferir o `git status`. Registrar em `research.md`, "Windows (local)", e commitar `docs:`. (FR-012)
 - [ ] T018d [US2] Singular: com 1 arquivo, a mensagem é `1 arquivo de teste encontrado em ...`. Acrescentar o caso ao teste, confirmar que falha antes da correção, corrigir `checkDiscovery` e commitar `fix: use the singular when one test file is found`. (FR-012)
 

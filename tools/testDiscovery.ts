@@ -1,5 +1,8 @@
-// Precisa ser igual ao glob do script `test` no package.json.
 export const TEST_PATTERN = "src/**/*.test.ts";
+
+export function scriptUsesQuotedPattern(script: string, pattern: string): boolean {
+  return script.includes(`"${pattern}"`);
+}
 
 export function filterTestFiles(paths: string[]): string[] {
   return paths.filter((path) => !path.split(/[\\/]/).includes("node_modules"));
