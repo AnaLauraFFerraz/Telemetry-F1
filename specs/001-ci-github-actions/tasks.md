@@ -220,8 +220,8 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 **Independent Test**: lendo só o README, dá para configurar o ruleset, saber os nomes exatos dos checks e seguir o procedimento de último recurso; o README não tem nenhum número que desatualize.
 
-- [ ] T027 [P] [US5] Em `README.md`, acrescentar logo abaixo do título o selo `[![CI](https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml)`. (FR-020, FR-021)
-- [ ] T028 [P] [US4] Em `README.md`, nova seção "CI and branch protection", em inglês, com:
+- [X] T027 [P] [US5] Em `README.md`, acrescentar logo abaixo do título o selo `[![CI](https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml)`. (FR-020, FR-021)
+- [X] T028 [P] [US4] Em `README.md`, nova seção "CI and branch protection", em inglês, com:
   - os quatro checks e os scripts que rodam;
   - o aviso de que um erro de tipos reprova `typecheck` e `build`;
   - a regra dos nomes como contrato (plan.md D2);
@@ -229,13 +229,13 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - o procedimento de último recurso por inteiro (FR-018).
   - Em "Known limitations", a armadilha das aspas: o glob do script `test` usa aspas duplas escapadas; com aspas simples, o cmd roda zero testes e sai com 0; a guarda `pretest` reprova o script antes disso (T018a–T018d), e a CI no Linux é a segunda defesa.
   - (FR-016–FR-019, FR-022; SC-006)
-- [ ] T029 [P] [US4] Em `CLAUDE.md`:
+- [X] T029 [P] [US4] Em `CLAUDE.md`:
   - "Known pitfalls": a mesma armadilha das aspas;
   - "Rules": os nomes dos checks e do `ci.yml` são contrato com o ruleset e o selo (D2), e actions de terceiros só por SHA completo com comentário de versão (D4);
   - nota de divergência temporária com a constituição até a emenda: Node ≥ 22.6 contra ≥ 22.17, e o `typecheck` e a CI fora dos gates da constituição. A lista manual de testes não entra, porque já foi emendada em T011.
   - A lista de tipos de commit não muda.
   - (FR-016, FR-022; plan.md D11)
-- [ ] T030 [US4] Conferir:
+- [X] T030 [US4] Conferir:
   - nenhum número que desatualize no README (procurar contagens de testes, percentuais e durações);
   - nada descrito que não exista;
   - tudo que está nos Known pitfalls do `CLAUDE.md` também está nas Known limitations do README.
