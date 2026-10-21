@@ -303,14 +303,14 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Demonstração: `typecheck` (+ `build`)
 
-- [ ] T042 [US4] Branch `demo/typecheck-failure` a partir de `origin/main`.
+- [X] T042 [US4] Branch `demo/typecheck-failure` a partir de `origin/main`.
   - Em `src/pages/settings/useIsRecent.ts`, que nenhum teste carrega, introduzir um erro de tipos, por exemplo atribuir uma string a uma variável tipada como `number`.
   - Checagem local esperada: `typecheck` e `build` falham; `lint` e `test` passam.
   - Commitar `chore: demo type error (do not merge)`.
   - **[PARADA]** Push. **[PARADA]** Abrir o PR `Demo: type error (do not merge)`.
   - Registrar: `typecheck` ✗ **e** `build` ✗, comportamento esperado pela Q1 (o `build` mantém `tsc -b`). Por isso não existe demonstração só de `typecheck`.
   - (FR-023; SC-002; US1 cenário 3)
-- [ ] T043 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-typecheck-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
+- [X] T043 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-typecheck-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
 
 ### Demonstração: `build` (caixa do CSS, T4-A)
 
