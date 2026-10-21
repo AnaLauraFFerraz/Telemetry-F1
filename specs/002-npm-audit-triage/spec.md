@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-21
 
-**Status**: Draft
+**Status**: Implementing (converge feito em 2026-10-21; aguardando o merge do PR #8)
 
 **Input**: User description (texto integral do pedido, para que a spec não dependa da conversa):
 
