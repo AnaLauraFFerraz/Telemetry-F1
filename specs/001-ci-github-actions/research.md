@@ -319,3 +319,17 @@ src/utils/coachInsights.test.ts
 ```
 
 Total: 22 testes (16 anteriores e 6 da guarda), contra os 5 arquivos que a guarda contou.
+
+**Guarda confere o script `test` (T018a–T018c).** Teste escrito antes, contra um esboço de `scriptUsesQuotedPattern` com a lógica invertida: os 4 casos (aspas duplas, aspas simples, sem aspas, glob diferente) falharam com `ERR_ASSERTION` nas linhas 27, 34, 41 e 48 de `src/tooling/testDiscovery.test.ts`, `# tests 26, pass 22, fail 4`. Com a implementação, `# tests 26, pass 26`.
+
+Com aspas simples temporárias no script (`"test": "node --experimental-strip-types --test 'src/**/*.test.ts'"`), revertido com `git checkout -- package.json`:
+
+```text
+> telemetryf1@0.0.0 pretest
+> node --experimental-strip-types tools/assertTestFiles.ts
+
+[assertTestFiles] o script test do package.json precisa conter "src/**/*.test.ts" entre aspas duplas
+exit 1; o `test` não chegou a rodar (0 linhas "ok"/"not ok")
+```
+
+`git status --short` vazio depois da reversão, e o script voltou a `--test \"src/**/*.test.ts\"`.
