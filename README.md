@@ -1,5 +1,7 @@
 # Telemetry-F1
 
+[![CI](https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml)
+
 Frontend for **F1 24** game telemetry: a live dashboard while you drive, a history of recorded sessions, and a two-lap comparison with charts, a track map and an AI coach that explains where time was lost.
 
 It consumes the WebSocket and REST APIs of [TelemetryF1_API](https://github.com/AnaLauraFFerraz/TelemetryF1_API), which must be running. The UI is in Portuguese (pt-BR).
@@ -70,6 +72,38 @@ The tests cover pure functions: chart path building and nearest-point search, cu
 
 `npm test` first runs a guard that fails when no test file is found, because `node --test` exits with 0 on an empty glob. The guard also fails when the `test` script in `package.json` does not contain the glob in double quotes, because with single quotes cmd runs zero tests and exits with 0.
 
+## CI and branch protection
+
+Every pull request to `main` and every push to `main` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on `ubuntu-24.04`, as four independent checks. Each one runs a single `package.json` script on a clean checkout, with no secrets, no `.env` and no API running:
+
+| Check | Script |
+|---|---|
+| `typecheck` | `npm run typecheck` |
+| `lint` | `npm run lint` |
+| `test` | `npm test` |
+| `build` | `npm run build` |
+
+A type error fails both `typecheck` and `build`, because `build` still runs `tsc -b` before `vite build`. The Node version is read from `.nvmrc`, and npm's download cache is keyed on `package-lock.json`.
+
+**The check names are a contract.** The branch ruleset matches the job names, and the badge points at the file name. Renaming a job, or adding another workflow with a job of the same name, requires updating the required checks in the ruleset in the same change; otherwise every pull request waits forever for a check that never reports. Renaming `ci.yml` requires updating the badge.
+
+### Protecting `main`
+
+The ruleset is created by hand by the repository owner; nothing in the code applies it.
+
+1. Settings → Rules → Rulesets → New ruleset → New branch ruleset.
+2. Enforcement status: **Active**. Leave the bypass list empty.
+3. Target branches: the default branch (`main`).
+4. Enable **Restrict deletions**, **Require linear history** and **Block force pushes**.
+5. Enable **Require a pull request before merging** with 0 required approvals.
+6. Enable **Require status checks to pass**, tick **Require branches to be up to date before merging**, and add the four checks `typecheck`, `lint`, `test` and `build` (source: GitHub Actions).
+7. Click **Create**.
+8. Settings → General → Pull Requests: keep only **Allow rebase merging** and enable **Automatically delete head branches**.
+
+### Last resort if GitHub Actions is down
+
+Wait first. Only if the outage continues, set the ruleset's **Enforcement status** to **Disabled**, merge, set it back to **Active** right away, and record the reason in the pull request.
+
 ## Technical decisions and trade-offs
 
 **No state, chart or data-fetching libraries.** State is React Context plus hooks, data fetching is a small `useFetch` with a discriminated `loading / error / success` state, and the charts are a custom SVG component. With three read endpoints and one action, a library would add more than it saves, and the chart engine stays small and fully controllable (diverging axes, markers, highlight ranges).
@@ -91,6 +125,8 @@ The tests cover pure functions: chart path building and nearest-point search, cu
 - The primary lap is always the most recent one; only the comparison lap is selectable.
 - The dashboard's tyre colours use a 70–110 °C window, while the API's analysis uses 85–105 °C.
 - A missing `VITE_*` variable throws before React renders, which results in a blank page.
+- Without the backend's `ANTHROPIC_API_KEY`, the coach panel shows the 503 message.
+- The glob of the `test` script uses escaped double quotes in `package.json`. With single quotes, cmd (npm's default shell on Windows) runs zero tests and exits with 0. The `pretest` guard fails when the script lacks the double-quoted glob; the Linux CI is a second line of defence, because sh treats single quotes as quotes and the tests run.
 
 ## Next steps
 
@@ -99,4 +135,4 @@ Planned with Spec Driven Development, mostly on the API side:
 1. Real-time replay of recorded sessions (prerequisite for the demo).
 2. Stable API error codes, with this app deciding by code instead of matching message strings.
 3. Tyre temperature windows served by the API and consumed here, so the dashboard and the analysis use the same ranges (pending a check on whether the ideal window depends on the compound).
-4. **Public demo** running from a recorded session, and **CI** (lint, tests, build) on GitHub Actions.
+4. **Public demo** running from a recorded session.

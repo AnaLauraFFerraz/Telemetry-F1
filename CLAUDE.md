@@ -60,6 +60,9 @@ The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: wh
 - Documentation must describe only what exists in the code. Partial features are described as partial; no invented metrics or results.
 - Never rewrite published git history.
 - New features follow Spec Driven Development: spec, plan and tasks are committed before the implementation.
+- The check names (`typecheck`, `lint`, `test`, `build`) and the file name `.github/workflows/ci.yml` are a contract with the branch ruleset and the README badge. Renaming a job (`typecheck`, `lint`, `test`, `build`) requires updating the ruleset's required checks in the same change; renaming `ci.yml` requires updating the README badge.
+- Third-party GitHub Actions (owner other than `actions/`) are referenced only by full commit SHA with a version comment (`uses: owner/action@<sha-40>  # vX.Y.Z`). First-party `actions/*` use the major tag.
+- Temporary divergence from the constitution (v1.1.0), until the amendment PR: the constitution still says Node ≥ 22.6 while the project requires ≥ 22.17, and it does not put `npm run typecheck` in the pre-commit gates or the CI as a merge gate. Run `npm run typecheck` before commits anyway; the CI runs it.
 
 ## Spec Driven Development
 
@@ -81,6 +84,7 @@ These are also listed under "Known limitations" in the README. When a limitation
 - Dashboard tyre colours (`components/tyres/tyreColor.ts`) use 70–110 °C, while the API's analysis uses 85–105 °C.
 - A missing `VITE_*` variable throws at module load, before React renders: blank page.
 - Without the backend's `ANTHROPIC_API_KEY`, the coach panel shows the 503 message.
+- The glob of the `test` script uses escaped double quotes in `package.json`. With single quotes, cmd (npm's default shell on Windows) runs zero tests and exits with 0. The `pretest` guard fails when the script lacks the double-quoted glob; the Linux CI is a second line of defence, because sh treats single quotes as quotes and the tests run.
 
 ## How to work in this repo
 
