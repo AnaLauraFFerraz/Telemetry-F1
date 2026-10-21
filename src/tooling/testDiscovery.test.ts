@@ -23,6 +23,12 @@ test("checkDiscovery aprova e informa a contagem", () => {
   assert.equal(result.message, "2 arquivos de teste encontrados em src/**/*.test.ts");
 });
 
+test("checkDiscovery usa o singular com um arquivo", () => {
+  const result = checkDiscovery(["src/a.test.ts"]);
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.message, "1 arquivo de teste encontrado em src/**/*.test.ts");
+});
+
 test("scriptUsesQuotedPattern aceita o glob entre aspas duplas", () => {
   assert.equal(
     scriptUsesQuotedPattern('node --experimental-strip-types --test "src/**/*.test.ts"', "src/**/*.test.ts"),
