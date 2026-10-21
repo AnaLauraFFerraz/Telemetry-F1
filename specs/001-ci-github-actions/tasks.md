@@ -282,7 +282,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 - [X] T037 [US4] **[PARADA]** Push da branch. **[PARADA]** Abrir o PR `Demo: lint failure (do not merge)`.
   - Logo depois de abrir, **com os checks ainda rodando**, registrar `gh pr view <n> --json mergeStateStatus,statusCheckRollup`: esperado `BLOCKED` com checks pendentes (US4 cenário 1, check pendente).
   - Ao fim do run, registrar o id do run e o resultado: só `lint` ✗, os outros três executados até o fim.
-  - Abrir o selo com a branch da demonstração, `https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=demo/lint-failure`, e registrar o estado reprovado. Se o selo não refletir o run do PR, repetir com `&event=pull_request` e registrar qual URL funcionou (US5 cenário 2).
+  - Abrir o selo com a branch da demonstração, `https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=demo%2Flint-failure` (a barra do nome da branch vai codificada como `%2F`), e registrar o estado reprovado. Se o selo não refletir o run do PR, repetir com `&event=pull_request` e registrar qual URL funcionou (US5 cenário 2).
   - (FR-004, FR-020; SC-002)
 - [X] T038 [US4] **[MANUAL]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra:
   - o check reprovado na lista;
@@ -445,5 +445,5 @@ O PR de emenda da constituição (plan.md, fase 5) não é tarefa daqui. A únic
 Achados do `/speckit-converge` (T048), aprovados pela mantenedora. São de documentação e de evidência, todos LOW.
 
 - [X] T051 Acrescentar ao `quickstart.md`, seção 2, o passo das aspas simples no script `test`: `npm test` sai ≠ 0 no `pretest` com a mensagem em português e nenhum teste roda, revertido com `git checkout -- package.json`, per FR-012 (partial)
-- [ ] T052 Trocar nos três lugares (`quickstart.md`, T037 deste arquivo e `plan.md`) a URL do selo da branch da demonstração pela forma com a barra codificada, `?branch=demo%2Flint-failure`, e registrar o motivo no `research.md`, per US5/AC2 (partial)
+- [X] T052 Trocar nos três lugares (`quickstart.md`, T037 deste arquivo e `plan.md`) a URL do selo da branch da demonstração pela forma com a barra codificada, `?branch=demo%2Flint-failure`, e registrar o motivo no `research.md`, per US5/AC2 (partial)
 - [ ] T053 Medir o aviso `EBADENGINE` com o `package.json` real: num `git worktree` descartável da `main`, `fnm exec --using=22.14.0 npm.cmd ci`, sem trocar o Node da sessão nem da mantenedora; registrar o aviso e o código de saída no `research.md`, remover o worktree e conferir `fnm list` e `node -v`, per US3/AC4 (partial)

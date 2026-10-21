@@ -275,7 +275,7 @@ A mantenedora confere `fnm use` no próprio terminal: deve resolver para uma 22.
    - Em cada PR, um print da tentativa de merge bloqueada vai para `specs/001-ci-github-actions/evidence/`. O print mostra a lista de checks com o check reprovado identificável, os quatro como **Required** e o botão de merge desabilitado.
    - Registrar também o `mergeStateStatus` via `gh pr view`.
    - **No primeiro PR (lint)**, consultar o `mergeStateStatus` enquanto os checks ainda rodam e registrar o bloqueio por check pendente (US4 cenário 1). A exigência de branch atualizada (cenário 3) fica conferida pela configuração (`strict_required_status_checks_policy: true`).
-   - **Num PR de demonstração**, abrir o selo com `?branch=` apontando para a branch da demonstração e registrar o estado reprovado (US5 cenário 2).
+   - **Num PR de demonstração**, abrir o selo com `?branch=` apontando para a branch da demonstração, com a barra do nome codificada como `%2F` (`?branch=demo%2Flint-failure`), e registrar o estado reprovado (US5 cenário 2).
 4. **Push direto recusado**: de uma branch descartável `tmp/direct-push` criada de `origin/main`, sem tocar na `main` local, com um commit vazio (`git commit --allow-empty`, mensagem em inglês), `git push origin HEAD:main` tem de ser recusado com `GH013`, mesmo para a administradora. Depois, `git ls-remote --heads origin` confirma a `main` remota inalterada.
    - **Contingência**: se o push for aceito, parar, registrar no research.md, corrigir o ruleset e avisar a mantenedora. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
 5. **Não refeito aqui**: que um PR roda a própria versão do workflow já foi provado na API (T033, PR #6, run 39473001785) e é citado como origem (research ponto 9).
