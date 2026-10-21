@@ -57,13 +57,18 @@ Rodar no build de produção servido localmente (`npm run build && npm run previ
 
 ## Parte 4: bundle e navegadores-alvo (FR-012, FR-015, SC-004, SC-008)
 
+Toda medição de bundle é feita num **worktree novo do commit medido**, fora do repositório, porque o checkout da branch tem fins de linha mistos e o total muda conforme os arquivos são editados (research, ponto 7):
+
 ```bash
-npm run build
+git worktree add --detach C:\Telemetry\wt-002-<fase> <sha>   # o .env do front é criado no worktree
+npm ci && npm run build
 node <ferramentas>/bundleSizes.mjs dist   # tabela: arquivo, bruto, gzip -9, brotli 11
+git -C C:\Telemetry\wt-002-<fase> status --porcelain         # mostrar e registrar: só dist/, node_modules/ e .env
+git worktree remove C:\Telemetry\wt-002-<fase>              # depois da medição; --force só depois de mostrar o status acima
 ```
 
 - `<ferramentas>` é `specs/002-npm-audit-triage/evidence/tools` (T5). Cada ferramenta diz no comentário do topo como rodar.
-- **Comparar por papel** (`index.html`, `.js` de entrada, `.css`) com a medição da `main`. Arquivo novo ou faltante é diferença a explicar. Variação do total acima de 10% exige explicação, mas não reprova.
+- **Comparar por papel** (`index.html`, `.js` de entrada, `.css`) com a medição do worktree da `main` (223.869 B), a referência do SC-004. Arquivo novo ou faltante é diferença a explicar. Variação do total acima de 10% exige explicação, mas não reprova.
 - **Navegadores-alvo efetivos**:
   - Vite 5: `ESBUILD_MODULES_TARGET` em `node_modules/vite/dist/node/constants.js`.
   - Vite 8: o padrão `'baseline-widely-available'` = `chrome111, edge111, firefox114, safari16.4, ios16.4` (`vite.dev/config/build-options`), conferido também na ajuda da CLI (`npx vite build --help`, linha `--target`).
@@ -82,7 +87,7 @@ node <ferramentas>/devListen.mjs 5191
 
 **Preparação, pela mantenedora ou pela sessão da API** (research ponto 6, plano D8). Nada disso roda nesta sessão:
 1. Cópia mestra feita com `VACUUM INTO` em `C:\Telemetry\snapshots-002\`, fora dos dois repositórios, e `api-conferencia.env` na mesma pasta: cópia do `.env.example` da API só com as portas, sem a linha da chave.
-2. A cada rodada, cópia de trabalho nova a partir da mestra (`telemetry-run.db`).
+2. A cada rodada, cópia de trabalho nova a partir da mestra (`telemetry-run.db`). O `Copy-Item` sobrescreve um arquivo existente, e o banco da API usa `journal_mode = WAL`: um `telemetry-run.db-wal` que sobrou de uma rodada interrompida seria aplicado sobre a cópia nova. Por isso, antes da cópia, `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` **tem de dar `False`**. No fim da rodada, com a API parada, apagam-se os três arquivos, com caminhos explícitos: `telemetry-run.db`, `telemetry-run.db-wal` e `telemetry-run.db-shm`.
 3. No terminal da API, definir `DOTENV_CONFIG_PATH` para o `api-conferencia.env` e `DB_PATH` para o `telemetry-run.db`. Atribuir string vazia à `ANTHROPIC_API_KEY` **não** é proteção: o `cmd` e o Windows PowerShell 5.1 removem a variável.
 4. **Conferência sem custo**, no mesmo terminal e no diretório da API:
 
@@ -93,8 +98,8 @@ node <ferramentas>/devListen.mjs 5191
    - Carrega o ambiente como a API carrega e imprime só `true` ou `false`, nunca o valor.
    - **Só se segue com `false`.**
 5. `npm run dev` na API e o log `[db] usando banco em …` conferido, apontando para a cópia.
-6. Num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, o replay a 1x da gravação de exemplo.
-7. A mantenedora informa a esta sessão o `false`, o id da sessão escolhida, a volta de comparação com análise em cache e a volta sem cache.
+6. **O replay não começa junto com a API.** A sessão do front faz o build, o `preview` e o roteiro de navegação e avisa "inicie o replay". Só então a mantenedora inicia, num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, `npm run replay -- recordings/demo-interlagos-tt-20hz-laps6-8.jsonl` (1x, cerca de 3 min 43 s) e confirma. As capturas só rodam depois dessa confirmação, e o dashboard é o primeiro estado.
+7. A mantenedora informa a esta sessão o `false`, o id da sessão escolhida (na `main`, a sessão 1, com a volta 3 como principal), a volta de comparação com análise em cache (2) e a volta sem cache (1).
 
 O limite de gastos no Console da Anthropic é rede de segurança, não proteção. Não há tentativa "para ver se dá 503" antes do `false`.
 
@@ -111,6 +116,7 @@ O limite de gastos no Console da Anthropic é rede de segurança, não proteçã
 
 - `NN` é `antes`, `depois` ou `depois-vite73`.
 - As capturas são feitas com `evidence/tools/captureStates.mjs`, com a versão do Playwright registrada no `research.md` e instalada fora dos repositórios (por exemplo, em `C:\Telemetry\playwright-002\`), com aprovação da mantenedora.
+- O Chromium fica dentro da mesma pasta do Playwright: a instalação roda com `PLAYWRIGHT_BROWSERS_PATH=<pasta>\browsers`, e a mesma variável precisa estar definida quando o `captureStates.mjs` roda (sem ela o script sai com mensagem clara). A pasta inteira é apagada pela mantenedora depois do merge.
 - O diretório do Playwright entra por argumento (`--playwright-dir`) ou pela variável `PLAYWRIGHT_DIR`, como diz o comentário do topo do script. Sem ele, o script sai com uma mensagem clara, sem tentar resolver o Playwright de dentro do repositório. Nada é instalado no repositório.
 - **Revisão antes do commit**: cada imagem é olhada em busca de dado pessoal vindo do jogo ou da API (nome de jogador, de piloto, de conta ou de máquina), e o tamanho total é somado e registrado (referência: até 5 MB na feature inteira). Com um achado, nada é commitado, e a mantenedora decide entre não commitar as imagens, deixando só a comparação no `research.md`, ou outra saída.
 - As capturas aprovadas ficam em `specs/002-npm-audit-triage/evidence/`.

@@ -258,12 +258,12 @@ Como depende do shell, não entra no procedimento.
 - faz a cópia mestra com `VACUUM INTO`;
 - escolhe a sessão e as voltas (uma com análise em cache, cuja volta principal é a mais recente, e uma sem cache);
 - a cada rodada:
-  - copia a mestra para `telemetry-run.db`;
+  - confere que `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dá `False` (o `Copy-Item` sobrescreve, e o banco usa `journal_mode = WAL`: um `-wal` que sobrou seria aplicado sobre a cópia nova) e só então copia a mestra para `telemetry-run.db`;
   - define `DOTENV_CONFIG_PATH` e `DB_PATH` no terminal;
   - faz a conferência sem custo;
   - sobe a API (`npm run dev`) e confere o log `[db] usando banco em …`;
-  - inicia o replay a 1x num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`. O replayer (`tools/replayer.ts`) importa `env` só pelas portas e envia UDP; quem grava no banco é a API;
-- no fim, para tudo e apaga o `telemetry-run.db`.
+  - inicia o replay a 1x num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, **só quando a sessão do front avisar "inicie o replay"** (depois do build, do `preview` e do roteiro de navegação), porque a gravação dura cerca de 3 min 43 s. O replayer (`tools/replayer.ts`) importa `env` só pelas portas e envia UDP; quem grava no banco é a API;
+- no fim, para tudo e apaga, com caminhos explícitos, `telemetry-run.db`, `telemetry-run.db-wal` e `telemetry-run.db-shm`.
 
 **Esta sessão** (front):
 - build de produção;
