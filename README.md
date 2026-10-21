@@ -62,11 +62,13 @@ Open `http://localhost:5173`. Use `localhost` rather than `127.0.0.1`: the dev s
 ```bash
 npm run build     # type-check and production build
 npm run lint      # ESLint
-npm run typecheck  # type-check only (src/ and vite.config.ts), no bundle
+npm run typecheck  # type-check only (src/, tools/ and vite.config.ts), no bundle
 npm test          # Node's built-in runner with --experimental-strip-types; finds every src/**/*.test.ts
 ```
 
 The tests cover pure functions: chart path building and nearest-point search, cumulative delta interpolation, track map projection and the coach opportunity ranking. There are no component or hook tests yet.
+
+`npm test` first runs a guard that fails when no test file is found, because `node --test` exits with 0 on an empty glob.
 
 ## Technical decisions and trade-offs
 

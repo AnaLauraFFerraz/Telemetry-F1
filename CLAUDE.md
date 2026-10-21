@@ -17,8 +17,8 @@ Node is installed through **fnm** on the dev machine; make sure it is on `PATH` 
 npm run dev       # Vite dev server on http://localhost:5173
 npm run build     # tsc -b && vite build
 npm run lint      # eslint .
-npm run typecheck  # type-check only (src/ and vite.config.ts), no bundle
-npm test          # node --experimental-strip-types --test "src/**/*.test.ts"
+npm run typecheck  # type-check only (src/, tools/ and vite.config.ts), no bundle
+npm test          # runs the test-discovery guard, then node --experimental-strip-types --test "src/**/*.test.ts"
 npm run preview   # serve the production build
 ```
 
@@ -38,6 +38,7 @@ Configuration comes from `.env` (copy `.env.example`): `VITE_WS_URL` and `VITE_H
 | `src/types/` | `ws.ts` and `rest.ts`, hand-mirrored from the API |
 | `src/utils/` | Pure helpers (formatting, best lap, coach opportunities) |
 | `src/styles/` | `tokens.css` and `global.css` |
+| `tools/` | Test-discovery guard run by `pretest` |
 
 The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: when the API changes a payload, update the mirror in the same piece of work. Some UI logic matches API strings literally (e.g. `"session not found"`).
 
