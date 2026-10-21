@@ -31,6 +31,7 @@ git status --short     # vazio: os .tsbuildinfo e o dist/ são ignorados
 | Ação (temporária, revertida depois) | Esperado |
 |---|---|
 | Criar `src/tmpcheck/probe.test.ts` com um teste que falha | `npm test` executa o arquivo e falha, sem editar o `package.json` |
+| Criar `src/tmpcheck/syntax.test.ts` com erro de sintaxe | `npm test` falha, em vez de ignorar o arquivo |
 | Apontar o padrão da guarda e do script para uma pasta vazia | `npm test` sai ≠ 0 com `nenhum arquivo de teste encontrado`, e nenhum teste roda |
 | `npm test` no cmd e com `npm run --script-shell="<Git>/usr/bin/sh.exe" test` | mesma contagem e mesmos nomes de teste |
 
@@ -50,7 +51,7 @@ Abrir o PR da feature para a `main`.
 **Esperado**:
 - quatro checks, `typecheck`, `lint`, `test` e `build`, todos ✓;
 - em cada job, o Node resolvido é 22.x;
-- o run termina em até 5 min;
+- o run termina em até 5 min (a referência é a primeira execução verde depois de qualquer correção);
 - num re-run com o lockfile inalterado, o log do setup-node diz `Cache restored successfully`.
 
 ## 5. Proteção e demonstrações (US4), depois do merge e do ruleset
@@ -60,13 +61,18 @@ gh api repos/AnaLauraFFerraz/Telemetry-F1/rulesets
 gh api repos/AnaLauraFFerraz/Telemetry-F1/rulesets/<id>
 gh api repos/AnaLauraFFerraz/Telemetry-F1/rules/branches/main
 gh repo view AnaLauraFFerraz/Telemetry-F1 --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed,deleteBranchOnMerge
+gh secret list
+gh variable list
 ```
 
 **Esperado**:
 - ruleset ativo com `bypass_actors: []`;
 - regras `deletion`, `non_fast_forward`, `required_linear_history` e `pull_request` (0 aprovações);
 - `required_status_checks` com `strict_required_status_checks_policy: true` e os quatro contextos;
-- só rebase permitido e exclusão automática de branches ligada.
+- só rebase permitido e exclusão automática de branches ligada;
+- nenhum segredo e nenhuma variável (saídas de `gh secret list` e `gh variable list` vazias).
+
+Push forçado e exclusão da `main` são provados pelas regras `non_fast_forward` e `deletion` acima, sem tentativa: o GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra, e um push forçado aceito por engano reescreveria histórico publicado.
 
 PRs de demonstração, conforme a tabela da fase 4 do plano. Em cada um:
 - só o check esperado fica ✗ (no de tipos, `typecheck` e `build`);
@@ -74,15 +80,21 @@ PRs de demonstração, conforme a tabela da fase 4 do plano. Em cada um:
 - o print vai para `evidence/`;
 - o PR é fechado sem merge e a branch é apagada.
 
+No primeiro PR (lint):
+- com os checks ainda rodando, `mergeStateStatus` já é `BLOCKED` (check pendente);
+- o selo `.../ci.yml/badge.svg?branch=demo/lint-failure` (ou com `&event=pull_request`) mostra reprovado.
+
 Push direto:
 
 ```bash
-git switch -c tmp/push-direto origin/main
-git commit --allow-empty -m "chore: push direto (não deve entrar)"
+git switch -c tmp/direct-push origin/main
+git commit --allow-empty -m "chore: test direct push to main (must be rejected)"
 git push origin HEAD:main      # esperado: GH013, "push declined due to repository rule violations"
 git ls-remote --heads origin   # main inalterada
-git switch - && git branch -D tmp/push-direto
+git switch - && git branch -D tmp/direct-push
 ```
+
+Se o push for aceito: parar, registrar no research.md, corrigir o ruleset e avisar a dona do repositório. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
 
 ## 6. README (US5)
 
