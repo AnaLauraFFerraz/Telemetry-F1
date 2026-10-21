@@ -28,6 +28,21 @@
 >
 > Regras: Input completo e autossuficiente; decisões como perguntas no clarify; edição só com Edit e Write; sem trailer. Pare depois de gerar a spec, sem commitar.
 
+## Clarifications
+
+### Session 2026-10-21
+
+Decisões confirmadas pela mantenedora:
+
+- Q: Qual o critério para recuar do Vite 8 para o 7.3? → A: Recua para o 7.3 se, para o build passar e a conferência visual bater, for preciso mudar código da aplicação (e não só configuração ou dependências). O motivo do recuo fica registrado no `research.md`.
+- Q: Mantém o `@vitejs/plugin-react-swc` ou migra para o `@vitejs/plugin-react`? → A: Mantém o `@vitejs/plugin-react-swc`, na versão compatível com o Vite 8. Trocar de plugin fica fora do escopo.
+- Q: Quando e como a constituição é emendada? → A: Uma única emenda, no primeiro commit da implementação: tirar os números de major das bibliotecas em "Technology and Quality Constraints" (React, TypeScript strict, Vite, React Router), dizendo que as versões ficam no `package.json`, que é a fonte única. O Node ≥ 22.17 fica, por ser uma política com motivo. Assim a constituição é verdadeira antes e depois de cada troca. O `CLAUDE.md` e o `README.md`, que descrevem o que existe, mudam no mesmo commit de cada troca de versão. O Sync Impact Report vai no corpo do commit e no PR.
+- Q: Um PR por fase ou um PR único? → A: Um PR só, com um push depois de cada fase, para que cada fase tenha a sua execução da CI registrada como evidência (a CI só roda na ponta do PR).
+- Q: O servidor de desenvolvimento ganha alguma configuração de rede? → A: Não. Só se verifica e se registra no `research.md` que, sem `--host` e sem `server.host`, o Vite continua escutando apenas localmente depois da troca.
+- Q: Como se confere o painel do coach no build de produção sem chamada paga? → A: A API roda sem `ANTHROPIC_API_KEY`, apontando por `DB_PATH` para uma cópia do banco real feita com `VACUUM INTO`, com análises já no cache. As análises em cache aparecem; uma análise nova deve responder 503. Nenhuma chamada paga.
+- Q: Os 10% de variação do bundle reprovam a fase? → A: Não. São gatilho de explicação, não de reprovação.
+- Q: Como a conferência visual compara o build novo com o antigo? → A: Por capturas de tela lado a lado, guardadas em `specs/002-npm-audit-triage/evidence/`, com a comparação anotada no `research.md`. As capturas do "antes" são tiradas na `main`, antes da Fase 1, para servir de referência a qualquer fase. A lista de telas e estados é fixa (dashboard ao vivo, histórico de sessões, análise com os gráficos e o mapa, painel do coach com uma análise em cache e com a mensagem de indisponibilidade, configurações), com o mesmo tamanho de janela antes e depois. A comparação é de layout e estilo, não dos valores ao vivo: a API roda sem `ANTHROPIC_API_KEY`, com `DB_PATH` apontando para a cópia do banco feita com `VACUUM INTO`, e o dashboard ao vivo recebe o replay da gravação de exemplo a 1x. O método de captura fica para o plano, sem adicionar dependência ao `package.json`.
+
 ## Linha de base medida
 
 Medições de 2026-10-21 sobre o `package-lock.json` da `main` (`f762435`), Node 22.23.1, npm 10.9.8.
@@ -99,7 +114,7 @@ Ao trocar o Vite 5 pelo Vite 8, o app publicado continua visualmente e funcional
 
 **Why this priority**: A troca do Vite muda o bundler, o minificador e o minificador de CSS, e o alvo de navegadores do build sobe. O risco é uma regressão silenciosa de visual que os testes unitários (só de funções puras) não pegam.
 
-**Independent Test**: Gerar o build antes da fase do Vite e depois dela, listar arquivos e tamanhos dos dois, servir cada build localmente e percorrer as telas listadas.
+**Independent Test**: Gerar o build antes da fase do Vite e depois dela, listar arquivos e tamanhos dos dois, servir cada build localmente e comparar as capturas das telas da lista fixa (as do "antes" tiradas na `main`, antes da Fase 1).
 
 **Acceptance Scenarios**:
 
@@ -124,6 +139,7 @@ A mudança chega em três fases separadas: correções dentro das faixas atuais,
 2. **Given** o fim da Fase 2, **When** a mantenedora roda os mesmos quatro scripts, **Then** os quatro passam, e o `npm audit --omit=dev` mostra zero.
 3. **Given** o fim da Fase 3, **When** a mantenedora roda os quatro scripts e a comparação de bundle, **Then** os quatro passam e o registro de comparação existe.
 4. **Given** uma fase que reprova, **When** a mantenedora decide, **Then** o plano indica o que fazer (corrigir, ou recuar para a alternativa registrada), sem reverter as fases já verificadas.
+5. **Given** o PR único da feature, **When** a mantenedora dá push ao fim de uma fase, **Then** a execução da CI da ponta do PR daquela fase fica registrada como evidência (identificador da execução e resultado dos quatro checks) antes de a fase seguinte começar.
 
 ---
 
@@ -144,13 +160,13 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 
 ### Edge Cases
 
-- A troca do Vite quebra algo não trivial (sintaxe aceita antes e rejeitada agora, plugin incompatível, CSS ou SVG diferente): usar a alternativa registrada, Vite 7.3, sem desfazer as Fases 1 e 2. Nesse caso as vulnerabilidades restantes do Vite 7.3, se houver, são registradas com justificativa.
+- Para o build com o Vite 8 passar, ou para a conferência visual bater, é preciso mudar código da aplicação (e não só configuração ou dependências): recuar para a alternativa registrada, Vite 7.3, sem desfazer as Fases 1 e 2, e registrar o motivo no `research.md`. Nesse caso as vulnerabilidades restantes do Vite 7.3, se houver, são registradas com justificativa.
 - O `@vitejs/plugin-react-swc` compatível com o Vite 8 exige outra versão major do plugin ou outro requisito de Node: registrar a combinação escolhida e conferir o `engines` do projeto.
 - O `typescript-eslint` 8.72 só aceita TypeScript `<6.1.0`: o TypeScript permanece em 5.6 (fora do escopo subir para o 7).
 - O `npm audit fix` altera o lockfile de maneiras não pretendidas (por exemplo, entradas opcionais de outras plataformas): conferir que a instalação limpa no Linux da CI funciona antes de aceitar a fase.
 - Um novo advisory aparece entre a medição de 2026-10-21 e a implementação: a contagem final se compara com o `npm audit` do dia, não só com a linha de base, e a diferença é registrada.
 - Uma vulnerabilidade restante sem correção publicada: fica registrada com a justificativa, a avaliação de exposição (produção ou desenvolvimento) e a condição em que o risco se materializa.
-- O dev server do Vite 8 escuta apenas em IPv6 loopback, como o 5 já fazia (limitação conhecida): o comportamento atual é preservado, ou a mudança é registrada.
+- O servidor de desenvolvimento do Vite 8 pode escutar em endereço diferente do atual (hoje pode ficar só no loopback IPv6, limitação conhecida): se mudar, a limitação é atualizada no `CLAUDE.md` e no `README.md` na mesma mudança.
 
 ## Requirements *(mandatory)*
 
@@ -167,6 +183,7 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 - **FR-004**: A implementação DEVE ser dividida em três fases verificadas uma a uma, nesta ordem: (1) correções dentro das faixas atuais, incluindo o ESLint na linha 9.39.x e o React Router na 6.30.x; (2) React Router 7; (3) Vite 8.
 - **FR-005**: Cada fase DEVE terminar com `typecheck`, `lint`, `test` e `build` passando, antes de a seguinte começar.
 - **FR-006**: Cada fase DEVE ser independente o bastante para que as anteriores continuem válidas se a seguinte for adiada ou recuada.
+- **FR-006a**: As três fases DEVEM chegar em um único pull request, com um push ao fim de cada fase. A execução da CI da ponta do PR depois de cada push é a evidência da fase e DEVE ser registrada (identificador da execução e resultado dos quatro checks) antes de a fase seguinte começar.
 
 **React Router 7**
 
@@ -176,10 +193,11 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 
 **Vite 8**
 
-- **FR-010**: O Vite DEVE subir para a major 8, com o `@vitejs/plugin-react-swc` em versão compatível. Esta é uma decisão a confirmar no `/speckit-clarify`. A alternativa registrada é o Vite 7.3, se a troca de bundler quebrar algo não trivial.
+- **FR-010**: O Vite DEVE subir para a major 8, com o `@vitejs/plugin-react-swc` mantido, na versão compatível com o Vite 8. Trocar para outro plugin do React está fora do escopo. A alternativa é o Vite 7.3 (com o `@vitejs/plugin-react-swc` compatível), e só se aplica se, para o build passar e a conferência visual bater, for preciso mudar código da aplicação (e não só configuração ou dependências); o motivo do recuo DEVE ser registrado no `research.md`.
 - **FR-011**: O plano DEVE conferir na documentação oficial os breaking changes relevantes para este projeto na migração do Vite 5 para o 8 (passando ou não pelas majors intermediárias), e registrar os que se aplicam e os que não se aplicam à configuração atual.
 - **FR-012**: Os navegadores-alvo do build, antes e depois, DEVEM ser registrados.
-- **FR-013**: A compatibilidade do Node mínimo do projeto (`engines`, `.nvmrc`, CI) com os requisitos do Vite escolhido DEVE ser conferida e registrada. Se o mínimo atual deixar de bastar, a mudança é decisão a levar ao clarify.
+- **FR-013**: A compatibilidade do Node mínimo do projeto (`engines`, `.nvmrc`, CI) com os requisitos do Vite escolhido DEVE ser conferida e registrada. Se o mínimo atual deixar de bastar, a mudança é decisão a apresentar à mantenedora antes de ser feita.
+- **FR-013a**: O servidor de desenvolvimento NÃO DEVE ganhar `--host` nem `server.host`. O plano DEVE verificar e registrar no `research.md` que, sem essas opções, o Vite 8 (ou o 7.3, se houver recuo) continua escutando apenas localmente.
 
 **ESLint**
 
@@ -188,7 +206,10 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 **Verificação do build**
 
 - **FR-015**: Depois da fase do Vite, DEVE existir uma comparação do bundle antes e depois, com lista de arquivos gerados e tamanhos, e explicação para as diferenças relevantes.
-- **FR-016**: Depois da fase do Vite, DEVE ser feita uma conferência visual no build de produção servido localmente, cobrindo os gráficos SVG, o mapa da pista, o painel do coach e os estilos dos CSS Modules, com o resultado registrado. Como o painel do coach só roda por ação explícita e é uma chamada paga numa falha de cache do servidor, a conferência cobre os estados que não exigem nova chamada (por exemplo, o estado inicial e a mensagem de indisponibilidade), e qualquer chamada real exige decisão da mantenedora.
+- **FR-016**: Depois da fase do Vite, DEVE ser feita uma conferência visual no build de produção servido localmente, por capturas de tela lado a lado com a referência do "antes", cobrindo os gráficos SVG, o mapa da pista, o painel do coach e os estilos dos CSS Modules.
+- **FR-016b**: As capturas do "antes" DEVEM ser tiradas na `main`, antes da Fase 1, e servir de referência a qualquer fase. A lista de telas e estados é fixa: dashboard ao vivo, histórico de sessões, análise com os gráficos e o mapa, painel do coach com uma análise em cache, painel do coach com a mensagem de indisponibilidade, e configurações. As capturas de antes e depois DEVEM usar o mesmo tamanho de janela. A comparação é de layout e estilo, não dos valores ao vivo.
+- **FR-016c**: Para haver dados na conferência, a API roda como descrito em FR-016a e o dashboard ao vivo recebe o replay da gravação de exemplo a 1x. O método de captura é decisão do plano e NÃO DEVE adicionar dependência ao `package.json`. As capturas ficam em `specs/002-npm-audit-triage/evidence/` e a comparação anotada, no `research.md`.
+- **FR-016a**: Na conferência do painel do coach, a API DEVE rodar sem `ANTHROPIC_API_KEY`, apontando por `DB_PATH` para uma cópia do banco real feita com `VACUUM INTO`, com análises já no cache. As análises em cache DEVEM aparecer; uma análise nova DEVE responder 503 e o painel DEVE mostrar a mensagem correspondente. Nenhuma chamada paga é feita, e a cópia do banco não é commitada.
 
 **CI e vigilância contínua**
 
@@ -202,8 +223,8 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 
 **Documentação**
 
-- **FR-021**: A constituição declara "Vite 5, React Router 6" em "Technology and Quality Constraints". Essa linha DEVE ser emendada para refletir as versões novas, por PR que declare o motivo e a versão da constituição, como prevê a governança. O `CLAUDE.md` e o `README.md` DEVEM acompanhar nas menções a Vite, React Router e à pilha. O plano decide o momento da emenda (mesmo PR da fase que muda a versão, ou PR separado, como foi na spec 001).
-- **FR-022**: A documentação DEVE descrever só o que existe no código. Qualquer limitação conhecida que mude (por exemplo, o comportamento do servidor de desenvolvimento em IPv6, se mudar) é atualizada no `CLAUDE.md` e no `README.md` na mesma mudança.
+- **FR-021**: A constituição DEVE passar por uma única emenda, no primeiro commit da implementação: tirar os números de major das bibliotecas em "Technology and Quality Constraints" (React, TypeScript `strict`, Vite, React Router), dizendo que as versões ficam no `package.json`, que é a fonte única. O Node ≥ 22.17 permanece, por ser uma política com motivo. Assim a constituição é verdadeira antes e depois de cada troca de versão. O Sync Impact Report DEVE ir no corpo desse commit e na descrição do PR, e o incremento de versão da constituição segue a governança.
+- **FR-022**: A documentação DEVE descrever só o que existe no código. O `CLAUDE.md` e o `README.md` DEVEM mudar no mesmo commit de cada troca de versão (menções a React Router, Vite, plugin e pilha). Qualquer limitação conhecida que mude (por exemplo, o endereço de escuta do servidor de desenvolvimento) é atualizada nos dois arquivos na mesma mudança.
 
 ### Key Entities
 
@@ -219,8 +240,8 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 - **SC-001**: `npm audit --omit=dev` em um checkout limpo mostra 0 vulnerabilidades (baseline: 3).
 - **SC-002**: `npm audit` em um checkout limpo mostra 0 vulnerabilidades altas ou críticas (baseline: 23 altas), e o total é 0 ou cada restante está registrado com justificativa (baseline: 27).
 - **SC-003**: Ao final de cada uma das 3 fases, os 4 checks da CI passam, e a contagem de `npm audit` daquela fase está registrada.
-- **SC-004**: A comparação de bundle cobre 100% dos arquivos gerados pelo build antes e depois, e toda variação de tamanho total acima de 10% tem explicação registrada.
-- **SC-005**: A conferência visual cobre os gráficos SVG, o mapa, o painel do coach e os CSS Modules do dashboard, histórico, análise e configurações, sem diferença visual não explicada.
+- **SC-004**: A comparação de bundle cobre 100% dos arquivos gerados pelo build antes e depois, e toda variação de tamanho total acima de 10% tem explicação registrada. Os 10% são gatilho de explicação, não de reprovação: com explicação registrada, a fase é aceita.
+- **SC-005**: A conferência visual cobre 100% da lista fixa de telas e estados (dashboard ao vivo, histórico de sessões, análise com os gráficos e o mapa, painel do coach com análise em cache e com a mensagem de indisponibilidade, configurações), com capturas de antes e depois no mesmo tamanho de janela guardadas em `evidence/`, e toda diferença de layout ou estilo tem explicação anotada no `research.md`.
 - **SC-006**: O número de jobs e os nomes dos checks do `ci.yml` são os mesmos de antes (4 checks: `typecheck`, `lint`, `test`, `build`), e nenhum passo de `npm audit` foi adicionado.
 - **SC-007**: `src/types/` e o contrato com a API não têm nenhuma alteração, e nenhum teste existente precisou ser modificado para passar. Se algum precisar, a razão é registrada.
 - **SC-008**: Os navegadores-alvo do build, antes e depois, estão registrados.
@@ -230,18 +251,10 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 - A medição de 2026-10-21 reflete o banco de advisories daquele dia. Novos advisories podem aparecer durante a implementação; a contagem final é comparada com o `npm audit` do dia da medição final.
 - A simulação foi feita sobre a `main` em `f762435`, num worktree descartável removido depois; nada do repositório foi alterado por ela.
 - O app é uma aplicação de cliente (SPA) sem renderização no servidor. O advisory de renderização no servidor do React Router não é explorável aqui, mas é corrigido junto, por fazer parte do pacote.
-- O projeto usa `@vitejs/plugin-react-swc`, não `@vitejs/plugin-react`. A decisão sobre manter o SWC ou trocar de plugin com o Vite 8 pertence ao clarify e ao plano.
+- O projeto usa `@vitejs/plugin-react-swc`, não `@vitejs/plugin-react`, e o plugin é mantido (decisão do clarify).
 - Os guias de migração a conferir são os oficiais (`vite.dev`, `v7.vite.dev`, `v6.vite.dev` para o Vite e a documentação de upgrade do React Router). Em 2026-10-21 foram lidos para a triagem, e o plano os relê.
 - A mantenedora liga o Dependabot manualmente e decide quando. A feature não depende disso para ser considerada concluída.
 - A hospedagem e o deploy da demo são outro trabalho; esta feature só entrega a árvore de dependências sem vulnerabilidades conhecidas como pré-requisito.
 - O Node mínimo atual (22.17) já atende o requisito do Vite 8 (`^20.19.0 || >=22.12.0`); o plano reconfere.
 - A CI roda no Linux e a mantenedora desenvolve no Windows; ambas precisam funcionar depois de cada fase, inclusive os binários opcionais de plataforma que o lockfile ganha.
 - Fora do escopo: TypeScript 7 (o `typescript-eslint` atual declara suporte a TypeScript `<6.1.0`), ESLint 10, hospedagem e deploy da demo, gate de `npm audit` na CI, e qualquer mudança de funcionalidade da aplicação.
-
-## Pontos para o /speckit-clarify
-
-1. **Vite 8 ou 7.3**: confirmar o Vite 8 como alvo, com o 7.3 como alternativa de recuo se a troca de bundler quebrar algo não trivial. Qual é o critério para considerar "não trivial"?
-2. **Plugin do React com o Vite 8**: manter o `@vitejs/plugin-react-swc` na linha compatível com o Vite 8 ou migrar para o `@vitejs/plugin-react`?
-3. **Momento da emenda da constituição**: no mesmo PR de cada fase, ou em PR separado depois, como na spec 001?
-4. **Granularidade dos PRs**: um PR por fase (três PRs) ou um único PR com três commits de fase? A restrição de histórico linear e de branch atualizada do ruleset favorece PRs pequenos.
-5. **Servidor de desenvolvimento acessível na rede**: o `server.host` permanece como está (só local), conforme o comportamento atual, ou a feature registra uma recomendação explícita?

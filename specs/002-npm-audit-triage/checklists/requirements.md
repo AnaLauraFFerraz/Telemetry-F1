@@ -35,4 +35,5 @@
 - Nenhum marcador [NEEDS CLARIFICATION] foi usado: as decisões abertas estão em "Pontos para o /speckit-clarify", como pediu a mantenedora (decisões como perguntas no clarify), seguindo o formato da spec 001.
 - A baseline e a simulação vêm de medições de 2026-10-21 descritas na própria spec; a conferência de navegação com entrada externa é preliminar e o plano a formaliza (FR-007).
 - A constituição lista "Vite 5, React Router 6" nas restrições de tecnologia; a emenda necessária está em FR-021, com o momento decidido no clarify.
-- SC-004 usa 10% como limiar de explicação obrigatória de variação de tamanho; é um valor de partida que o clarify ou o plano podem ajustar.
+- SC-004 usa 10% como limiar de explicação obrigatória de variação de tamanho; o clarify de 2026-10-21 confirmou que é gatilho de explicação, não de reprovação.
+- Os 5 pontos abertos da primeira versão e a forma da conferência visual foram resolvidos no `/speckit-clarify` de 2026-10-21 (8 decisões registradas na seção Clarifications). Nenhuma ambiguidade de alto impacto restante.
