@@ -356,8 +356,8 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - o que ela aprovar entra nesta branch, em commits próprios, com as verificações de sempre antes de cada commit;
   - **depois do converge**, o Status da `spec.md` muda de `Draft` para `Implemented` (com a data do merge de T032), num commit `docs:` com a marcação `[x]` de T048.
   - (transversal: confere todos os FRs e SCs)
-- [ ] T049 **[PARADA]** Push. **[PARADA]** Abrir o PR `docs: CI evidence for spec 001`. Confirmar os quatro checks verdes e `mergeStateStatus` `CLEAN`. (SC-001)
-- [ ] T050 **[MANUAL] [PARADA]** A mantenedora mergeia com **Rebase and merge**. É o primeiro merge sob o ruleset e prova que um PR verde e atualizado entra. Depois:
+- [X] T049 **[PARADA]** Push. **[PARADA]** Abrir o PR `docs: CI evidence for spec 001`. Confirmar os quatro checks verdes e `mergeStateStatus` `CLEAN`. (SC-001)
+- [X] T050 **[MANUAL] [PARADA]** A mantenedora mergeia com **Rebase and merge**. É o primeiro merge sob o ruleset e prova que um PR verde e atualizado entra. Depois:
   - o agente confere pela API `gh pr view <n> --json number,state,mergedAt`, além de `git rev-list --merges --count main` (esperado 0) e do run do push na `main`;
   - a branch remota é apagada pela exclusão automática; conferir com `git ls-remote --heads origin`;
   - **o registro deste merge permitido (número do PR e hora do merge, `mergedAt`, conferidos pela API), o run do push na `main` e as marcações `[x]` de T049–T050 vão no PR seguinte, o da emenda da constituição do front** (plan.md, fase 5), porque este PR não pode registrar o próprio merge.
