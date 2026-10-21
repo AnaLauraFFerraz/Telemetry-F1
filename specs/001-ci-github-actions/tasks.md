@@ -142,7 +142,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - `CLAUDE.md` Architecture: uma linha para `tools/` ("test-discovery guard run by `pretest`").
   - Verificar e commitar `test: fail npm test when no test file is found`.
   - (FR-012, FR-022; plan.md D11)
-- [ ] T018 [US2] Verificação final no Windows, com o resultado registrado em `research.md`, "Post-implementation evidence → Windows (local)":
+- [X] T018 [US2] Verificação final no Windows, com o resultado registrado em `research.md`, "Post-implementation evidence → Windows (local)":
   - saídas guardadas de T009, T012 e T014;
   - `npm test` imprime `[assertTestFiles] N arquivos de teste encontrados ...` e passa;
   - um `src/tmpcheck/probe.test.ts` temporário com asserção falsa é executado e reprova, sem editar script (removido depois);
