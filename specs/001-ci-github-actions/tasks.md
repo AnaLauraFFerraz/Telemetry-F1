@@ -88,8 +88,8 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Descoberta por glob
 
-- [ ] T010 [US2] Em `package.json`, trocar o script `test` por `node --experimental-strip-types --test \"src/**/*.test.ts\"`, com **aspas duplas escapadas**, nunca simples (research ponto 1a). A flag fica (T1-A). (FR-010, FR-011)
-- [ ] T011 [US2] No mesmo commit:
+- [X] T010 [US2] Em `package.json`, trocar o script `test` por `node --experimental-strip-types --test \"src/**/*.test.ts\"`, com **aspas duplas escapadas**, nunca simples (research ponto 1a). A flag fica (T1-A). (FR-010, FR-011)
+- [X] T011 [US2] No mesmo commit:
   - `README.md` "Scripts and tests": trocar `npm test  # 16 tests, Node's built-in runner ...` por um comentário sem contagem, por exemplo `# Node's built-in runner with --experimental-strip-types; finds every src/**/*.test.ts`;
   - `CLAUDE.md` Commands: trocar `<files listed in package.json>` pelo glob;
   - `CLAUDE.md` Conventions: trocar "Every new test file must be added by hand to the `test` script" por "Any `*.test.ts` under `src/` is discovered automatically";
@@ -100,7 +100,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
     - **mostrar a proposta à Ana e aplicar só depois do ok dela**;
     - o resto da emenda (CI como portão de merge, `typecheck` nos gates, Node 22.17, tipo `ci:`) não entra aqui.
   - (FR-010, FR-021; plan.md D11, D12)
-- [ ] T012 [US2] Verificar e commitar `test: discover test files with a quoted glob`, com o script, o README, o `CLAUDE.md` e a constituição no mesmo commit:
+- [X] T012 [US2] Verificar e commitar `test: discover test files with a quoted glob`, com o script, o README, o `CLAUDE.md` e a constituição no mesmo commit:
   - `npm test` dá o mesmo total e os mesmos nomes de teste de antes (T001);
   - `npm run -s test` (cmd) e `npm run -s --script-shell="<Git>\usr\bin\sh.exe" test` (sh) dão nomes de teste idênticos, comparados com `diff` dos nomes ordenados;
   - guardar as saídas para T018.
