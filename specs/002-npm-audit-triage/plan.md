@@ -171,7 +171,7 @@ Nenhuma afirmação do `CLAUDE.md` ou do `README.md` fica falsa: o Vite continua
 
 - O `ci.yml` cancela a execução em andamento de um PR quando chega um push novo (`cancel-in-progress` para `pull_request`). Por isso:
   1. ao fim da fase, os quatro scripts passam localmente;
-  2. push, com aprovação explícita da mantenedora; o PR é aberto no primeiro push, ao fim da Fase 1, com aprovação;
+  2. push, com aprovação explícita da mantenedora; o PR é aberto no primeiro push, ao fim da Fase 1, com aprovação, **como rascunho** (`gh pr create --draft`): com os checks verdes depois da Fase 1, um PR normal ficaria pronto para merge com a spec pela metade, e o GitHub não permite mergear um rascunho;
   3. `gh run watch` até a execução terminar; registrar o id da execução, o SHA e o resultado dos quatro checks;
   4. só então começa a fase seguinte.
 - O registro da execução da fase N vai num commit `docs:` que abre a fase N+1 e sobe junto com ela. O registro da Fase 3 vai no commit `docs:` final, cuja própria execução é a do PR pronto para merge.
@@ -293,7 +293,7 @@ Não existe verificação segura **por tentativa**: o cache é consultado antes 
 
 - O `/speckit-converge` roda antes do último push, como na spec 001.
 - O Status da spec só muda depois do converge.
-- O PR fica verde, e a mantenedora mergeia com Rebase and merge.
+- O PR fica verde e, com a CI final passando, a sessão mostra a descrição final e, com a aprovação da mantenedora, o tira do rascunho com `gh pr ready` (tarefa T056a). A mantenedora mergeia com Rebase and merge, depois de ler o Files changed.
 - Apagar a cópia mestra do banco é tarefa da mantenedora, depois do merge.
 - **Depois do merge**, como na spec 001, um commit `docs: record the PR merge for spec 002` registra o merge e marca as tarefas finais (T054 a T058). O ruleset bloqueia push direto na `main`, então ele vai numa branch nova a partir da `main` atualizada e num **PR próprio**, com push, abertura e merge aprovados pela mantenedora.
 
