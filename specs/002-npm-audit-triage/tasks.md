@@ -27,6 +27,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - **Versões (D11)**: todo `npm audit fix` e todo `npm install` de pacote da feature roda com `--before=<corte da fase>`, e a versão resolvida e a data de publicação (`npm view <pacote> time`) vão para o `research.md`.
 - **Evidência**: vai para a seção "Evidência da implementação" de `specs/002-npm-audit-triage/research.md`, com comando e saída.
 - Edições de texto só com as ferramentas Edit e Write, nunca com comandos de shell.
+- **Worktrees**: antes de qualquer `git worktree remove --force`, o `git status --porcelain` do worktree é mostrado à mantenedora e registrado junto da medição, para provar que só sobraram arquivos gerados (`dist/`, `node_modules/`, `.env`). Remoção sem `--force` quando o worktree estiver limpo.
 - Nenhum comando roda no repositório da API nesta sessão. O que é da API é [MANUAL] (ou de uma sessão do Claude Code aberta lá).
 
 ---
@@ -37,51 +38,54 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 **⚠️ CRITICAL**: nenhuma mudança de dependência começa antes do fim desta fase.
 
-- [ ] T001 Conferir o ponto de partida e preparar a `main`, sem alterar arquivos do repositório:
+- [X] T001 Conferir o ponto de partida e preparar a `main`, sem alterar arquivos do repositório:
   - branch `002-npm-audit-triage` com working tree limpo, exceto `.specify/feature.json`; `node -v` em 22.x; os quatro scripts passando;
   - `git worktree add C:\Telemetry\wt-002-main main` (fora dos dois repositórios), com um `.env` copiado do `.env.example` e `npm ci`;
   - copiar `bundleSizes.mjs` e `devListen.mjs` do scratchpad para `specs/002-npm-audit-triage/evidence/tools/` da branch, com o comentário do topo dizendo como rodar (T5), para que as medições não dependam do scratchpad de uma sessão;
   - anotar o SHA da `main` e a data de início da implementação.
   - (FR-005; D1, T5; quickstart, pré-requisitos)
-- [ ] T002 No worktree da `main`, medir e anotar (as notas vão para o `research.md` em T017), rodando as ferramentas pelo caminho da branch, `C:\Telemetry\Telemetry-F1\specs\002-npm-audit-triage\evidence\tools\`:
+- [X] T002 No worktree da `main`, medir e anotar (as notas vão para o `research.md` em T017), rodando as ferramentas pelo caminho da branch, `C:\Telemetry\Telemetry-F1\specs\002-npm-audit-triage\evidence\tools\`:
   - `npm audit` e `npm audit --omit=dev`, com a data, como referência do dia (FR-002, FR-003);
   - `npm run build` e `node <ferramentas>\bundleSizes.mjs dist` (FR-015; research, ponto 7);
   - os navegadores-alvo efetivos do Vite 5, por `ESBUILD_MODULES_TARGET` em `node_modules/vite/dist/node/constants.js` (FR-012; quickstart, parte 4);
   - o endereço de escuta, com `node <ferramentas>\devListen.mjs 5191` (FR-013a; quickstart, parte 5).
   - (D1)
-- [ ] T003 [MANUAL] [PARADA] Aprovar a instalação do Playwright e do Chromium dele fora dos dois repositórios. Antes, a sessão mostra a versão escolhida pela regra do D11 (a mais recente publicada antes do corte, com a data de `npm view playwright time`) e o diretório de instalação proposto, fora dos dois repositórios (por exemplo, `C:\Telemetry\playwright-002\`). **Entrega**: aprovação explícita, ou outra versão ou diretório. (T4; D1, D11)
-- [ ] T004 Instalar no diretório aprovado na T003 (por exemplo, `C:\Telemetry\playwright-002\`): `npm i playwright@<versão aprovada>` e `npx playwright install chromium`. Anotar a versão e a data de publicação para o `research.md`. Nada muda no `package.json` do front. (FR-016c; T4, D11)
-- [ ] T005 [P] Escrever o script de captura em `specs/002-npm-audit-triage/evidence/tools/captureStates.mjs`:
+- [X] T003 [MANUAL] [PARADA] Aprovar a instalação do Playwright e do Chromium dele fora dos dois repositórios. Antes, a sessão mostra a versão escolhida pela regra do D11 (a mais recente publicada antes do corte, com a data de `npm view playwright time`) e o diretório de instalação proposto, fora dos dois repositórios (por exemplo, `C:\Telemetry\playwright-002\`). **Entrega**: aprovação explícita, ou outra versão ou diretório. (T4; D1, D11)
+- [X] T004 Instalar no diretório aprovado na T003 (por exemplo, `C:\Telemetry\playwright-002\`): `npm i playwright@<versão aprovada>`, conferir com `npx playwright --version` de dentro da pasta que a versão é a aprovada (para o `npx` não buscar outra) e, com `PLAYWRIGHT_BROWSERS_PATH=<pasta>\browsers` definida, `npx playwright install chromium`. O Chromium fica dentro da mesma pasta. Anotar a versão e a data de publicação para o `research.md`. Nada muda no `package.json` do front. (FR-016c; T4, D11)
+- [X] T005 [P] Escrever o script de captura em `specs/002-npm-audit-triage/evidence/tools/captureStates.mjs`:
   - comentário no topo com o comando para rodar e a versão do Playwright (T5);
+  - a variável `PLAYWRIGHT_BROWSERS_PATH`, com a mesma pasta de navegadores da instalação, é obrigatória na hora de rodar e fica documentada no comentário do topo; sem ela o script sai com mensagem clara;
   - o diretório do Playwright entra pelo argumento `--playwright-dir` ou pela variável `PLAYWRIGHT_DIR`, documentados no comentário do topo, e o Playwright é carregado de lá (`createRequire`). Nenhum caminho absoluto da máquina da mantenedora fica no script. Sem o diretório, o script sai com uma mensagem clara, sem tentar resolver o Playwright de dentro do repositório e sem `npm install` nele;
   - argumentos: URL base do preview, prefixo `NN`, id da sessão, volta de comparação com cache, volta sem cache e pasta de saída;
   - viewport fixo de 1440×900 e os 6 estados da lista fixa, nos nomes `NN-<n>-<estado>.png` (quickstart, parte 6);
   - no estado 5, registrar o status da resposta do `POST` de análise e falhar se não for 503.
   - (FR-016b, FR-016c; T4, T5; research, ponto 5)
-- [ ] T006 [P] No worktree da `main`, `npm run dev` (porta 5173) e abrir `http://localhost:5173` no Chromium da T004: o app carrega. Anotar como referência para o cenário 3 da US2, conferido de novo na T041. Encerrar o servidor. (US2; D1)
-- [ ] T007 [MANUAL] [PARADA] Preparar a cópia do banco (research, ponto 6, passos 1–3):
+- [X] T006 [P] No worktree da `main`, `npm run dev` (porta 5173) e abrir `http://localhost:5173` no Chromium da T004: o app carrega. Anotar como referência para o cenário 3 da US2, conferido de novo na T041. Encerrar o servidor. (US2; D1)
+- [X] T007 [MANUAL] [PARADA] Preparar a cópia do banco (research, ponto 6, passos 1–3):
   - criar `C:\Telemetry\snapshots-002\` e o `api-conferencia.env` (cópia do `.env.example` da API só com as portas, sem a linha da chave);
   - gerar a cópia mestra com `VACUUM INTO 'C:/Telemetry/snapshots-002/telemetry-master.db'`;
   - escolher a sessão, a volta de comparação com análise em cache (cuja volta principal é a mais recente) e uma volta sem cache.
   - **Entrega**: confirmação de que a mestra e o `.env` de conferência existem, o id da sessão, a volta com cache e a volta sem cache. Nenhum conteúdo do banco nem do `.env` vem para esta sessão.
   - (FR-016a; D8)
-- [ ] T008 [MANUAL] [PARADA] Rodada "antes" da API, pelo procedimento completo do D8 (research, ponto 6, passos 4–6):
+- [X] T008 [MANUAL] [PARADA] Rodada "antes" da API, pelo procedimento completo do D8 (research, ponto 6, passos 4–6):
+  - antes da cópia, `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` tem de dar `False` (o `Copy-Item` sobrescreve um arquivo existente, e um `-wal` que sobrou de uma rodada interrompida seria aplicado sobre a cópia nova); com `True`, a mantenedora investiga e limpa como na T010;
   - copiar a mestra para um `C:\Telemetry\snapshots-002\telemetry-run.db` novo;
   - no terminal da API, `DOTENV_CONFIG_PATH=C:\Telemetry\snapshots-002\api-conferencia.env` e `DB_PATH=C:\Telemetry\snapshots-002\telemetry-run.db`;
   - nesse terminal, rodar a conferência sem custo, `node -e "require('dotenv/config'); console.log(Boolean(process.env.ANTHROPIC_API_KEY))"`; com `true`, nada sobe e a mantenedora investiga;
   - só com `false`: subir a API (`npm run dev`) e conferir o log `[db] usando banco em …`;
-  - num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, iniciar o replay a 1x da gravação de exemplo.
-  - **Entrega**: o `false` impresso pela conferência, a confirmação de que o log aponta para a cópia e o aviso de que o replay começou. Sem o `false`, esta sessão não segue.
+  - **o replay não começa aqui**: ele começa na T009, quando a sessão do front avisar.
+  - **Entrega**: o `false` impresso pela conferência, a confirmação de que o log aponta para a cópia e de que as portas do `api-conferencia.env` batem com o `.env` do front. Sem o `false`, esta sessão não segue.
   - (FR-016a, FR-016c; D8)
-- [ ] T009 No worktree da `main`, com a API da T008 no ar:
+- [X] T009 [PARADA] No worktree da `main`, com a API da T008 no ar e sem replay:
   - `npm run build` e `npm run preview` (porta 4173);
-  - rodar `captureStates.mjs` com `NN = antes`, gravando em `specs/002-npm-audit-triage/evidence/` da branch; o estado 5 tem de registrar 503;
-  - percorrer o roteiro de navegação da parte 3 do quickstart como referência, anotando o resultado de cada passo.
+  - percorrer o roteiro de navegação da parte 3 do quickstart como referência, anotando o resultado de cada passo;
+  - **avisar "inicie o replay"** e esperar a mantenedora iniciar, num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, `npm run replay -- recordings/demo-interlagos-tt-20hz-laps6-8.jsonl` (1x, cerca de 3 min 43 s) e confirmar. **Entrega**: a confirmação de que o replay começou;
+  - só então rodar `captureStates.mjs` com `NN = antes`, `--session 1 --cache-lap 2 --nocache-lap 1`, gravando em `specs/002-npm-audit-triage/evidence/` da branch; o estado 5 tem de registrar 503. O dashboard é o primeiro estado, para cair dentro do replay.
   - (FR-009, FR-016, FR-016b, FR-016c; D1, D8)
-- [ ] T010 [MANUAL] Parar o replay e a API e apagar `telemetry-run.db` (research, ponto 6, passo 9). **Entrega**: confirmação. (FR-016a; D8)
-- [ ] T011 Revisar as capturas do "antes" imagem por imagem, procurando dado pessoal vindo do jogo ou da API (nome de jogador, piloto, conta ou máquina), e somar o tamanho total. Anotar o resultado e o total. (D1)
-- [ ] T012 [MANUAL] [PARADA] (se T011 achar dado pessoal ou o total passar de 5 MB) Decidir a saída: não commitar as imagens e deixar só a comparação no `research.md`, recortar, comprimir ou outra. **Entrega**: a decisão. Nada é commitado antes dela. (D1)
-- [ ] T013 Remover o worktree (`git worktree remove C:\Telemetry\wt-002-main`) e conferir que `git worktree list` só mostra o repositório. (D1)
+- [X] T010 [MANUAL] Parar o replay e a API (o replay e a API terminam antes da limpeza) e apagar os três arquivos da rodada, com caminhos explícitos: `C:\Telemetry\snapshots-002\telemetry-run.db`, `telemetry-run.db-wal` e `telemetry-run.db-shm`, e conferir que `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dá `False` (o banco da API usa `journal_mode = WAL`). **Entrega**: confirmação. (FR-016a; D8; research, ponto 6, passo 9)
+- [X] T011 Revisar as capturas do "antes" imagem por imagem, procurando dado pessoal vindo do jogo ou da API (nome de jogador, piloto, conta ou máquina), e somar o tamanho total. Anotar o resultado e o total. (D1)
+- [X] T012 [MANUAL] [PARADA] (não ocorreu: a T011 não achou nome nem identificador, e a mantenedora decidiu manter as datas reais; total de 0,57 MiB) (se T011 achar dado pessoal ou o total passar de 5 MB) Decidir a saída: não commitar as imagens e deixar só a comparação no `research.md`, recortar, comprimir ou outra. **Entrega**: a decisão. Nada é commitado antes dela. (D1)
+- [X] T013 Remover o worktree (`git worktree remove C:\Telemetry\wt-002-main`) e conferir que `git worktree list` só mostra o repositório. (D1)
 
 **Checkpoint**: referência medida; capturas revisadas guardadas em `evidence/`, ainda sem commit.
 
@@ -91,10 +95,10 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 **Purpose**: o primeiro commit da implementação é a emenda (D2); o segundo, o registro do "antes".
 
-- [ ] T014 Rodar o `/speckit-constitution` para reescrever a restrição de tecnologia de `.specify/memory/constitution.md`: React, TypeScript `strict`, Vite e React Router sem número de major, com a frase de que as versões vivem no `package.json`, a fonte única; o Node.js ≥ 22.17 fica, com o motivo atual. Mostrar a versão proposta, o motivo e o diff, sem aplicar. (FR-021; D2)
-- [ ] T015 [MANUAL] [PARADA] Aprovar a versão e o texto da emenda. **Entrega**: aprovação, ou ajuste no texto ou na versão. (FR-021; D2)
-- [ ] T016 Aplicar a emenda e commitar só `.specify/memory/constitution.md` como `docs: amend the constitution to keep library versions in package.json`, com o Sync Impact Report no corpo do commit. O `CLAUDE.md` não muda aqui. Guardar o Sync Impact Report para a descrição do PR (T023). (FR-021; D2)
-- [ ] T017 Criar a seção "Evidência da implementação" em `specs/002-npm-audit-triage/research.md` com o que foi medido na Phase 1: SHA da `main`, data, auditoria, tabela do bundle, navegadores-alvo, saída do `devListen`, versão e data do Playwright, lista das capturas, resultado da revisão e tamanho total. Rodar `npm run lint` e `npm run typecheck` com as ferramentas em `evidence/tools/` e registrar a saída (ESLint lê os `.mjs` com 0 regras e sai com 0; o `typecheck` não os inclui). Commitar `docs: record the baseline measurements for spec 002` com o `research.md`, `evidence/tools/` e as capturas aprovadas. (FR-003, FR-012, FR-013a, FR-015, FR-016b; D1, T5)
+- [X] T014 Rodar o `/speckit-constitution` para reescrever a restrição de tecnologia de `.specify/memory/constitution.md`: React, TypeScript `strict`, Vite e React Router sem número de major, com a frase de que as versões vivem no `package.json`, a fonte única; o Node.js ≥ 22.17 fica, com o motivo atual. Mostrar a versão proposta, o motivo e o diff, sem aplicar. (FR-021; D2)
+- [X] T015 [MANUAL] [PARADA] Aprovar a versão e o texto da emenda. **Entrega**: aprovação, ou ajuste no texto ou na versão. (FR-021; D2)
+- [X] T016 Aplicar a emenda e commitar só `.specify/memory/constitution.md` como `docs: amend the constitution to keep library versions in package.json`, com o Sync Impact Report no corpo do commit. O `CLAUDE.md` não muda aqui. Guardar o Sync Impact Report para a descrição do PR (T023). (FR-021; D2)
+- [X] T017 Criar a seção "Evidência da implementação" em `specs/002-npm-audit-triage/research.md` com o que foi medido na Phase 1. A contagem de produção é registrada por pacote (3, todos altos) e por advisory (6: 1 alta e 5 moderadas, com os GHSA), com a declaração de qual forma o research usa daqui em diante, a mesma em todas as fases. O bundle segue o método do research, ponto 7 ("Medição por worktree novo"): a referência do SC-004 é a medição do worktree da `main` (223.869 B), e as três medições do mesmo código (simulação, checkout da branch e worktree), com o resultado de `core.autocrlf` e `git ls-files --eol` e o motivo da escolha, já estão lá e são citadas aqui. O conteúdo: SHA da `main`, data, auditoria, tabela do bundle, navegadores-alvo, saída do `devListen`, versão e data do Playwright, lista das capturas, resultado da revisão e tamanho total. Rodar `npm run lint` e `npm run typecheck` com as ferramentas em `evidence/tools/` e registrar a saída (ESLint lê os `.mjs` com 0 regras e sai com 0; o `typecheck` não os inclui). Commitar `docs: record the baseline measurements for spec 002` com o `research.md`, `evidence/tools/` e as capturas aprovadas. (FR-003, FR-012, FR-013a, FR-015, FR-016b; D1, T5)
 
 **Checkpoint**: constituição verdadeira antes e depois de cada troca; referência commitada.
 
@@ -110,7 +114,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T019 [US2] Rodar `npm audit fix --before=<corte da Fase 1>`. Conferir que o `package.json` não mudou e que o lockfile tem os binários de plataforma do Linux esperados (research, ponto 4). Anotar as versões resolvidas e as datas. Se D11 se aplicar, ir para T021 antes do commit. Commitar `package-lock.json` como `fix: apply npm audit fix within the current ranges`. (FR-004; D3, D11)
 - [ ] T020 [US2] Rodar `npm install -D eslint@^9.39 @eslint/js@^9.39 --before=<corte da Fase 1>`. O piso no `package.json` fica `^9.39.<patch resolvido>`, sem mudar regras nem `eslint.config.js`; `eslint .` sem avisos. Se D11 se aplicar, ir para T021 antes do commit. Commitar `package.json` e `package-lock.json` como `fix: update ESLint to 9.39`. (FR-014; D3, T1, D11)
 - [ ] T021 [MANUAL] [PARADA] [US4] (se nenhuma versão adequada existir antes do corte em T019 ou T020) A sessão registra no `research.md` o pacote, o advisory, a primeira versão que corrige e a data dela. **Entrega**: a decisão entre esperar a versão completar 14 dias, abrir uma exceção registrada só para aquele pacote ou seguir sem a correção e registrar a vulnerabilidade como restante. (FR-002; D11)
-- [ ] T022 [US4] Verificar a fase e anotar para o commit de registro (T026): os quatro scripts passam; `npm audit` e `npm audit --omit=dev` com a data (esperado 5 e 2 moderadas; diferença registrada e explicada); `eslint .` sem avisos; bundle medido com `evidence/tools/bundleSizes.mjs`. (FR-003, FR-005; D3; quickstart, partes 1, 2 e 4)
+- [ ] T022 [US4] Verificar a fase e anotar para o commit de registro (T026): os quatro scripts passam; `npm audit` e `npm audit --omit=dev` com a data (esperado 5 e 2 moderadas; diferença registrada e explicada); `eslint .` sem avisos; bundle medido num worktree novo do commit da T020 (`git worktree add --detach C:\Telemetry\wt-002-fase1 <sha>`, `.env`, `npm ci`, `npm run build`, `evidence/tools/bundleSizes.mjs`), removido com `git worktree remove` depois da medição. (FR-003, FR-005, FR-015; D3; quickstart, partes 1, 2 e 4; research, ponto 7)
 - [ ] T023 [MANUAL] [PARADA] [US4] Aprovar o push 1 e a abertura do PR. A sessão mostra antes o título e a descrição do PR, com o Sync Impact Report da T016 e sem rodapé. **Entrega**: aprovação explícita do push e da abertura. (FR-006a, FR-021; D2, D5)
 - [ ] T024 [US4] Dar o push da branch e abrir o PR contra a `main` com `gh pr create`. (FR-006a; D5)
 - [ ] T025 [US4] Esperar a CI com `gh run watch` até o fim e anotar o id da execução, o SHA e o resultado dos quatro checks (`typecheck`, `lint`, `test`, `build`). Com a CI vermelha (D5), nunca pulando check:
@@ -131,7 +135,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T026 [US4] Registrar no `research.md` o corte da Fase 2 e os resultados da Fase 1 (T019, T020, T022 e a execução da T025). Commitar `docs: record the phase 1 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
 - [ ] T027 [US1] Refazer a busca de `<Link`, `navigate(`, `useNavigate`, `redirect` e `Navigate` em `src/` e confirmar que a tabela "Verificação formal do FR-007" do `research.md` continua completa. Uma ocorrência nova entra na tabela, com a origem do destino, no commit da T031. (FR-007)
 - [ ] T028 [MANUAL] [PARADA] [US1] Subir a API para a navegação da Fase 2, pelo procedimento completo do D8 (segunda rodada):
-  - copiar a mestra para um `telemetry-run.db` novo;
+  - `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False` e, só então, copiar a mestra para um `telemetry-run.db` novo;
   - `DOTENV_CONFIG_PATH` e `DB_PATH` apontando para o `api-conferencia.env` e o `telemetry-run.db`, como na T008;
   - conferência sem custo; só com `false`, subir a API e conferir o log;
   - sem replay e sem clique no coach.
@@ -151,9 +155,9 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
   - `npm audit --omit=dev` dá 0 e `npm audit` dá o resultado esperado (3, só a cadeia do Vite), com a data;
   - o roteiro da parte 3 do quickstart passa em `npm run build && npm run preview`, com a API da T028;
   - `git diff main -- src/` mostra só as linhas de import;
-  - bundle medido.
-  - (FR-001, FR-003, FR-005, FR-009, FR-019; D4; quickstart, partes 1 a 4 e 8)
-- [ ] T033 [MANUAL] [US1] Parar a API e apagar `telemetry-run.db`. **Entrega**: confirmação. (D8)
+  - bundle medido num worktree novo do commit da T031 (`git worktree add --detach C:\Telemetry\wt-002-fase2 <sha>`, `.env`, `npm ci`, `npm run build`, `bundleSizes.mjs`), removido com `git worktree remove` depois.
+  - (FR-001, FR-003, FR-005, FR-009, FR-015, FR-019; D4; quickstart, partes 1 a 4 e 8; research, ponto 7)
+- [ ] T033 [MANUAL] [US1] Parar a API e apagar os três arquivos da rodada, como na T010 (`telemetry-run.db`, `telemetry-run.db-wal` e `telemetry-run.db-shm`, com `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False`). **Entrega**: confirmação. (D8)
 - [ ] T034 [MANUAL] [PARADA] [US4] Aprovar o push 2. **Entrega**: aprovação explícita. (FR-006a; D5)
 - [ ] T035 [US4] Dar o push da branch. (FR-006a; D5)
 - [ ] T036 [US4] Esperar a CI com `gh run watch` e anotar o id, o SHA e o resultado dos quatro checks, como na T025, com a mesma regra para a CI vermelha. **A Phase 5 só começa depois desta tarefa, com a CI verde.** (FR-005, FR-006a; D5)
@@ -187,20 +191,20 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T041 [US3] Medir o "depois" e anotar:
   - os quatro scripts passam;
   - `npm audit` e `npm audit --omit=dev` dão 0, com a data;
-  - bundle medido e comparado por papel com a `main`; variação do total acima de 10% ganha explicação;
+  - bundle medido num worktree novo do commit da T040 (`git worktree add --detach C:\Telemetry\wt-002-fase3 <sha>`, `.env`, `npm ci`, `npm run build`, `bundleSizes.mjs`), removido com `git worktree remove` depois, e comparado por papel com a medição do worktree da `main` (223.869 B); variação do total acima de 10% ganha explicação;
   - navegadores-alvo pelo padrão do Vite 8, conferidos na ajuda da CLI;
   - o endereço de escuta já medido na T039 vai para as notas;
   - `npm run dev` (porta 5173) e `http://localhost:5173` carrega o app, como na T006.
   - (FR-001, FR-002, FR-003, FR-012, FR-015; US2 cenário 3; D7; quickstart, partes 1, 2 e 4)
 - [ ] T042 [MANUAL] [PARADA] [US3] Rodada "depois" da API, pelo procedimento completo do D8 (terceira rodada), com os mesmos passos da T008:
-  - copiar a mestra para um `telemetry-run.db` novo;
+  - `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False` e, só então, copiar a mestra para um `telemetry-run.db` novo;
   - `DOTENV_CONFIG_PATH` e `DB_PATH` apontando para o `api-conferencia.env` e o `telemetry-run.db`;
   - conferência sem custo; só com `false`, subir a API e conferir o log;
-  - replay a 1x num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`.
-  - **Entrega**: o `false` da conferência, a confirmação do log e o aviso de que o replay começou. Sem o `false`, esta sessão não segue.
+  - o replay não começa aqui: começa na T043, quando a sessão do front avisar.
+  - **Entrega**: o `false` da conferência, a confirmação do log e de que as portas batem com o `.env` do front. Sem o `false`, esta sessão não segue.
   - (FR-016a, FR-016c; D8)
-- [ ] T043 [US3] Com a API da T042: `npm run build`, `npm run preview`, `captureStates.mjs` com `NN = depois` (estado 5 com 503) e o roteiro da parte 3 do quickstart. (FR-009, FR-016, FR-016b, FR-016c; D7, D8)
-- [ ] T044 [MANUAL] [US3] Parar o replay e a API e apagar `telemetry-run.db`. **Entrega**: confirmação. (D8)
+- [ ] T043 [US3] [PARADA] Com a API da T042 e sem replay: `npm run build`, `npm run preview` e o roteiro da parte 3 do quickstart; depois **avisar "inicie o replay"** e esperar a mantenedora iniciar `npm run replay -- recordings/demo-interlagos-tt-20hz-laps6-8.jsonl` (1x) e confirmar (**Entrega**: a confirmação); só então rodar `captureStates.mjs` com `NN = depois` (estado 5 com 503). (FR-009, FR-016, FR-016b, FR-016c; D7, D8)
+- [ ] T044 [MANUAL] [US3] Parar o replay e a API e apagar os três arquivos da rodada, como na T010. **Entrega**: confirmação. (D8)
 - [ ] T045 [US3] Revisar as capturas do "depois" como na T011, somando ao total do "antes". (D7, D1)
 - [ ] T046 [MANUAL] [PARADA] [US3] (se T045 tiver achado) Mesma decisão da T012. **Entrega**: a decisão. (D7, D1)
 - [ ] T047 [US3] Comparar as capturas estado por estado e anotar no `research.md`: layout, cores, tipografia, eixos, legendas e traçado dos gráficos SVG, mapa da pista, painel do coach e estilos dos CSS Modules, sem os valores ao vivo. Toda diferença tem explicação. Se alguma correção exigir mudar código da aplicação (`src/`, `index.html` ou CSS), não mudar e ir para T048. (FR-016, FR-019; D7; quickstart, parte 6)
@@ -226,6 +230,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T056 Esperar a CI com `gh run watch` e registrar o id, o SHA e o resultado dos quatro checks na descrição do PR (`gh pr edit`). O `research.md` já aponta para lá. CI vermelha segue a regra da T025; o registro do re-run ou da correção vai na descrição do PR. (FR-005, FR-006a; D5)
 - [ ] T057 [MANUAL] [PARADA] Fazer o merge com Rebase and merge, com o PR verde e a branch atualizada. **Entrega**: aviso do merge. (D10)
 - [ ] T058 [MANUAL] Depois do merge, apagar a cópia mestra `C:\Telemetry\snapshots-002\telemetry-master.db`. **Entrega**: confirmação. (FR-016a; D8, D10)
+- [ ] T058a [MANUAL] Depois do merge, apagar a pasta `C:\Telemetry\playwright-002\` (o Playwright e o Chromium dele, cerca de 720 MB). **Entrega**: confirmação. (FR-016c; T4, D1, D10)
 - [ ] T059 Depois da T057 e da T058, como na spec 001: `git switch main`, `git pull` e uma branch nova a partir da `main` atualizada. O ruleset bloqueia push direto na `main`, então este registro vai num **PR próprio**. Registrar o merge (número do PR e SHA na `main`) no `research.md` e marcar T054 a T058 neste arquivo. Rodar os quatro checks e commitar `docs: record the PR merge for spec 002`. (FR-006a; D10)
 - [ ] T060 [MANUAL] [PARADA] Aprovar o push da branch da T059 e a abertura do PR dela. **Entrega**: aprovação explícita. (D5, D10)
 - [ ] T061 Dar o push, abrir o PR com `gh pr create` e esperar a CI com `gh run watch`, com a regra da T025 para a CI vermelha. (FR-005; D5, D10)
@@ -249,6 +254,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 | T003 | aprovação da instalação do Playwright |
 | T007 | cópia mestra, `.env` de conferência, sessão e voltas |
 | T008, T028, T042 | o `false` da conferência e a API no ar |
+| T009, T043 | o aviso "inicie o replay" e a confirmação de que ele começou, antes das capturas |
 | T012, T046 | (se houver achado) decisão sobre as imagens |
 | T015 | aprovação da versão e do texto da emenda |
 | T021, T030, T038 | (se não houver versão antes do corte) decisão do D11 |

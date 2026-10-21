@@ -367,6 +367,7 @@ São tirados duas vezes: antes, na `main`, e depois, na Fase 3. Se houver recuo 
 - **Versão fixa**, escolhida pela regra do corte de 14 dias (D11) no dia da instalação e registrada aqui com a data de publicação. Em 2026-10-21, a regra daria a 1.63.0 (2026-09-04): a 1.64.0 saiu em 2026-10-07 e a 1.64.1 em 2026-10-14.
 - **A instalação** (`npm i playwright@<versão>` num diretório fora dos repositórios, mais `npx playwright install chromium`) **para e espera a aprovação da mantenedora**.
 - **O script de captura** fica em `evidence/tools/` (T5), com a versão do Playwright no comentário do topo.
+- **Desvio do plano, aprovado pela mantenedora em 2026-10-21 (T003)**: o Chromium não fica no diretório padrão do Playwright, e sim dentro da pasta de instalação (`PLAYWRIGHT_BROWSERS_PATH=<pasta>\browsers`, a mesma variável definida na instalação e na captura), para que apagar a pasta apague tudo. A pasta inteira é apagada pela mantenedora depois do merge (tarefa T058a). O tamanho medido na instalação foi de cerca de 723 MB (Chromium, headless shell, ffmpeg e winldd), contra os ~150 MB estimados acima.
 
 ## 6. Procedimento da conferência visual com a API
 
@@ -440,12 +441,18 @@ Comando: definir `PROBE_EMPTY` como string vazia no shell e perguntar ao Node se
 | 1 | Criar a pasta `C:\Telemetry\snapshots-002\` (irmã dos dois repositórios, fora de ambos). | Mantenedora | — |
 | 2 | Gerar a cópia **mestra** com `VACUUM INTO 'C:/Telemetry/snapshots-002/telemetry-master.db'` sobre `data/telemetry.db`, só lendo o banco real. Conferir que a cópia abre e tem as tabelas (`sessions`, `laps`, `lap_analyses`). A regra da API de fazer backup antes de operar no banco real se aplica, mas o `VACUUM INTO` não escreve no original. | Mantenedora ou sessão do Claude Code na API | Repositório da API |
 | 3 | Listar, na cópia mestra, uma sessão com análise em cache cujo `lapA` seja a **última** volta da sessão (o front sempre usa a mais recente como principal) e anotar o `lapB`. Anotar também uma volta de comparação **sem** cache na mesma sessão, para o estado de 503. | Mantenedora ou sessão da API | Repositório da API |
-| 4 | Para cada rodada (antes, navegação da Fase 2 e depois; plano D8), copiar a mestra para `C:\Telemetry\snapshots-002\telemetry-run.db`. Cada rodada começa do mesmo estado, porque a API grava no banco a sessão reproduzida. | Mantenedora | — |
+| 4 | Para cada rodada (antes, navegação da Fase 2 e depois; plano D8), conferir que `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dá `False` e só então copiar a mestra para `C:\Telemetry\snapshots-002\telemetry-run.db` (o `Copy-Item` sobrescreve, e um `-wal` que sobrou seria aplicado sobre a cópia nova: ver "Journal WAL" abaixo). Cada rodada começa do mesmo estado, porque a API grava no banco a sessão reproduzida. | Mantenedora | — |
 | 5 | No terminal da API, definir `DOTENV_CONFIG_PATH=C:\Telemetry\snapshots-002\api-conferencia.env` (cópia do `.env.example` só com as portas, sem a linha da chave) e `DB_PATH=C:\Telemetry\snapshots-002\telemetry-run.db`. Rodar a **conferência sem custo** e seguir só com `false`. Subir a API (`npm run dev`) e conferir no log `[db] usando banco em …` que o banco é a cópia. | Mantenedora ou sessão da API | Repositório da API |
-| 6 | Num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, iniciar o replay a 1x da gravação de exemplo. | Mantenedora ou sessão da API | Repositório da API |
+| 6 | Num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, iniciar o replay a 1x da gravação de exemplo, **só quando a sessão do front avisar "inicie o replay"** (depois do build, do `preview` e do roteiro de navegação) e antes das capturas. | Mantenedora ou sessão da API | Repositório da API |
 | 7 | Gerar o build de produção do front da rodada e servi-lo com `npm run preview`, com `.env` apontando para a API local. Só começa depois que a mantenedora informar o `false` do passo 5. | Agente (esta sessão) | Front |
 | 8 | Capturar os 6 estados da lista fixa com o Playwright (T4), com o mesmo viewport. O estado 5 é o clique em "analisar" na volta sem cache: a resposta tem de ser 503, e o painel mostra a mensagem. | Agente (esta sessão) | Front |
-| 9 | Parar o replay e a API e apagar `telemetry-run.db`. A cópia mestra é mantida até o merge e depois apagada. | Mantenedora | — |
+| 9 | Parar o replay e a API e apagar, com caminhos explícitos, `telemetry-run.db`, `telemetry-run.db-wal` e `telemetry-run.db-shm`, conferindo que `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dá `False`. A cópia mestra é mantida até o merge e depois apagada. | Mantenedora | — |
+
+### Journal WAL e duração do replay (lidos na API em 2026-10-21, só leitura)
+
+- **WAL**: `src/persistence/db.ts` faz `db.pragma("journal_mode = WAL")` logo depois de abrir o banco. Enquanto a API roda, existem `telemetry-run.db-wal` e `telemetry-run.db-shm` ao lado do banco. Um `-wal` que sobrar de uma rodada interrompida seria aplicado pelo SQLite sobre uma cópia nova da mestra com o mesmo nome. Por isso a limpeza apaga os três arquivos, e a cópia só é feita com `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False`. O `Copy-Item` do PowerShell sobrescreve um arquivo existente; ele não falha.
+- **Duração do replay**: `recordings/demo-interlagos-tt-20hz-laps6-8.jsonl` tem 13.960 linhas, `timestampMs` de 0 ao último de **222.839 ms** (3 min 43 s), e o `replayer.ts` reenvia respeitando o `timestampMs` a 1x (padrão, sem `--loop`). Rodado inteiro, o replay termina sozinho.
+- **Folga das capturas**: só o estado 1 (dashboard ao vivo) depende do replay, e é o primeiro do `captureStates.mjs` (espera 8 s depois de carregar). Os outros cinco usam a sessão 1 da cópia, já gravada, e a sessão reproduzida (que aparece em andamento no histórico). O estado que depende do replay é capturado cerca de 8 a 10 s depois do início do script, dentro dos 223 s do replay; os outros cinco não dependem do tempo dele.
 
 Notas:
 - A **ordem dos estados** na captura importa: o dashboard ao vivo é capturado com o replay em curso (alguns segundos depois do início, num ponto fixo do roteiro). Os estados de histórico e análise usam sessões já gravadas na cópia, então não dependem do replay.
@@ -461,6 +468,21 @@ Notas:
 - O build é medido **quatro vezes**: na `main`, antes da Fase 1 (junto com as capturas do "antes"), e ao fim de cada fase. Todos são medidos no Windows, com o Node do `.nvmrc`.
 - Os números de referência para o SC-004 são o da `main` e o do fim da Fase 3. Os intermediários explicam de onde veio cada variação.
 - O gatilho de explicação (SC-004) é a variação do **total**, em qualquer das três medidas, acima de 10% entre a `main` e o fim da Fase 3. É gatilho de explicação, não de reprovação.
+
+### Medição por worktree novo (decisão da mantenedora em 2026-10-21, durante a T002)
+
+O mesmo código (`main` em `f762435`) deu três totais brutos diferentes, todos com `vite` 5.4.10:
+
+| Onde | Total bruto (B) | gzip -9 (B) | brotli 11 (B) |
+|---|---:|---:|---:|
+| Simulação (worktree descartável, ponto 2) | 223.793 | 70.411 | 61.886 |
+| Checkout da branch `002-npm-audit-triage` (`git diff main` vazio em `src/`, `package*.json`, `vite.config.ts` e `index.html`) | 223.787 | 70.427 | 61.856 |
+| **Worktree da `main` (T002), referência do SC-004** | **223.869** | **70.440** | **61.913** |
+
+- **Fins de linha**: `core.autocrlf` é `true` (config do Git for Windows) nos dois checkouts, e o índice está em LF. No worktree da `main`, todos os arquivos conferidos estão em CRLF. No checkout da branch são mistos (17 arquivos `.ts`/`.tsx` em CRLF, e `router.tsx` em LF enquanto `main.tsx` está em CRLF).
+- **Causa**: **não confirmada**. O teste direto não foi possível: `git -c core.autocrlf=false checkout-index -f` e `git archive` continuaram entregando CRLF. A diferença de até 82 B fica registrada como não explicada, sem afirmar a causa.
+- **Decisão**: o checkout da branch não serve de referência, porque o total muda conforme os arquivos são editados. Toda medição de bundle, o "antes" e cada "depois", é feita num worktree novo do commit medido, com `npm ci`, fora do repositório. A referência do SC-004 é o worktree da `main` (223.869 B).
+- **Método**: `git worktree add --detach C:\Telemetry\wt-002-<fase> <sha>`, `.env` copiado do `.env.example`, `npm ci`, `npm run build`, `bundleSizes.mjs dist`, e `git worktree remove` depois da medição.
 
 ### Onde fica registrado
 
@@ -488,3 +510,92 @@ O crescimento vem do React Router 7 (+17 KB brutos no JS). O Vite 8 recupera um 
 - **As medições finais**: auditoria, bundle, navegadores-alvo e endereço de escuta.
 - **As capturas e a comparação anotada** (SC-005).
 - **A conferência dos alertas do Dependabot pela API do GitHub**, depois que a mantenedora os ligar.
+
+## Evidência da implementação
+
+### Como a auditoria é contada daqui em diante
+
+O `npm audit` conta **por pacote**, e é essa a forma oficial desta feature, usada em todas as fases, no quickstart e no FR-001/FR-002. Ao lado de cada contagem vai a lista dos advisories (GHSA) que a explicam. Na `main`:
+
+| Forma | Total | Produção (`--omit=dev`) |
+|---|---|---|
+| **Por pacote** (a do `npm audit`) | 27 (1 baixa, 3 moderadas, 23 altas) | 3 pacotes, todos altos: `@remix-run/router`, `react-router`, `react-router-dom` |
+| Por advisory (detalhe) | não contado | 6 advisories: 1 alto e 5 moderados |
+
+Advisories de produção na `main` (via `npm audit --omit=dev --json`):
+- alto: `GHSA-2w69-qvjg-hvjx` (`@remix-run/router` `<=1.23.1`);
+- moderados: `GHSA-2j2x-hqr9-3h42` (duas faixas, `@remix-run/router` `<1.23.3` e `react-router` `<6.30.4`), `GHSA-9jcx-v3wj-wh4m` (`react-router` `<6.30.2`), `GHSA-wrjc-x8rr-h8h6` (`<7.18.0`) e `GHSA-337j-9hxr-rhxg` (`<7.18.0`).
+
+A descrição do pedido ("uma alta e duas moderadas" em produção) não coincide com nenhuma das duas formas: o texto do pedido veio de uma leitura anterior da saída. O total (27) coincide. Os pacotes saem todos como altos porque a gravidade de um pacote sobe pela cadeia de dependências. As duas moderadas que o plano diz que sobram depois do `audit fix` são as `<7.18.0`.
+
+### Medições do "antes", na `main` (T001, T002)
+
+- `main` em `f762435a08c58355cd542393746464d89b401060`, medida em 2026-10-21, com Node v22.23.1 e npm 10.9.8, no Windows, num worktree fora do repositório (`C:\Telemetry\wt-002-main`, `npm ci`, `.env` do `.env.example`), com o `vite` 5.4.10 instalado.
+- **Bundle** (`evidence/tools/bundleSizes.mjs`, referência do SC-004; método e as três medições do mesmo código em "Medição por worktree novo", ponto 7):
+
+| Arquivo | Bruto (B) | gzip -9 (B) | brotli 11 (B) |
+|---|---:|---:|---:|
+| `assets/index-CxJ9pMGc.css` | 20.280 | 4.365 | 3.820 |
+| `assets/index-eFxhx-Fk.js` | 203.177 | 65.799 | 57.917 |
+| `index.html` | 412 | 276 | 176 |
+| **Total** | **223.869** | **70.440** | **61.913** |
+
+- **Navegadores-alvo efetivos** (`ESBUILD_MODULES_TARGET`, `node_modules/vite/dist/node/constants.js`, Vite 5.4.10): `es2020`, `edge88`, `firefox78`, `chrome87`, `safari14`.
+- **Endereço de escuta** (`evidence/tools/devListen.mjs 5191`, sem `--host`):
+
+```text
+  VITE v5.4.10  ready in 366 ms
+  ➜  Local:   http://localhost:5191/
+  ➜  Network: use --host to expose
+--- LISTEN na porta 5191
+  TCP    [::1]:5191             [::]:0                 LISTENING       25776
+```
+
+- **App no servidor de desenvolvimento** (T006): `vite` da `main` na porta 5173, aberto no Chromium do Playwright: HTTP 200, título `F1 Telemetry`, `#root` com um filho e 0 erros de página.
+- **Roteiro de navegação** da parte 3 do quickstart no `preview` da `main` (porta 4173), com a API local e a sessão 1, por um script descartável do scratchpad (0 POSTs, 0 erros de página). Todos os passos passaram:
+  1. `/` abre o dashboard, com `Conectado ws://localhost:8080`;
+  2. o link "Sessões" leva a `/sessions`, com a tabela (2 sessões);
+  3. clique, Enter e Espaço numa linha levam a `/sessions/1`;
+  4. o botão de voltar leva a `/sessions`;
+  5. `/settings` pelo dashboard e a volta para `/`;
+  6. a recarga em `/sessions/1` carrega a análise (`Sessão de 20/08/2026 · 14:01`, 3 voltas, última 1:21.158, melhor 1:11.982);
+  7. `/sessions/999999` mostra `Sessão não encontrada.`;
+  8. `/rota-inexistente` mostra a página de rota inexistente, e o link de volta leva a `/`;
+  9. voltar e avançar do navegador deram `/settings /sessions / /sessions`.
+
+  Na primeira execução, o passo 3 acusou falha só porque o script clicou a primeira linha da tabela, a sessão 2. Corrigi o script para clicar a linha da sessão 1; o app estava certo.
+
+### Playwright e capturas (T003, T004, T005, T009)
+
+- **Playwright 1.63.0**, publicado em 2026-09-04, a mais recente antes do corte de 14 dias (2026-10-07). Instalado em `C:\Telemetry\playwright-002\`, fora dos dois repositórios, com `npx playwright --version` = 1.63.0 conferido antes do Chromium. O Chromium ficou em `C:\Telemetry\playwright-002\browsers` (`PLAYWRIGHT_BROWSERS_PATH`): 723 MB no total da pasta (desvio do plano, descrito no ponto 5). Nenhuma mudança no `package.json` do front.
+- **Procedimento da API** (T007, T008, T009): `C:\Telemetry\snapshots-002\telemetry-master.db` gerado por `VACUUM INTO` com a API parada e `PRAGMA integrity_check` = ok; `api-conferencia.env` só com `WS_PORT=8080`, `UDP_PORT=20777` e `HTTP_PORT=3001`; a conferência da chave deu `false` e o log `[db] usando banco em …` apontou para `telemetry-run.db`; o replay a 1x (13.960 linhas, 222.839 ms) só começou depois do build, do `preview` e do roteiro de navegação, e antes das capturas. Sessão 1, volta 3 como principal, comparação com a volta 2 (com cache) e com a volta 1 (sem cache). A limpeza da rodada (T010) apagou os três arquivos de `telemetry-run.db*`, conferida por `Test-Path` = `False`.
+- **Capturas do "antes"** (`captureStates.mjs`, viewport 1440 de largura, `--prefix antes`; o POST do estado 5 respondeu **503**):
+
+| Arquivo | Tamanho (B) |
+|---|---:|
+| `evidence/antes-1-dashboard.png` | 53.233 |
+| `evidence/antes-2-historico.png` | 20.563 |
+| `evidence/antes-3-analise.png` | 125.844 |
+| `evidence/antes-4-coach-cache.png` | 234.237 |
+| `evidence/antes-5-coach-503.png` | 127.064 |
+| `evidence/antes-6-configuracoes.png` | 37.417 |
+| **Total** | **598.358 (≈ 0,57 MiB)** |
+
+- **Revisão das imagens** (T011): as seis foram vistas inteiras. Nenhuma tem nome de jogador, de piloto, de conta ou de máquina; aparecem `ws://localhost:8080`, `http://localhost:3001`, valores de telemetria e o texto do coach. O histórico e a análise mostram a data e a hora de duas sessões reais (`20/08/2026 14:01` e `16/10/2026 14:18`): a mantenedora decidiu que ficam como estão (T015) e que as imagens são commitadas. Total de 0,57 MiB, contra a referência de 5 MB para a feature inteira. A T012 não ocorreu.
+
+### Observações anteriores a esta spec (não são regressão e nada disso se corrige aqui)
+
+Vistas nas capturas do "antes", na `main`:
+- o gráfico de delta acumulado aparece como um **bloco sólido**, com rótulos de eixo incoerentes;
+- a volta 1, inválida, desenha um **pico vertical** no gráfico de velocidade e uma **reta** no mapa (captura 5);
+- o histórico mostrou **2 sessões**, não 3 como era esperado com o replay gravando uma sessão nova, **sem causa afirmada**.
+
+### Worktrees
+
+- O worktree `C:\Telemetry\wt-002-main` foi removido com `git worktree remove --force`, porque tinha `dist/` e `node_modules/` não rastreados. **O `git status --porcelain` dele não foi mostrado antes da remoção**, como a mantenedora passou a exigir depois. O que existe como prova: o `git status --short` logo depois do `npm ci` e do `.env` não listava nada (o `.env` é ignorado), e dentro dele só rodaram builds (`dist/`, ignorado) e `git checkout-index -f`, que reescreve arquivos rastreados com o mesmo conteúdo. A partir daqui, antes de qualquer `git worktree remove --force`, o `git status --porcelain` do worktree é mostrado e registrado junto da medição.
+
+### `lint` e `typecheck` com as ferramentas em `evidence/tools/` (T5)
+
+Saídas, em 2026-10-21, com `bundleSizes.mjs`, `devListen.mjs` e `captureStates.mjs` no repositório:
+- `npm run lint` (`eslint .`): sem nenhuma linha de aviso, saída 0. `npx eslint --print-config` de um `.mjs` em `evidence/tools/` mostra **0 regras ativas**.
+- `npm run typecheck` (`tsc -b`): sem erros, saída 0, e a lista de arquivos do `tsc -b` não tem nenhum caminho de `specs/`.
