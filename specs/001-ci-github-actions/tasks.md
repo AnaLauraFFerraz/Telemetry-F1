@@ -176,7 +176,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 **Independent Test**: no PR, os quatro checks `typecheck`, `lint`, `test` e `build` aparecem com resultado próprio e terminam verdes.
 
-- [ ] T019 [US1] Criar `.github/workflows/ci.yml` conforme plan.md D1–D7:
+- [X] T019 [US1] Criar `.github/workflows/ci.yml` conforme plan.md D1–D7:
   - `name: CI`;
   - `on.pull_request.branches: [main]` e `on.push.branches: [main]`, sem `paths`, `paths-ignore` ou `workflow_dispatch`;
   - `permissions: contents: read` no topo;
@@ -185,7 +185,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - passos de cada job: `actions/checkout@v7` com `persist-credentials: false`; `actions/setup-node@v7` com `node-version-file: .nvmrc` e `cache: npm`; `npm ci`; e o script do job (`npm run typecheck`, `npm run lint`, `npm test` ou `npm run build`);
   - nenhuma action de terceiros.
   - (FR-001–FR-008, FR-016, FR-023–FR-025; SC-001, SC-002, SC-007)
-- [ ] T020 [US1] Revisar `ci.yml` contra a lista de T019, item por item. Rodar os quatro scripts localmente e commitar `chore: add CI workflow with typecheck, lint, test and build jobs`. (FR-005)
+- [X] T020 [US1] Revisar `ci.yml` contra a lista de T019, item por item. Rodar os quatro scripts localmente e commitar `chore: add CI workflow with typecheck, lint, test and build jobs`. (FR-005)
 - [ ] T021 [US1] **[PARADA]** Push da branch: `git push -u origin 001-ci-github-actions`. (FR-001)
 - [ ] T022 [US1] **[PARADA]** Abrir o PR para a `main` com `gh pr create`:
   - título `CI with GitHub Actions (spec 001)`;
