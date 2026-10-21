@@ -134,33 +134,33 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 - [X] T026 [US4] Registrar no `research.md` o corte da Fase 2 e os resultados da Fase 1 (T019, T020, T022 e a execução da T025). Commitar `docs: record the phase 1 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
 - [X] T027 [US1] Refazer a busca de `<Link`, `navigate(`, `useNavigate`, `redirect` e `Navigate` em `src/` e confirmar que a tabela "Verificação formal do FR-007" do `research.md` continua completa. Uma ocorrência nova entra na tabela, com a origem do destino, no commit da T031. (FR-007)
-- [ ] T028 [MANUAL] [PARADA] [US1] Subir a API para a navegação da Fase 2, pelo procedimento completo do D8 (segunda rodada):
+- [X] T028 [MANUAL] [PARADA] [US1] Subir a API para a navegação da Fase 2, pelo procedimento completo do D8 (segunda rodada):
   - `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False` e, só então, copiar a mestra para um `telemetry-run.db` novo;
   - `DOTENV_CONFIG_PATH` e `DB_PATH` apontando para o `api-conferencia.env` e o `telemetry-run.db`, como na T008;
   - conferência sem custo; só com `false`, subir a API e conferir o log;
   - sem replay e sem clique no coach.
   - **Entrega**: o `false` da conferência e a confirmação de que o log aponta para a cópia. Sem o `false`, esta sessão não segue.
   - (FR-009, FR-016a; D4, D8)
-- [ ] T029 [US1] Em `src/router/router.tsx`, acrescentar `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` ao `<BrowserRouter>`. Percorrer o roteiro da parte 3 do quickstart no dev server, com a API da T028. Commitar `fix: opt into the React Router v7 future flags`. (FR-008, FR-009; D4)
-- [ ] T030 [MANUAL] [PARADA] [US1] (se nenhuma `react-router` ≥ 7.18.0 existir antes do corte da Fase 2) Mesmo registro e mesma decisão da T021. **Entrega**: a decisão. (FR-002; D4, D11)
-- [ ] T031 [US1] Trocar o pacote e os imports:
+- [X] T029 [US1] Em `src/router/router.tsx`, acrescentar `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` ao `<BrowserRouter>`. Percorrer o roteiro da parte 3 do quickstart no dev server, com a API da T028. Commitar `fix: opt into the React Router v7 future flags`. (FR-008, FR-009; D4)
+- [X] T030 [MANUAL] [PARADA] [US1] (não ocorreu: a 7.18.4 está antes do corte) (se nenhuma `react-router` ≥ 7.18.0 existir antes do corte da Fase 2) Mesmo registro e mesma decisão da T021. **Entrega**: a decisão. (FR-002; D4, D11)
+- [X] T031 [US1] Trocar o pacote e os imports:
   - `npm uninstall react-router-dom` e `npm install react-router@^7 --before=<corte da Fase 2>`; a versão resolvida tem de ser ≥ 7.18.0 (senão, T030);
   - `from "react-router-dom"` vira `from "react-router"` em `src/router/router.tsx`, `src/pages/dashboard/DashboardPage.tsx`, `src/pages/notFound/NotFoundPage.tsx`, `src/pages/sessionAnalysis/SessionAnalysisPage.tsx`, `src/pages/sessionHistory/SessionHistoryPage.tsx` e `src/pages/settings/SettingsPage.tsx`;
   - remover a prop `future` de `src/router/router.tsx`;
   - no `CLAUDE.md` Stack, "React Router 6" vira "React Router 7"; o `README.md` não cita a versão (D6).
   - Commitar `package.json`, `package-lock.json`, os 6 arquivos e o `CLAUDE.md` como `fix: upgrade to React Router 7`.
   - (FR-008, FR-022; D4, D6, D11)
-- [ ] T032 [US1] Verificar a fase e anotar para o commit de registro (T037):
+- [X] T032 [US1] Verificar a fase e anotar para o commit de registro (T037):
   - os quatro scripts passam;
   - `npm audit --omit=dev` dá 0 e `npm audit` dá o resultado esperado (3, só a cadeia do Vite), com a data;
   - o roteiro da parte 3 do quickstart passa em `npm run build && npm run preview`, com a API da T028;
   - `git diff main -- src/` mostra só as linhas de import;
   - bundle medido num worktree novo do commit da T031 (`git worktree add --detach C:\Telemetry\wt-002-fase2 <sha>`, `.env`, `npm ci`, `npm run build`, `bundleSizes.mjs`), removido com `git worktree remove` depois.
   - (FR-001, FR-003, FR-005, FR-009, FR-015, FR-019; D4; quickstart, partes 1 a 4 e 8; research, ponto 7)
-- [ ] T033 [MANUAL] [US1] Parar a API e apagar os três arquivos da rodada, como na T010 (`telemetry-run.db`, `telemetry-run.db-wal` e `telemetry-run.db-shm`, com `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False`). **Entrega**: confirmação. (D8)
-- [ ] T034 [MANUAL] [PARADA] [US4] Aprovar o push 2. **Entrega**: aprovação explícita. (FR-006a; D5)
-- [ ] T035 [US4] Dar o push da branch. (FR-006a; D5)
-- [ ] T036 [US4] Esperar a CI com `gh run watch` e anotar o id, o SHA e o resultado dos quatro checks, como na T025, com a mesma regra para a CI vermelha. **A Phase 5 só começa depois desta tarefa, com a CI verde.** (FR-005, FR-006a; D5)
+- [X] T033 [MANUAL] [US1] Parar a API e apagar os três arquivos da rodada, como na T010 (`telemetry-run.db`, `telemetry-run.db-wal` e `telemetry-run.db-shm`, com `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False`). **Entrega**: confirmação. (D8)
+- [X] T034 [MANUAL] [PARADA] [US4] Aprovar o push 2. **Entrega**: aprovação explícita. (FR-006a; D5)
+- [X] T035 [US4] Dar o push da branch. (FR-006a; D5)
+- [X] T036 [US4] Esperar a CI com `gh run watch` e anotar o id, o SHA e o resultado dos quatro checks, como na T025, com a mesma regra para a CI vermelha. **A Phase 5 só começa depois desta tarefa, com a CI verde.** (FR-005, FR-006a; D5)
 
 **Checkpoint**: produção sem vulnerabilidades conhecidas; Fases 1 e 2 válidas mesmo que a 3 seja adiada ou recuada (FR-006).
 
@@ -172,7 +172,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 **Independent Test**: comparação do bundle e das capturas contra a referência da Phase 1 (quickstart, partes 4 a 6).
 
-- [ ] T037 [US4] Registrar no `research.md` o corte da Fase 3 e os resultados da Fase 2 (T031, T032 e a execução da T036). Commitar `docs: record the phase 2 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
+- [X] T037 [US4] Registrar no `research.md` o corte da Fase 3 e os resultados da Fase 2 (T031, T032 e a execução da T036). Commitar `docs: record the phase 2 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
 - [ ] T038 [MANUAL] [PARADA] [US2] (se nenhuma `vite` 8.x, ou nenhum par `vite`/`@vitejs/plugin-react-swc` compatível, existir antes do corte da Fase 3) Mesmo registro e mesma decisão da T021. **Entrega**: a decisão. (FR-002; D7, D11)
 - [ ] T039 [US2] Rodar `npm install -D vite@^8 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`:
   - conferir que o peer do plugin resolvido aceita `vite` 8 e que o `engines` do Vite resolvido é atendido pelo Node ≥ 22.17 do `package.json`, do `.nvmrc` e da CI;
