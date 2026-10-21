@@ -138,9 +138,9 @@ Não há bloco `env:` em lugar nenhum (FR-006). O `build` sem `.env` foi medido 
 | `test` | `node --experimental-strip-types --test \"src/**/*.test.ts\"` | Glob em **aspas duplas** escapadas: no cmd, aspas simples dão 0 testes com exit 0, e sem aspas o sh perde arquivos (research ponto 1a). |
 | `lint`, `build` | inalterados | `build` mantém `tsc -b && vite build` (Q1). |
 
-- **A guarda não protege contra aspas simples**: ela confirma que existem arquivos de teste no disco, não que o runner os executou. Com aspas simples no cmd, a guarda encontra os arquivos e passa, e o runner roda zero testes com exit 0: no Windows, um teste quebrado passaria em silêncio. Quem pega é a CI no Linux: lá o sh trata aspas simples como aspas, o glob chega intacto ao Node e os testes rodam de fato, então um teste quebrado reprova o check `test`. O sinal da divergência é o resumo `# tests 0` local contra a contagem real no log da CI. O ponto vai para os Known pitfalls (D11) e para o research.md.
+- **A guarda confere o script `test`** (decisão posterior à primeira rodada de implementação; FR-012 ampliado). Antes, ela só confirmava que existem arquivos de teste no disco, não que o runner os executou: com aspas simples no cmd, a guarda passava e o runner rodava zero testes com exit 0, e a regra "o script e a guarda usam o mesmo glob" era só um comentário. Agora a guarda lê o script `test` do `package.json` e reprova se ele não contém o `TEST_PATTERN` entre aspas duplas (aspas simples, sem aspas ou glob diferente). A conferência é a função pura `scriptUsesQuotedPattern` (D10). A CI no Linux continua sendo a segunda defesa: lá o sh trata aspas simples como aspas e os testes rodam de fato.
 - `tsconfig.node.json` passa a incluir `tools` além de `vite.config.ts`, para a guarda entrar no `typecheck` (lib ES2023, tipos do `@types/node` já instalado). O `eslint .` já cobre `tools/**/*.ts`.
-- O padrão `src/**/*.test.ts` aparece no script `test` e em `tools/testDiscovery.ts`. Os dois têm de mudar juntos; o módulo leva um comentário curto dizendo isso.
+- O padrão `src/**/*.test.ts` aparece no script `test` e em `tools/testDiscovery.ts`. A guarda reprova se os dois divergirem (D10), no lugar do comentário que antes pedia que mudassem juntos.
 
 ### D10. Guarda de descoberta vazia (FR-012), decisão T3
 
@@ -149,13 +149,16 @@ Ajuste da dona do repositório: a filtragem de `node_modules` fica **dentro da f
 - **`tools/testDiscovery.ts`** (puro, sem I/O):
   - `TEST_PATTERN = "src/**/*.test.ts"`;
   - `filterTestFiles(paths: string[]): string[]` descarta todo caminho com um segmento `node_modules`, aceitando `/` e `\`, porque o `globSync` devolve `\` no Windows. É a mesma regra do runner, que exclui qualquer entrada chamada `node_modules` (research ponto 2);
-  - `checkDiscovery(files: string[])` devolve `{ exitCode, message }`: com zero arquivos, `1` e `nenhum arquivo de teste encontrado em src/**/*.test.ts`; com N arquivos, `0` e a contagem.
-- **`tools/assertTestFiles.ts`** (casca de I/O): chama `fs.globSync(TEST_PATTERN)` sem `exclude`, passa a lista por `filterTestFiles` e `checkDiscovery`, escreve a mensagem (stderr na falha, stdout no sucesso, prefixo `[assertTestFiles]`) e sai com o `exitCode`.
+  - `checkDiscovery(files: string[])` devolve `{ exitCode, message }`: com zero arquivos, `1` e `nenhum arquivo de teste encontrado em src/**/*.test.ts`; com 1 arquivo, `0` e `1 arquivo de teste encontrado em ...` (singular); com N > 1, `0` e `N arquivos de teste encontrados em ...`;
+  - `scriptUsesQuotedPattern(script: string, pattern: string): boolean` devolve `true` só se o script contém o padrão entre aspas duplas (`"<pattern>"`). Casos: aspas duplas passa; aspas simples reprova; sem aspas reprova; glob diferente reprova.
+- **`tools/assertTestFiles.ts`** (casca de I/O): lê o script `test` do `package.json` e chama `scriptUsesQuotedPattern`; se reprovar, escreve a mensagem em português no stderr e sai com 1. Depois chama `fs.globSync(TEST_PATTERN)` sem `exclude`, passa a lista por `filterTestFiles` e `checkDiscovery`, escreve a mensagem (stderr na falha, stdout no sucesso, prefixo `[assertTestFiles]`) e sai com o `exitCode`.
 - **`src/tooling/testDiscovery.test.ts`**: testa só as funções puras. Casos:
   - lista vazia reprova com a mensagem em português;
   - N arquivos passam com a contagem;
   - `src/node_modules/x/a.test.ts` e `src\node_modules\x\a.test.ts` são descartados;
   - nomes parecidos, como `src/node_modules_old/a.test.ts`, são mantidos;
+  - 1 arquivo usa o singular;
+  - os quatro casos de `scriptUsesQuotedPattern`, com strings (a leitura do `package.json` fica na casca, fora do teste, porque a constituição pede testes só de funções puras);
   - cada caso de `filterTestFiles` mistura um caminho mantido e um descartado, para que nem a lista sem filtrar nem a lista vazia passem.
 
   Escrito antes do módulo e rodado primeiro contra um esboço de `tools/testDiscovery.ts` que exporta os três nomes com resultados errados (`filterTestFiles` devolve a lista sem filtrar). Cada teste tem de falhar na própria asserção. Um `ERR_MODULE_NOT_FOUND` não serve como primeira falha: todos os testes do arquivo cairiam ao carregar, antes de qualquer asserção, e não daria para saber se algum passaria pelo motivo errado.
@@ -178,7 +181,7 @@ Conteúdo novo, no commit `docs:` da fase 3:
   - seção "CI and branch protection": os quatro checks e seus scripts; o aviso de que um erro de tipos reprova `typecheck` e `build`; a regra dos nomes como contrato (D2);
   - os passos do ruleset (FR-017): Settings → Rules → Rulesets, Enforcement **Active**, bypass vazio, alvo `main`, Restrict deletions, Require linear history, Block force pushes, Require a pull request com 0 aprovações, Require status checks com "Require branches to be up to date" e os quatro checks de origem GitHub Actions, o botão **Create**, e nas configurações gerais só "Allow rebase merging" e "Automatically delete head branches";
   - o procedimento de último recurso por inteiro (FR-018): se o GitHub Actions estiver fora do ar, esperar primeiro; só se continuar fora, pôr o **Enforcement status** do ruleset deste repositório em **Disabled**, mergear, voltar para **Active** na hora e registrar o motivo no PR;
-  - em Known limitations, a armadilha das aspas: o glob do script `test` usa aspas duplas escapadas; com aspas simples, o cmd roda zero testes e sai com 0; a guarda não pega, a CI no Linux pega.
+  - em Known limitations, a armadilha das aspas: o glob do script `test` usa aspas duplas escapadas; com aspas simples, o cmd roda zero testes e sai com 0; a guarda `pretest` reprova o script antes disso, e a CI no Linux é a segunda defesa.
 - **`CLAUDE.md`**:
   - a mesma armadilha nos Known pitfalls, que o arquivo exige espelhados no README;
   - Rules: os nomes dos checks são contrato (D2); actions de terceiros só por SHA (D4);

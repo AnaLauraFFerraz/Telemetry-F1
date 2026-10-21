@@ -22,6 +22,7 @@ node --experimental-strip-types --test src/**/*.test.ts      5 testes           
 - **Aspas simples**: o cmd não as reconhece como aspas. O padrão chega ao Node com os `'` literais, não casa com nada, e o run passa com `# tests 0`, exit 0. No `package.json` as aspas têm de ser **duplas, escapadas** (`\"src/**/*.test.ts\"`).
   - **A guarda do ponto 2 não pega esse caso**: ela confirma que existem arquivos de teste no disco, não que o runner os executou. Com aspas simples, a guarda encontra os arquivos e passa, e o runner local no Windows roda zero testes; um teste quebrado passaria em silêncio.
   - **Quem pega é a CI no Linux**: lá o sh trata aspas simples como aspas, o glob chega intacto ao Node (coluna "sh" acima, 5 testes) e os testes rodam de fato, então um teste quebrado reprova o check `test`.
+  - **Atualização posterior (FR-012 ampliado, plan.md D9/D10):** a guarda passou a ler o script `test` e a reprovar quando o `TEST_PATTERN` não está entre aspas duplas, então o caso de aspas simples deixa de passar em silêncio localmente. O parágrafo acima descreve a guarda como era quando foi medido.
   - Registrado nos Known pitfalls do `CLAUDE.md` e nas Known limitations do README, no commit de documentação (plan.md D11).
 - **Sem aspas**: o sh expande o glob antes do Node, sem globstar, e `**` vira `*`: dois arquivos somem. É a divergência que as aspas removem (mesmo achado da API, research.md ponto 2).
 
