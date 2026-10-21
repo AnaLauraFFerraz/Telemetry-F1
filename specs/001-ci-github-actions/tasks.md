@@ -351,7 +351,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - as marcações `[x]` deste `tasks.md` até T047.
   - Commitar `docs: record CI evidence and close spec 001`.
   - (FR-018, FR-021; SC-001–SC-008)
-- [ ] T048 Rodar `/speckit-converge` para a spec 001 na branch `docs/001-evidence`, **antes do push**, para que qualquer achado entre no mesmo PR:
+- [X] T048 Rodar `/speckit-converge` para a spec 001 na branch `docs/001-evidence`, **antes do push**, para que qualquer achado entre no mesmo PR:
   - reportar os achados à mantenedora, sem implementar nada sem aprovação;
   - o que ela aprovar entra nesta branch, em commits próprios, com as verificações de sempre antes de cada commit;
   - **depois do converge**, o Status da `spec.md` muda de `Draft` para `Implemented` (com a data do merge de T032), num commit `docs:` com a marcação `[x]` de T048.
