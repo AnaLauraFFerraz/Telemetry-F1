@@ -526,3 +526,22 @@ gh variable list  -> vazio (exit 0)
   O log dos dois jobs reprovados traz `##[error]src/pages/settings/useIsRecent.ts(17,9): error TS2322: Type 'string' is not assignable to type 'number'.` e `##[error]Process completed with exit code 2.` `lint` e `test` rodaram até o fim. É o comportamento esperado pela Q1: o `build` mantém `tsc -b`, então não existe demonstração só de `typecheck`. Estado do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `state: OPEN`.
 - **Tentativa de merge (T043, pela mantenedora):** print em `specs/001-ci-github-actions/evidence/demo-typecheck-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 2 failing, 2 successful checks", `CI / build (pull_request)` reprovado ("Failing after 16s"), `CI / typecheck (pull_request)` reprovado ("Failing after 14s"), `CI / lint` (45 s) e `CI / test` (23 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 4`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
 - **Fechamento:** `gh pr close 4` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 199b313`) e remota apagada; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
+
+### Demonstração: `build` (caixa do CSS Module, T044–T045)
+
+- Branch `demo/build-css-case` a partir de `origin/main` (`21109b4`); commit `b7fbc70`, `chore: demo CSS import case mismatch (do not merge)`: em `src/components/chart/Chart.tsx`, `import styles from "./Chart.module.css"` virou `"./chart.module.css"`. O arquivo rastreado pelo git é `src/components/chart/Chart.module.css`.
+- **Checagem local no Windows: os quatro scripts passaram.** `npm run typecheck` exit 0, `npm run lint` exit 0, `npm run build` exit 0 (`✓ built in 1.33s`) e `npm test` 27/27. Era o objetivo da demonstração: o sistema de arquivos do Windows ignora a caixa e aceita o import (research ponto 4).
+- PR #5, `[NÃO MERGEAR] Demo: CSS import case mismatch (do not merge)`.
+- Run **39533090730** (evento `pull_request`, `b7fbc70`), 02:27:11Z a 02:27:30Z:
+
+  ```text
+  job        resultado   duração
+  typecheck  success     12 s
+  lint       success     12 s
+  test       success     13 s
+  build      failure     15 s
+  ```
+
+  **Só o Linux reprovou**, e só o `build`. A linha de erro do Vite no log: `error during build: Could not resolve "./chart.module.css" from "src/components/chart/Chart.tsx"`, seguida de `##[error]Process completed with exit code 1.` A alternativa com `./Missing.module.css` não foi necessária. Estado do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `state: OPEN`.
+- **Tentativa de merge (T045, pela mantenedora):** print em `specs/001-ci-github-actions/evidence/demo-build-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / build (pull_request)` reprovado ("Failing after 15s"), `CI / lint` (12 s), `CI / test` (13 s) e `CI / typecheck` (12 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 5`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
+- **Fechamento:** `gh pr close 5` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was b7fbc70`) e remota apagada; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
