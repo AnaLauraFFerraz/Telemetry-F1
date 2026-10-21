@@ -6,7 +6,7 @@ Roteiro para provar, em cada fase e no fim, que a feature cumpre a [spec](spec.m
 
 - Node do `.nvmrc` (major 22, ≥ 22.17) no `PATH`, via fnm.
 - Checkout limpo do estado a validar (`git status` vazio), depois de `npm ci`.
-- Um `.env` do front com `VITE_WS_URL=ws://localhost:8080` e `VITE_HTTP_API_URL=http://localhost:3001`, valores do `.env.example`. Num worktree da `main`, o `.env` precisa ser criado, porque é ignorado pelo git.
+- Um `.env` do front com `VITE_WS_URL=ws://localhost:8080` e `VITE_HTTP_API_URL=http://localhost:3001`, valores do `.env.example`. No worktree da `main` (`C:\Telemetry\wt-002-main`), o `.env` precisa ser criado, porque é ignorado pelo git.
 - Para as partes 3 e 6: a API rodando pelo procedimento do research, ponto 6, que é tarefa da mantenedora ou de uma sessão do Claude Code no repositório da API.
 
 ## Parte 1: auditoria (FR-001, FR-002, FR-003)
@@ -73,7 +73,7 @@ node <ferramentas>/devListen.mjs 5191
 
 - Sobe `vite` sem `--host`, imprime a saída e os sockets em LISTEN da porta e encerra.
 - **Esperado**, antes e depois: só `[::1]:<porta>` em LISTEN, sem `0.0.0.0` nem `[::]`, e a linha `Network: use --host to expose`.
-- Se mudar, a limitação conhecida é atualizada no `CLAUDE.md` e no `README.md` no mesmo commit (FR-022).
+- Na Fase 3, roda com o Vite novo já instalado e antes do commit da troca. Se mudar, a limitação conhecida é atualizada no `CLAUDE.md` e no `README.md` nesse mesmo commit (FR-022, plano D6).
 
 ## Parte 6: conferência visual (FR-016, FR-016a, FR-016b, FR-016c, SC-005)
 
@@ -107,7 +107,7 @@ O limite de gastos no Console da Anthropic é rede de segurança, não proteçã
 | 6 | Configurações | `/settings` | `NN-6-configuracoes.png` |
 
 - `NN` é `antes`, `depois` ou `depois-vite73`.
-- As capturas são feitas com o script de captura de `evidence/tools/`, com a versão do Playwright registrada no `research.md` e instalada fora dos repositórios com aprovação da mantenedora.
+- As capturas são feitas com `evidence/tools/captureStates.mjs`, com a versão do Playwright registrada no `research.md` e instalada em `C:\Telemetry\playwright-002\`, fora dos repositórios, com aprovação da mantenedora. O script carrega o Playwright desse diretório; nada é instalado no repositório.
 - **Revisão antes do commit**: cada imagem é olhada em busca de dado pessoal vindo do jogo ou da API (nome de jogador, de piloto, de conta ou de máquina), e o tamanho total é somado e registrado (referência: até 5 MB na feature inteira). Com um achado, nada é commitado, e a mantenedora decide entre não commitar as imagens, deixando só a comparação no `research.md`, ou outra saída.
 - As capturas aprovadas ficam em `specs/002-npm-audit-triage/evidence/`.
 - **Comparação**, anotada no `research.md` por estado: layout, cores, tipografia, eixos, legendas e traçado dos gráficos SVG, mapa da pista, painel do coach e estilos dos CSS Modules. Os valores ao vivo e os horários não entram.

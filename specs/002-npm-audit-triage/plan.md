@@ -101,7 +101,7 @@ Constituição v1.2.0 (`.specify/memory/constitution.md`).
 
 ### D1. Medições do "antes" na `main`, antes de qualquer mudança (primeira tarefa)
 
-Num worktree da `main` fora do repositório, e antes de qualquer commit de implementação, mede-se:
+Num worktree da `main` fora do repositório (`C:\Telemetry\wt-002-main`), e antes de qualquer commit de implementação, mede-se:
 - **as capturas da lista fixa** (FR-016b), pelo método do T4, com a API subida pelo procedimento do D8;
 - **o bundle**, pela ferramenta do research ponto 7;
 - **os navegadores-alvo** efetivos do Vite instalado;
@@ -109,7 +109,7 @@ Num worktree da `main` fora do repositório, e antes de qualquer commit de imple
 
 Os arquivos vão para `specs/002-npm-audit-triage/evidence/` (capturas) e para a seção "Evidência da implementação" do `research.md` (tabelas).
 
-**Antes das capturas** (T4): a instalação do Playwright e do Chromium dele, num diretório fora dos dois repositórios, é uma tarefa que **para e espera a aprovação da mantenedora**. A versão é fixa, escolhida pela regra do D11, e fica registrada no `research.md`.
+**Antes das capturas** (T4): a instalação do Playwright e do Chromium dele, num diretório fora dos dois repositórios (`C:\Telemetry\playwright-002\`), é uma tarefa que **para e espera a aprovação da mantenedora**. A versão é fixa, escolhida pela regra do D11, e fica registrada no `research.md`.
 
 **Revisão das imagens antes do commit**, porque o histórico publicado não é reescrito:
 - conferir, imagem por imagem, que nenhuma mostra dado pessoal vindo do jogo ou da API (nome de jogador, de piloto, de conta ou de máquina, por exemplo). Os tipos do front (`src/types/`) não carregam nomes, mas a revisão é visual;
@@ -164,7 +164,7 @@ Nenhuma afirmação do `CLAUDE.md` ou do `README.md` fica falsa: o Vite continua
 **Verificação**:
 - os quatro scripts passam;
 - `npm audit --omit=dev` dá **0** (FR-001);
-- o roteiro de navegação do quickstart, parte 3, passa no build de produção servido localmente (FR-009);
+- o roteiro de navegação do quickstart, parte 3, passa no build de produção servido localmente, com a API da segunda rodada do D8 (FR-009);
 - o bundle é medido (research, ponto 7).
 
 ### D5. Um PR, um push por fase, CI esperada antes da fase seguinte
@@ -185,6 +185,7 @@ Nenhuma afirmação do `CLAUDE.md` ou do `README.md` fica falsa: o Vite continua
 | Vite 8 (D7.1) | `CLAUDE.md` Stack: "Vite 5.4" → "Vite 8" |
 | `vite-tsconfig-paths` removido (D7.2) | Comentário de `tsconfig.app.json` ("resolvidos em runtime pelo plugin vite-tsconfig-paths") passa a citar `resolve.tsconfigPaths` do Vite |
 | Recuo para o Vite 7.3 (se houver) | `CLAUDE.md` Stack: "Vite 8" → "Vite 7.3" |
+| Vite 8 ou recuo, se o endereço de escuta mudar | A limitação conhecida do loopback IPv6, no `CLAUDE.md` e no `README.md`. O endereço é medido com a versão nova já instalada e **antes** do commit da troca (D7.1), para a correção entrar no mesmo commit. |
 | Vite 8 e os navegadores-alvo novos | Nada muda. `grep -i -E "browser\|navegador\|chrome\|firefox\|safari\|edge\|target\|es20"` em `README.md` e `CLAUDE.md` só acha "Target branches" (README, linha 96, sobre o ruleset). Nenhum dos dois fala de navegadores suportados. |
 
 - O `README.md` não cita versões de Vite nem de React Router (conferido com `grep`), então só ganha conteúdo novo (D9).
@@ -196,6 +197,8 @@ Nenhuma afirmação do `CLAUDE.md` ou do `README.md` fica falsa: o Vite continua
    - As faixas gravadas no `package.json` são as das versões resolvidas.
    - Na simulação sem corte, foram 8.3.4 (2026-10-08) e 4.3.3 (2026-07-30). Com corte de 14 dias contado a partir de 2026-10-21, a 8.3.4 ficaria de fora e entraria a 8.x anterior; qualquer 8.x está fora da faixa vulnerável (≤ 6.4.3).
    - O plugin resolvido tem de declarar `vite` 8 no peer. Na simulação, nenhuma mudança de configuração foi necessária.
+   - Antes do commit, com o Vite 8 já em `node_modules`, mede-se o endereço de escuta (quickstart, parte 5). A ferramenta roda o Vite instalado, não o commitado. Se o endereço mudar, a limitação conhecida muda no `CLAUDE.md` e no `README.md` neste mesmo commit (D6, FR-022).
+   - Se o build só passar mudando código da aplicação, nada é commitado e vale a regra de recuo abaixo.
 2. `chore: resolve tsconfig paths with Vite instead of a plugin` (T3), em commit separado:
    - tira `vite-tsconfig-paths` do `package.json` e do `vite.config.ts` e põe `resolve: { tsconfigPaths: true }`;
    - corrige o comentário de `tsconfig.app.json`, que ficaria falso (D6);
@@ -206,7 +209,7 @@ Nenhuma afirmação do `CLAUDE.md` ou do `README.md` fica falsa: o Vite continua
 - os quatro scripts passam;
 - `npm audit` dá 0, também com `--omit=dev`;
 - o roteiro de navegação passa;
-- bundle, navegadores-alvo e endereço de escuta medidos e registrados (FR-012, FR-013a, FR-015);
+- bundle e navegadores-alvo medidos e registrados, com o endereço de escuta já medido antes do commit da troca (FR-012, FR-013a, FR-015);
 - as capturas do "depois", com o mesmo método, a mesma lista e o mesmo viewport, são comparadas com as do D1 (FR-016);
 - as imagens do "depois" passam pela mesma revisão do D1 (dado pessoal e tamanho total, somado às do "antes") antes do commit. Um achado volta para a mantenedora, com as mesmas opções.
 
@@ -216,6 +219,7 @@ Nenhuma afirmação do `CLAUDE.md` ou do `README.md` fica falsa: o Vite continua
   - `npm install -D vite@~7.3 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`;
   - a 7.3.x mais recente antes do corte (na simulação, 7.3.7, de 2026-10-06), com o plugin cujo peer aceita `vite` 7;
   - o `CLAUDE.md` corrigido;
+  - o endereço de escuta medido antes do commit, como no D7.1;
   - a regra do D11 vale igual.
 - O motivo vai para o `research.md`, e as medições e capturas do "depois" são refeitas.
 - Mudança só de configuração ou de dependência **não** dispara o recuo.
@@ -266,7 +270,10 @@ Como depende do shell, não entra no procedimento.
 
 Não existe verificação segura **por tentativa**: o cache é consultado antes da chave, e um POST sem cache com chave faria a chamada paga. O 503 do estado 5 só é provocado depois do `false` da conferência.
 
-**Quando**: duas rodadas, no D1 e no D7 (mais uma se houver recuo).
+**Quando**: três rodadas, cada uma pelo procedimento completo acima (cópia nova da mestra, `DOTENV_CONFIG_PATH`, `DB_PATH` e o `false` antes de subir), mais uma se houver recuo:
+- no D1, com replay, para as capturas e o roteiro de navegação na `main`;
+- no D4, sem replay e sem clique no coach, para o roteiro de navegação da Fase 2, que precisa de sessões na tabela (quickstart, parte 3, passos 3 e 6);
+- no D7, com replay, para as capturas e o roteiro do "depois".
 
 ### D9. Dependabot e CI sem gate de auditoria
 
@@ -362,7 +369,7 @@ specs/002-npm-audit-triage/
 ├── checklists/
 │   └── requirements.md
 ├── evidence/            # capturas do antes e do depois, depois da revisão (D1, D7)
-│   └── tools/           # bundleSizes.mjs, devListen.mjs, script de captura (T5)
+│   └── tools/           # bundleSizes.mjs, devListen.mjs, captureStates.mjs (T5)
 └── tasks.md             # /speckit-tasks
 ```
 
