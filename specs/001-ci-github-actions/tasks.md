@@ -96,7 +96,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - **emenda parcial da constituição** (plan.md D12), com o `/speckit-constitution`:
     - só a regra "each test file is listed in the `test` script" de `.specify/memory/constitution.md` muda, para a descoberta automática de `src/**/*.test.ts`;
     - a versão é proposta pela regra de versionamento da própria constituição, com o motivo da escolha;
-    - o Sync Impact Report fica no topo do arquivo;
+    - o Sync Impact Report **não** fica no arquivo: vai no corpo do commit da emenda e na descrição do PR da feature, porque a constituição descreve as regras atuais e o histórico da mudança fica no git;
     - **mostrar a proposta à Ana e aplicar só depois do ok dela**;
     - o resto da emenda (CI como portão de merge, `typecheck` nos gates, Node 22.17, tipo `ci:`) não entra aqui.
   - (FR-010, FR-021; plan.md D11, D12)
@@ -178,7 +178,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 - [ ] T022 [US1] **[PARADA]** Abrir o PR para a `main` com `gh pr create`:
   - título `CI with GitHub Actions (spec 001)`;
   - corpo resumindo a spec, sem rodapé "Generated with";
-  - o corpo registra a emenda parcial da constituição (T011) e o motivo, como a Governança pede.
+  - o corpo registra a emenda parcial da constituição (T011), o motivo, como a Governança pede, e o Sync Impact Report.
   - Anotar o número do PR. (FR-001; SC-001)
 - [ ] T023 [US1] Primeiro run no Linux, registrado em `research.md`, "Linux (CI, first run)":
   - id do run e Node resolvido no runner;
