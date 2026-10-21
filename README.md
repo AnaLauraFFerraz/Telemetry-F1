@@ -62,6 +62,7 @@ Open `http://localhost:5173`. Use `localhost` rather than `127.0.0.1`: the dev s
 ```bash
 npm run build     # type-check and production build
 npm run lint      # ESLint
+npm run typecheck  # type-check only (src/ and vite.config.ts), no bundle
 npm test          # 16 tests, Node's built-in runner with --experimental-strip-types
 ```
 

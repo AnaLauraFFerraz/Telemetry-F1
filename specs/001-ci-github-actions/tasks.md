@@ -52,7 +52,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - na nota do fnm do `CLAUDE.md`, acrescentar que a versão vem do `.nvmrc`.
   - (FR-014, FR-015; plan.md D11)
 - [X] T005 Verificar e commitar `chore: pin Node 22 in .nvmrc and require >=22.17` (T002–T004). (FR-014, FR-015)
-- [ ] T006 [MANUAL - Ana] No próprio terminal, na raiz do repositório, `fnm use` deve resolver para uma v22.x. O agente não roda `fnm use`, porque troca o Node da sessão. O resultado informado pela Ana vai para o research.md em T018. (US3 cenário 3; SC-008)
+- [X] T006 [MANUAL - Ana] No próprio terminal, na raiz do repositório, `fnm use` deve resolver para uma v22.x. O agente não roda `fnm use`, porque troca o Node da sessão. O resultado informado pela Ana vai para o research.md em T018. (US3 cenário 3; SC-008)
 
 **Checkpoint**: `.nvmrc` e `engines` no lugar.
 
@@ -64,12 +64,12 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 **Independent Test**: num checkout limpo, `npm run typecheck` sai com 0 sem gerar bundle e sem sujar o `git status`; com um erro de tipos injetado, sai com 2.
 
-- [ ] T007 [US3] Em `package.json`, acrescentar `"typecheck": "tsc -b"` em `scripts`. (FR-005, FR-009; plan.md D9)
-- [ ] T008 [US3] No mesmo commit:
+- [X] T007 [US3] Em `package.json`, acrescentar `"typecheck": "tsc -b"` em `scripts`. (FR-005, FR-009; plan.md D9)
+- [X] T008 [US3] No mesmo commit:
   - `README.md` "Scripts and tests" ganha `npm run typecheck  # type-check only (src/ and vite.config.ts), no bundle`;
   - `CLAUDE.md` Commands ganha a mesma linha.
   - (FR-009; plan.md D11)
-- [ ] T009 [US3] Verificar e commitar `chore: add typecheck script`:
+- [X] T009 [US3] Verificar e commitar `chore: add typecheck script`:
   - `npm run typecheck` sai com 0;
   - `git status --short` continua vazio (só `*.tsbuildinfo` ignorados, nada em `src/`, sem `dist/`);
   - com um erro de tipos injetado e revertido em `src/utils/formatDate.ts`, medir o código de saída de `npm run typecheck` (não só do `tsc -b`); esperado ≠ 0, e o valor medido é registrado;
