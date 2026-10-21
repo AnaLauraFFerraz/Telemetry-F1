@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-20
 
-**Status**: Draft
+**Status**: Implemented (PR #1 mergeado em 2026-10-20, 22:43 no fuso -03:00, que é 2026-10-21T01:43:27Z em UTC)
 
 **Input**: User description (texto integral do pedido, para que a spec não dependa da conversa):
 
