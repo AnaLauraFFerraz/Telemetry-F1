@@ -154,7 +154,19 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Commitar `docs: record local Windows evidence for spec 001`.
   - (SC-003, SC-004, SC-008; US2 cenários 1–4; US3 cenários 1, 3; edge case do erro de sintaxe)
 
-**Checkpoint**: descoberta automática e guarda funcionando localmente; os quatro scripts existem.
+### Guarda confere o script `test` (decidido depois da T018; FR-012 ampliado)
+
+- [ ] T018a [US2] Teste antes: em `src/tooling/testDiscovery.test.ts`, casos de `scriptUsesQuotedPattern(script, pattern)` só com strings:
+  - aspas duplas passa;
+  - aspas simples reprova;
+  - sem aspas reprova;
+  - glob diferente reprova.
+  - Rodar contra um esboço (exportado de `tools/testDiscovery.ts`, devolvendo sempre o valor errado para cada caso) e confirmar que cada caso falha na própria asserção, sem `ERR_MODULE_NOT_FOUND`. O esboço não é commitado. (FR-012; plan.md D10)
+- [ ] T018b [US2] Implementar `scriptUsesQuotedPattern` (pura) em `tools/testDiscovery.ts` e ligar a casca `tools/assertTestFiles.ts`: ler `scripts.test` do `package.json`, reprovar com mensagem em português e exit 1 se a função devolver `false`, antes da descoberta. Remover o comentário "Precisa ser igual ao glob do script `test`", que vira verificação. Ajustar a frase da guarda no README e no `CLAUDE.md`. Commitar `test: fail npm test when the test script lacks the quoted glob`. (FR-012; plan.md D9, D10)
+- [ ] T018c [US2] Provar: com aspas simples temporárias no `package.json`, `npm test` reprova no `pretest` com a mensagem clara; reverter com `git checkout` e conferir o `git status`. Registrar em `research.md`, "Windows (local)", e commitar `docs:`. (FR-012)
+- [ ] T018d [US2] Singular: com 1 arquivo, a mensagem é `1 arquivo de teste encontrado em ...`. Acrescentar o caso ao teste, confirmar que falha antes da correção, corrigir `checkDiscovery` e commitar `fix: use the singular when one test file is found`. (FR-012)
+
+**Checkpoint**: descoberta automática e guarda funcionando localmente, conferindo também o script `test`; os quatro scripts existem.
 
 ---
 
@@ -215,7 +227,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - a regra dos nomes como contrato (plan.md D2);
   - os passos do ruleset de plan.md D11 (critérios de FR-017), incluindo o botão **Create** e os ajustes nas configurações gerais;
   - o procedimento de último recurso por inteiro (FR-018).
-  - Em "Known limitations", a armadilha das aspas: o glob do script `test` usa aspas duplas escapadas; com aspas simples, o cmd roda zero testes e sai com 0; a guarda não pega, porque confirma que existem arquivos e não que o runner os executou; a CI no Linux pega.
+  - Em "Known limitations", a armadilha das aspas: o glob do script `test` usa aspas duplas escapadas; com aspas simples, o cmd roda zero testes e sai com 0; a guarda `pretest` reprova o script antes disso (T018a–T018d), e a CI no Linux é a segunda defesa.
   - (FR-016–FR-019, FR-022; SC-006)
 - [ ] T029 [P] [US4] Em `CLAUDE.md`:
   - "Known pitfalls": a mesma armadilha das aspas;
@@ -424,6 +436,6 @@ O PR de emenda da constituição (plan.md, fase 5) não é tarefa daqui. A únic
 
 ## Notes
 
-- Total: 50 tarefas.
+- Total: 54 tarefas (T001–T050 e T018a–T018d, acrescentadas depois da T018 para a guarda conferir o script `test`).
 - Nenhum commit, PR ou push leva `Co-Authored-By` ou "Generated with".
 - O `.specify/feature.json` nunca é commitado (é ignorado).

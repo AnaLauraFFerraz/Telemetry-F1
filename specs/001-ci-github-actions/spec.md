@@ -47,6 +47,7 @@ Decisões confirmadas pela dona do repositório:
 - Q: A regra da constituição "each test file is listed in the `test` script" espera a emenda separada? → A: Não. Ela é emendada no mesmo commit que troca a lista pelo glob, para que nenhum commit deixe a constituição contrariando o código; o `CLAUDE.md` acompanha. O resto da emenda (CI como portão de merge, `typecheck` nos gates, Node 22.17, tipo `ci:`) continua no PR separado depois do merge.
 - Q: Como se prova que push forçado e exclusão da `main` são recusados? → A: Pela configuração do ruleset, conferida pela API do GitHub, sem tentativa. O GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra; e um push forçado aceito por engano reescreveria histórico publicado. O push direto é provado por tentativa.
 - Q: Qual execução é a referência de tempo do SC-005 se a primeira falhar? → A: A primeira execução verde depois de qualquer correção.
+- Q: A guarda também confere o script `test`? → A: Sim (decidido depois da primeira rodada de implementação). A regra "a guarda e o script usam o mesmo glob" era só um comentário, e aspas simples no script fazem o cmd rodar zero testes com exit 0, sem a guarda perceber. A guarda passa a reprovar quando o script `test` do `package.json` não contém o `TEST_PATTERN` entre aspas duplas; a conferência é uma função pura testada, e a casca de I/O só lê o `package.json`. A CI no Linux deixa de ser a única defesa contra esse caso.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -172,7 +173,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 - **FR-009**: DEVE existir um script de verificação de tipos que rode o mesmo `tsc -b` do build, cobrindo tudo que os tsconfigs incluem (hoje `src/` e `vite.config.ts`, mais o que esta feature acrescentar), sem gerar o bundle.
 - **FR-010**: O script de teste NÃO DEVE listar arquivos à mão; todo arquivo de teste dentro de `src/` DEVE ser descoberto automaticamente.
 - **FR-011**: A descoberta DEVE produzir o mesmo conjunto de arquivos no Windows (cmd) e no Linux (sh): o glob DEVE ser passado entre aspas ao `node --test`, que o resolve por conta própria, sem depender de expansão feita pelo shell. A paridade com o Windows é verificada localmente na máquina da dona do repositório.
-- **FR-012**: Uma descoberta vazia DEVE fazer o script de teste terminar com falha e mensagem clara em português. A guarda DEVE usar o `fs.globSync` estável, o mesmo mecanismo de glob do `node --test`, para não discordar do runner.
+- **FR-012**: Uma descoberta vazia DEVE fazer o script de teste terminar com falha e mensagem clara em português. A guarda DEVE usar o `fs.globSync` estável, o mesmo mecanismo de glob do `node --test`, para não discordar do runner. A guarda DEVE também reprovar, com mensagem clara em português, quando o script `test` do `package.json` não contém o `TEST_PATTERN` entre aspas duplas (aspas simples, sem aspas ou glob diferente): aspas simples fazem o cmd rodar zero testes com exit 0, e o glob da guarda e o do script precisam ser o mesmo.
 - **FR-013**: Os testes existentes DEVEM continuar passando sem mudança de comportamento, respeitando as convenções do projeto (testes só de funções puras, import relativo com `.ts`, `@/` apenas em `import type`).
 
 **Versão do Node**
