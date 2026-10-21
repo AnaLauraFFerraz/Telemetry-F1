@@ -34,7 +34,10 @@ npm run typecheck && npm test && npm run lint && npm run build
 - Os quatro saem com 0.
 - `npm test` mostra a contagem da guarda e `# fail 0`.
 - `eslint .` não imprime nenhum aviso.
-- Depois do push da fase, os quatro checks do PR (`typecheck`, `lint`, `test`, `build`) ficam verdes. Registrar no `research.md` o id da execução (`gh run list --branch 002-npm-audit-triage --limit 1`), o SHA e o resultado de cada job. **Só depois começa a fase seguinte**, porque um push novo cancela a execução em andamento.
+- Depois do push da fase, os quatro checks do PR (`typecheck`, `lint`, `test`, `build`) ficam verdes. Registrar no `research.md` o id da execução (`gh run list --branch 002-npm-audit-triage --limit 1`), o SHA e o resultado de cada job. **Só depois, e só com a CI verde, começa a fase seguinte**, porque um push novo cancela a execução em andamento.
+- **CI vermelha** (plano, D5):
+  - falha vinda do código: commit de correção com push próprio, aprovado pela mantenedora, e nova espera. Nunca re-run;
+  - falha de infraestrutura (runner, rede, timeout de download): `gh run rerun <id> --failed`, com o motivo e o id das duas execuções registrados.
 
 ## Parte 3: navegação sem mudança de comportamento (FR-009)
 
@@ -107,7 +110,8 @@ O limite de gastos no Console da Anthropic é rede de segurança, não proteçã
 | 6 | Configurações | `/settings` | `NN-6-configuracoes.png` |
 
 - `NN` é `antes`, `depois` ou `depois-vite73`.
-- As capturas são feitas com `evidence/tools/captureStates.mjs`, com a versão do Playwright registrada no `research.md` e instalada em `C:\Telemetry\playwright-002\`, fora dos repositórios, com aprovação da mantenedora. O script carrega o Playwright desse diretório; nada é instalado no repositório.
+- As capturas são feitas com `evidence/tools/captureStates.mjs`, com a versão do Playwright registrada no `research.md` e instalada fora dos repositórios (por exemplo, em `C:\Telemetry\playwright-002\`), com aprovação da mantenedora.
+- O diretório do Playwright entra por argumento (`--playwright-dir`) ou pela variável `PLAYWRIGHT_DIR`, como diz o comentário do topo do script. Sem ele, o script sai com uma mensagem clara, sem tentar resolver o Playwright de dentro do repositório. Nada é instalado no repositório.
 - **Revisão antes do commit**: cada imagem é olhada em busca de dado pessoal vindo do jogo ou da API (nome de jogador, de piloto, de conta ou de máquina), e o tamanho total é somado e registrado (referência: até 5 MB na feature inteira). Com um achado, nada é commitado, e a mantenedora decide entre não commitar as imagens, deixando só a comparação no `research.md`, ou outra saída.
 - As capturas aprovadas ficam em `specs/002-npm-audit-triage/evidence/`.
 - **Comparação**, anotada no `research.md` por estado: layout, cores, tipografia, eixos, legendas e traçado dos gráficos SVG, mapa da pista, painel do coach e estilos dos CSS Modules. Os valores ao vivo e os horários não entram.
@@ -121,7 +125,8 @@ gh api repos/AnaLauraFFerraz/Telemetry-F1/vulnerability-alerts -i | head -1   # 
 ```
 
 - O `ci.yml` não muda: os mesmos 4 jobs e nenhum passo de auditoria.
-- Os alertas do Dependabot são ligados pela mantenedora. O `README.md` e o `CLAUDE.md` só os citam depois do 204 conferido.
+- O `README.md` (seção de CI) e o `CLAUDE.md` (Rules) dizem que não há gate de `npm audit` na CI, em qualquer caso.
+- Os alertas do Dependabot são ligados pela mantenedora. Os dois arquivos só dizem que os avisos chegam por eles depois do 204 conferido; sem o 204, não os citam.
 
 ## Parte 8: contrato e testes intactos (FR-019, SC-007)
 
