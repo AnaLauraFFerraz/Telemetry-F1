@@ -1,4 +1,4 @@
-export function formatSessionDateTime(iso: string): { date: string; time: string } {
+export function formatSessionDateTime(iso: any): { date: string; time: string } {
   const parsed = new Date(iso);
   return {
     date: parsed.toLocaleDateString("pt-BR"),
