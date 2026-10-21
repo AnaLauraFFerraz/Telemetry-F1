@@ -33,4 +33,4 @@
 
 - Os 3 marcadores [NEEDS CLARIFICATION] foram resolvidos no `/speckit-clarify` de 2026-10-20 (Q1 e Q2 decididas; Q3 delegada ao plano como FR-026, sem marcador).
 - Spec de infraestrutura de CI: nomes como GitHub, Node, `package.json`, fnm, `npm audit` e Rebase and merge aparecem porque são o assunto e o contrato pedido, não escolhas de implementação. Fora isso, mecanismos (como a descoberta de testes é feita, sintaxe do workflow, ação usada para preparar o Node) ficam para o plano.
-- Os critérios do ruleset vêm do pedido, com a spec 002 da API como origem; o procedimento de último recurso está descrito por inteiro em FR-018, conforme texto fornecido pela dona do repositório.
+- Os critérios do ruleset vêm do pedido, com a spec 002 da API como origem; o procedimento de último recurso está descrito por inteiro em FR-018, conforme texto fornecido pela mantenedora.

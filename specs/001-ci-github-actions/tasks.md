@@ -17,8 +17,8 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 - **[P]**: pode rodar em paralelo (arquivos diferentes, sem dependência pendente).
 - **[USn]**: user story da spec.
-- **[MANUAL - Ana]**: feito pela dona do repositório, Ana: configuração no GitHub e tentativas de merge. O agente prepara e registra, mas não executa.
-- **[PARADA]**: o agente para e espera aprovação explícita antes de push, abertura de PR, exclusão de branch remota ou merge. O merge é sempre da Ana.
+- **[MANUAL]**: feito pela mantenedora: configuração no GitHub e tentativas de merge. O agente prepara e registra, mas não executa.
+- **[PARADA]**: o agente para e espera aprovação explícita antes de push, abertura de PR, exclusão de branch remota ou merge. O merge é sempre da mantenedora.
 - **Commits**:
   - Conventional Commits, atômicos, em inglês, **sem trailer `Co-Authored-By`** e sem rodapé "Generated with" (vale também para os PRs);
   - antes de cada commit rodam `npm test`, `npm run lint`, `npm run build` e, depois de T007, `npm run typecheck`; falha é reportada, nunca contornada;
@@ -52,7 +52,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - na nota do fnm do `CLAUDE.md`, acrescentar que a versão vem do `.nvmrc`.
   - (FR-014, FR-015; plan.md D11)
 - [X] T005 Verificar e commitar `chore: pin Node 22 in .nvmrc and require >=22.17` (T002–T004). (FR-014, FR-015)
-- [X] T006 [MANUAL - Ana] No próprio terminal, na raiz do repositório, `fnm use` deve resolver para uma v22.x. O agente não roda `fnm use`, porque troca o Node da sessão. O resultado informado pela Ana vai para o research.md em T018. (US3 cenário 3; SC-008)
+- [X] T006 [MANUAL] No próprio terminal, na raiz do repositório, `fnm use` deve resolver para uma v22.x. O agente não roda `fnm use`, porque troca o Node da sessão. O resultado informado pela mantenedora vai para o research.md em T018. (US3 cenário 3; SC-008)
 
 **Checkpoint**: `.nvmrc` e `engines` no lugar.
 
@@ -97,7 +97,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
     - só a regra "each test file is listed in the `test` script" de `.specify/memory/constitution.md` muda, para a descoberta automática de `src/**/*.test.ts`;
     - a versão é proposta pela regra de versionamento da própria constituição, com o motivo da escolha;
     - o Sync Impact Report **não** fica no arquivo: vai no corpo do commit da emenda e na descrição do PR da feature, porque a constituição descreve as regras atuais e o histórico da mudança fica no git;
-    - **mostrar a proposta à Ana e aplicar só depois do ok dela**;
+    - **mostrar a proposta à mantenedora e aplicar só depois do ok dela**;
     - o resto da emenda (CI como portão de merge, `typecheck` nos gates, Node 22.17, tipo `ci:`) não entra aqui.
   - (FR-010, FR-021; plan.md D11, D12)
 - [X] T012 [US2] Verificar e commitar `test: discover test files with a quoted glob`, com o script, o README, o `CLAUDE.md` e a constituição no mesmo commit:
@@ -123,7 +123,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - `checkDiscovery` devolve `{ exitCode: -1, message: "" }`.
   - Rodar `npm test`. Cada teste de T013 tem de falhar **na própria asserção** (`ERR_ASSERTION`, com a localização apontando a asserção daquele teste), nenhum por `ERR_MODULE_NOT_FOUND` nem por outro erro de carga, e os demais testes do repositório passam.
   - Teste que passa com o esboço está fraco: reescrevê-lo em T013 e repetir.
-  - **Mostrar a saída à Ana** e seguir para T015 só depois do ok dela. Guardar a saída para T018. Não commitar o esboço.
+  - **Mostrar a saída à mantenedora** e seguir para T015 só depois do ok dela. Guardar a saída para T018. Não commitar o esboço.
   - (FR-012)
 - [X] T015 [US2] Substituir o esboço pela implementação de `tools/testDiscovery.ts` (puro, sem I/O):
   - `export const TEST_PATTERN = "src/**/*.test.ts"`, com um comentário curto em pt-BR dizendo que precisa ser igual ao glob do script `test`;
@@ -150,7 +150,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - com `TEST_PATTERN` temporariamente apontado para `nada/**/*.test.ts`, `npm test` sai ≠ 0 com a mensagem da guarda e nenhum teste roda (revertido);
   - um erro de tipos injetado em `tools/assertTestFiles.ts` dá exit 2 no `npm run typecheck` (revertido);
   - lista ordenada dos arquivos de teste executados (para o SC-004);
-  - resultado do `fnm use` informado pela Ana em T006.
+  - resultado do `fnm use` informado pela mantenedora em T006.
   - Commitar `docs: record local Windows evidence for spec 001`.
   - (SC-003, SC-004, SC-008; US2 cenários 1–4; US3 cenários 1, 3; edge case do erro de sintaxe)
 
@@ -241,7 +241,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - tudo que está nos Known pitfalls do `CLAUDE.md` também está nas Known limitations do README.
   - Commitar T027–T029 como `docs: document CI, branch protection and the quoted-glob pitfall`. (FR-021, FR-022)
 - [X] T031 [US4] **[PARADA]** Push. Confirmar os quatro checks verdes no último commit do PR. (SC-001)
-- [X] T032 [US4] **[MANUAL - Ana] [PARADA]** A Ana mergeia o PR com **Rebase and merge**, mesmo antes do ruleset, para manter a `main` linear. Depois:
+- [X] T032 [US4] **[MANUAL] [PARADA]** A mantenedora mergeia o PR com **Rebase and merge**, mesmo antes do ruleset, para manter a `main` linear. Depois:
   - o agente atualiza a `main` local (`git switch main && git pull --ff-only`);
   - registra para T047 o run do push na `main` (id, os quatro jobs, durações);
   - apaga a branch local `001-ci-github-actions`.
@@ -258,7 +258,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Proteção
 
-- [X] T034 [US4] **[MANUAL - Ana]** Criar o ruleset da `main` e ajustar os métodos de merge seguindo **só** o README:
+- [X] T034 [US4] **[MANUAL]** Criar o ruleset da `main` e ajustar os métodos de merge seguindo **só** o README:
   - Settings → Rules → Rulesets, com os quatro checks `typecheck`, `lint`, `test` e `build`, de origem GitHub Actions;
   - Settings → General: só "Allow rebase merging" e "Automatically delete head branches".
   - Anotar qualquer diferença entre o README e a interface; a correção vai no PR de T047.
@@ -269,7 +269,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - `gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed,deleteBranchOnMerge`: só rebase e exclusão automática ligada;
   - `gh secret list` e `gh variable list`: saída vazia esperada (SC-007).
   - As regras `non_fast_forward` e `deletion` conferidas aqui são a prova de push forçado e exclusão recusados (SC-006), sem tentativa: o GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra, e um push forçado aceito por engano reescreveria histórico publicado.
-  - Divergência: reportar à Ana antes de seguir.
+  - Divergência: reportar à mantenedora antes de seguir.
   - (FR-017; SC-006, SC-007; US4 cenários 2 e 3)
 
 ### Demonstração: `lint`
@@ -284,7 +284,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Ao fim do run, registrar o id do run e o resultado: só `lint` ✗, os outros três executados até o fim.
   - Abrir o selo com a branch da demonstração, `https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=demo/lint-failure`, e registrar o estado reprovado. Se o selo não refletir o run do PR, repetir com `&event=pull_request` e registrar qual URL funcionou (US5 cenário 2).
   - (FR-004, FR-020; SC-002)
-- [X] T038 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra:
+- [X] T038 [US4] **[MANUAL]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra:
   - o check reprovado na lista;
   - os quatro marcados **Required**;
   - o botão de merge desabilitado.
@@ -299,7 +299,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Commitar `chore: demo test failure (do not merge)`.
   - **[PARADA]** Push. **[PARADA]** Abrir o PR `Demo: test failure (do not merge)`. Registrar: só `test` ✗.
   - (SC-002, SC-003)
-- [X] T041 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O agente registra o `mergeStateStatus`. Depois, fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
+- [X] T041 [US4] **[MANUAL]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O agente registra o `mergeStateStatus`. Depois, fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
 
 ### Demonstração: `typecheck` (+ `build`)
 
@@ -310,7 +310,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - **[PARADA]** Push. **[PARADA]** Abrir o PR `Demo: type error (do not merge)`.
   - Registrar: `typecheck` ✗ **e** `build` ✗, comportamento esperado pela Q1 (o `build` mantém `tsc -b`). Por isso não existe demonstração só de `typecheck`.
   - (FR-023; SC-002; US1 cenário 3)
-- [X] T043 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-typecheck-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
+- [X] T043 [US4] **[MANUAL]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-typecheck-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
 
 ### Demonstração: `build` (caixa do CSS, T4-A)
 
@@ -322,7 +322,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Registrar: só `build` ✗, com a linha de erro do Vite no log.
   - Se o Linux **não** reprovar, registrar o achado e refazer a demonstração com um import de `./Missing.module.css` inexistente, no mesmo PR, com novo commit e **[PARADA]** antes do push.
   - (FR-024; SC-002; edge case de caixa no Linux)
-- [ ] T045 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-build-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
+- [ ] T045 [US4] **[MANUAL]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-build-merge-blocked.png`. O agente registra o `mergeStateStatus`. Fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
 
 ### Push direto
 
@@ -332,7 +332,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - depois, `git ls-remote --heads origin` mostra a `main` no mesmo commit de antes;
   - apagar a branch local; ela nunca é enviada com o próprio nome;
   - registrar a saída completa em `research.md`.
-  - **Contingência**: se o push for aceito, parar; registrar no `research.md`; corrigir o ruleset; avisar a Ana. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
+  - **Contingência**: se o push for aceito, parar; registrar no `research.md`; corrigir o ruleset; avisar a mantenedora. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
   - (US4 cenário 2; SC-006)
 
 **Checkpoint**: proteção ativa, conferida pela API e demonstrada em cada gate isolável.
@@ -352,12 +352,12 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Commitar `docs: record CI evidence and close spec 001`.
   - (FR-018, FR-021; SC-001–SC-008)
 - [ ] T048 Rodar `/speckit-converge` para a spec 001 na branch `docs/001-evidence`, **antes do push**, para que qualquer achado entre no mesmo PR:
-  - reportar os achados à Ana, sem implementar nada sem aprovação;
+  - reportar os achados à mantenedora, sem implementar nada sem aprovação;
   - o que ela aprovar entra nesta branch, em commits próprios, com as verificações de sempre antes de cada commit;
   - **depois do converge**, o Status da `spec.md` muda de `Draft` para `Implemented` (com a data do merge de T032), num commit `docs:` com a marcação `[x]` de T048.
   - (transversal: confere todos os FRs e SCs)
 - [ ] T049 **[PARADA]** Push. **[PARADA]** Abrir o PR `docs: CI evidence for spec 001`. Confirmar os quatro checks verdes e `mergeStateStatus` `CLEAN`. (SC-001)
-- [ ] T050 **[MANUAL - Ana] [PARADA]** A Ana mergeia com **Rebase and merge**. É o primeiro merge sob o ruleset e prova que um PR verde e atualizado entra. Depois:
+- [ ] T050 **[MANUAL] [PARADA]** A mantenedora mergeia com **Rebase and merge**. É o primeiro merge sob o ruleset e prova que um PR verde e atualizado entra. Depois:
   - o agente confere pela API `gh pr view <n> --json number,state,mergedAt`, além de `git rev-list --merges --count main` (esperado 0) e do run do push na `main`;
   - a branch remota é apagada pela exclusão automática; conferir com `git ls-remote --heads origin`;
   - **o registro deste merge permitido (número do PR e hora do merge, `mergedAt`, conferidos pela API), o run do push na `main` e as marcações `[x]` de T049–T050 vão no PR seguinte, o da emenda da constituição do front** (plan.md, fase 5), porque este PR não pode registrar o próprio merge.
@@ -394,7 +394,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 - T002 e T003 (arquivos diferentes, mesmo commit).
 - T027, T028 e T029 (seções e arquivos diferentes, mesmo commit).
-- As demonstrações (T036–T045) **não** são paralelas: cada uma parte da `main` e espera a ação manual da Ana.
+- As demonstrações (T036–T045) **não** são paralelas: cada uma parte da `main` e espera a ação manual da mantenedora.
 
 ---
 

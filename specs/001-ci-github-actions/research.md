@@ -1,8 +1,8 @@
 # Research: CI do front no GitHub Actions
 
-Cada seção responde a um ponto do pedido de planejamento, com evidência. Os comandos rodaram na máquina da dona do repositório (Windows 11, Git Bash, Node v22.23.1 via fnm 1.39.0, npm 10.9.8) em 2026-10-20, numa pasta de rascunho ou num `git worktree` descartável fora do repositório, removido no fim. Nada no repositório foi alterado por esses experimentos. As versões 22.16.0, 22.17.0 e 22.18.0 foram instaladas num `FNM_DIR` isolado, no rascunho, sem tocar nas versões do fnm da máquina; a pasta foi apagada depois, e `fnm list` na pasta padrão continuou igual (v18.15.0, v18.20.8, v20.19.0, v20.20.2, v22.14.0 e v22.23.1 como padrão). Fatos externos citam a fonte. A spec 002 da API (`TelemetryF1_API/specs/002-github-actions-ci/research.md`) é citada como origem quando a medição de lá foi reaproveitada; cada uma foi reconfirmada aqui.
+Cada seção responde a um ponto do pedido de planejamento, com evidência. Os comandos rodaram na máquina da mantenedora (Windows 11, Git Bash, Node v22.23.1 via fnm 1.39.0, npm 10.9.8) em 2026-10-20, numa pasta de rascunho ou num `git worktree` descartável fora do repositório, removido no fim. Nada no repositório foi alterado por esses experimentos. As versões 22.16.0, 22.17.0 e 22.18.0 foram instaladas num `FNM_DIR` isolado, no rascunho, sem tocar nas versões do fnm da máquina; a pasta foi apagada depois, e `fnm list` na pasta padrão continuou igual (v18.15.0, v18.20.8, v20.19.0, v20.20.2, v22.14.0 e v22.23.1 como padrão). Fatos externos citam a fonte. A spec 002 da API (`TelemetryF1_API/specs/002-github-actions-ci/research.md`) é citada como origem quando a medição de lá foi reaproveitada; cada uma foi reconfirmada aqui.
 
-Os pontos marcados **Trade-off** foram decididos pela dona do repositório em 2026-10-20 (T1-A, T2-A, T3-A com ajuste, T4-A). Cada decisão está registrada no ponto e no plan.md.
+Os pontos marcados **Trade-off** foram decididos pela mantenedora em 2026-10-20 (T1-A, T2-A, T3-A com ajuste, T4-A). Cada decisão está registrada no ponto e no plan.md.
 
 ## 1. `--experimental-strip-types`, glob entre aspas, alias `@/` e a versão fixada (Q3, FR-026)
 
@@ -73,9 +73,9 @@ v22.23.1   5/5, sem aviso                                      5/5, sem aviso
 
 Na v22.18.0 e na v22.23.1, `process.features.typescript` é `strip`; na v22.23.1, `--no-experimental-strip-types` volta a dar `ERR_UNKNOWN_FILE_EXTENSION`. A remoção de tipos vem ligada por padrão, e sem aviso, **a partir da v22.18.0** (medido: 22.17.0 ainda exige a flag, 22.18.0 não).
 
-**Decisão (decorre da evidência; T1-A confirmado pela dona do repositório em 2026-10-20)**: **manter a flag**. O `engines.node` mínimo é 22.17 (Q2), e na 22.17 o script sem a flag quebra. Na versão que o `.nvmrc` resolve hoje (22.23.x, local e no runner) a flag é inócua: mesmo resultado, sem aviso. Ela só pode sair se o mínimo declarado for 22.18 ou mais.
+**Decisão (decorre da evidência; T1-A confirmado pela mantenedora em 2026-10-20)**: **manter a flag**. O `engines.node` mínimo é 22.17 (Q2), e na 22.17 o script sem a flag quebra. Na versão que o `.nvmrc` resolve hoje (22.23.x, local e no runner) a flag é inócua: mesmo resultado, sem aviso. Ela só pode sair se o mínimo declarado for 22.18 ou mais.
 
-**Trade-off (para a dona do repositório)**: o mínimo 22.17 foi decidido na clarificação Q2 por causa do `fs.globSync`. A medição acima mostra que um mínimo de **22.18** permitiria também tirar a flag.
+**Trade-off (para a mantenedora)**: o mínimo 22.17 foi decidido na clarificação Q2 por causa do `fs.globSync`. A medição acima mostra que um mínimo de **22.18** permitiria também tirar a flag.
 
 | Opção | Prós | Contras |
 |---|---|---|
@@ -100,7 +100,7 @@ v22.23.1  com exclude: os mesmos 5                                  sem exclude:
 - O `fs.globSync` devolve caminhos com `\` no Windows; a guarda só conta, então isso não importa.
 - **Glob vazio**: na 22.17.0, `node --test "nada/**/*.test.ts"` dá `# tests 0`, exit 0; um caminho literal inexistente dá `Could not find 'nada/x.test.ts'`. A guarda continua necessária na versão mínima, não só na atual.
 
-**Decisão** (T3-A com o ajuste da dona do repositório, 2026-10-20): a guarda usa `fs.globSync("src/**/*.test.ts")`, o mesmo padrão do script `test`, **sem** a opção `exclude`. A exclusão de `node_modules` fica numa função pura testada, que descarta todo caminho com um segmento `node_modules`, aceitando `/` e `\`. Como esta medição mostrou, é justamente a exclusão que muda o resultado (6 contra 5), então é ela que precisa de teste. A casca de I/O só chama o `globSync` e repassa a lista (plan.md D10). O resultado é o mesmo do runner, que exclui qualquer entrada chamada `node_modules`.
+**Decisão** (T3-A com o ajuste da mantenedora, 2026-10-20): a guarda usa `fs.globSync("src/**/*.test.ts")`, o mesmo padrão do script `test`, **sem** a opção `exclude`. A exclusão de `node_modules` fica numa função pura testada, que descarta todo caminho com um segmento `node_modules`, aceitando `/` e `\`. Como esta medição mostrou, é justamente a exclusão que muda o resultado (6 contra 5), então é ela que precisa de teste. A casca de I/O só chama o `globSync` e repassa a lista (plan.md D10). O resultado é o mesmo do runner, que exclui qualquer entrada chamada `node_modules`.
 
 ## 3. `tsc -b` como script de typecheck: o que ele escreve no disco (FR-009)
 
@@ -160,7 +160,7 @@ nenhuma divergência de caixa ou caminho
 | Mesmo conjunto de testes no cmd e no sh (feito, 16/16, mesmos nomes) | O conjunto no Linux de verdade (sh do Ubuntu, sistema de arquivos com distinção de caixa) |
 | Fim de linha no índice (feito, tudo LF) | Tempo real dos quatro jobs (SC-005) |
 
-**Decisão T4-A** (dona do repositório, 2026-10-20): a demonstração do check `build` usa um import de CSS Module com a caixa trocada. A checagem local no Windows passa (`tsc -b` e `vite build` com exit 0, medido acima), e só a CI no Linux deve reprovar. Esse é o objetivo da demonstração: provar que a CI pega o que o Windows não pega. Se o Linux não reprovar, isso é registrado como achado e a demonstração cai para um CSS inexistente.
+**Decisão T4-A** (mantenedora, 2026-10-20): a demonstração do check `build` usa um import de CSS Module com a caixa trocada. A checagem local no Windows passa (`tsc -b` e `vite build` com exit 0, medido acima), e só a CI no Linux deve reprovar. Esse é o objetivo da demonstração: provar que a CI pega o que o Windows não pega. Se o Linux não reprovar, isso é registrado como achado e a demonstração cai para um CSS inexistente.
 
 ## 5. O `npm ci` quando o Node não atende ao `engines` (US3, cenário 4)
 
@@ -183,7 +183,7 @@ npm config get engine-strict  -> false
 - Por padrão é **aviso**, não erro: a instalação segue e termina com exit 0. Isso atende ao cenário 4 da US3 ("o npm avisa"), na instalação. Os scripts (`npm test` etc.) não checam o `engines`.
 - Com `engine-strict` ligado, vira erro (exit 1).
 
-**Trade-off**: manter o padrão (aviso) ou versionar um `.npmrc` com `engine-strict=true`. **Decidido** pela dona do repositório em 2026-10-20: T2-A, só o aviso.
+**Trade-off**: manter o padrão (aviso) ou versionar um `.npmrc` com `engine-strict=true`. **Decidido** pela mantenedora em 2026-10-20: T2-A, só o aviso.
 
 | Opção | Prós | Contras |
 |---|---|---|
@@ -242,9 +242,9 @@ O teto de 5 minutos do SC-005 vale para a CI e é medido na primeira execução 
 
 ### Windows (local)
 
-Máquina da dona do repositório, Windows 11, Git Bash, Node v22.23.1, 2026-10-20. Experimentos em arquivos rastreados foram revertidos com `git checkout --` e conferidos com `git status --short`; arquivos novos de experimento foram removidos.
+Máquina da mantenedora, Windows 11, Git Bash, Node v22.23.1, 2026-10-20. Experimentos em arquivos rastreados foram revertidos com `git checkout --` e conferidos com `git status --short`; arquivos novos de experimento foram removidos.
 
-**T006 — `fnm use`** (informado pela Ana, na raiz do repositório, numa janela nova do terminal): `fnm use` resolveu o `.nvmrc` (`22`) para a v22.23.1 e `node -v` mostrou v22.23.1. A v22.14.0 também está instalada, abaixo do mínimo 22.17, e o fnm escolheu a mais nova da major, como esperado.
+**T006 — `fnm use`** (informado pela mantenedora, na raiz do repositório, numa janela nova do terminal): `fnm use` resolveu o `.nvmrc` (`22`) para a v22.23.1 e `node -v` mostrou v22.23.1. A v22.14.0 também está instalada, abaixo do mínimo 22.17, e o fnm escolheu a mais nova da major, como esperado.
 
 **T009 — `npm run typecheck`:**
 
@@ -424,7 +424,7 @@ Cache: *miss* nos quatro jobs (`npm cache is not found`), apesar do *hit* no re-
 
 ### Branch protection (T034, T035)
 
-**T034** (feita pela Ana): a primeira conferência pela API, antes de a Ana concluir a configuração, devolveu `rulesets: []`, `rules/branches/main: []` e os três métodos de merge ainda ligados, com `deleteBranchOnMerge: false`. A Ana então criou o ruleset e ajustou as configurações gerais seguindo só o README, e relatou que a interface bateu com os passos. A conferência da API abaixo confirma a configuração; nenhuma diferença entre o README e a interface foi anotada.
+**T034** (feita pela mantenedora): a primeira conferência pela API, antes de a mantenedora concluir a configuração, devolveu `rulesets: []`, `rules/branches/main: []` e os três métodos de merge ainda ligados, com `deleteBranchOnMerge: false`. A mantenedora então criou o ruleset e ajustou as configurações gerais seguindo só o README, e relatou que a interface bateu com os passos. A conferência da API abaixo confirma a configuração; nenhuma diferença entre o README e a interface foi anotada.
 
 **T035** (API do GitHub, repositório `AnaLauraFFerraz/Telemetry-F1`):
 
@@ -486,7 +486,7 @@ gh variable list  -> vazio (exit 0)
   ```
 
   A URL que mostrou o estado reprovado é a com a barra codificada (`%2F`); o `event=pull_request` não foi necessário. O selo do README usa `?branch=main`, sem barra, e não é afetado. A resposta traz `Cache-Control: max-age=300`, então não foi isolado se o "no status" da barra literal veio de cache ou do formato da URL.
-- **Tentativa de merge (T038, pela Ana):** print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra o commit `2fa277c` com a marca de falha, o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / lint (pull_request)` reprovado ("Failing after 13s"), `CI / build` (39 s), `CI / test` (10 s) e `CI / typecheck` (12 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. Depois da tentativa, `gh pr view 2`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
+- **Tentativa de merge (T038, pela mantenedora):** print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra o commit `2fa277c` com a marca de falha, o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / lint (pull_request)` reprovado ("Failing after 13s"), `CI / build` (39 s), `CI / test` (10 s) e `CI / typecheck` (12 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. Depois da tentativa, `gh pr view 2`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
 - **T039:** `gh pr close 2` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 2fa277c`) e remota apagada com `git push origin --delete demo/lint-failure`; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
 
 ### Demonstração: `test` (T040–T041)
@@ -505,7 +505,7 @@ gh variable list  -> vazio (exit 0)
   ```
 
   Só `test` reprovou; os outros três rodaram até o fim. O log do job `test` no Linux repete `[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts`, o mesmo `not ok 3` (expected 1, actual 0) e `# tests 27, pass 26, fail 1`. Estado do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `state: OPEN`.
-- **Tentativa de merge (T041, pela Ana):** print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / test (pull_request)` reprovado ("Failing after 36s"), `CI / build` (39 s), `CI / lint` (40 s) e `CI / typecheck` (15 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 3`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
+- **Tentativa de merge (T041, pela mantenedora):** print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / test (pull_request)` reprovado ("Failing after 36s"), `CI / build` (39 s), `CI / lint` (40 s) e `CI / typecheck` (15 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 3`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
 - **Fechamento:** `gh pr close 3` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 522bf01`) e remota apagada; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
 
 ### Demonstração: `typecheck` e `build` juntos (T042–T043)

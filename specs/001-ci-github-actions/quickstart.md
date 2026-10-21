@@ -94,7 +94,7 @@ git ls-remote --heads origin   # main inalterada
 git switch - && git branch -D tmp/direct-push
 ```
 
-Se o push for aceito: parar, registrar no research.md, corrigir o ruleset e avisar a dona do repositório. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
+Se o push for aceito: parar, registrar no research.md, corrigir o ruleset e avisar a mantenedora. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
 
 ## 6. README (US5)
 

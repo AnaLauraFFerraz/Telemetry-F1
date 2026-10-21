@@ -51,6 +51,7 @@ The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: wh
 - Derive values during render instead of syncing them with effects (see the stale-result logic in `SessionAnalysisPage` / `CoachPanel`).
 - Coaching is a paid API call on a server cache miss: it only runs on explicit user action, never automatically.
 - Tests cover pure functions only. Test files import with relative paths **including `.ts`** (Node cannot resolve the `@/` alias); a module under test may use `@/` only for type-only imports. Any `*.test.ts` under `src/` is discovered automatically.
+- Documentation refers to roles (the maintainer), not to people. This applies to specs, plans, research, tasks and new records alike.
 - Commits: small, Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`), English subject, **no `Co-Authored-By` trailer**.
 
 ## Rules

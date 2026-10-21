@@ -8,7 +8,7 @@
 
 Todo PR para a `main` e todo push na `main` passam por quatro checks independentes no GitHub Actions, `typecheck`, `lint`, `test` e `build`. Cada check chama só o script de mesmo nome do `package.json`, num checkout limpo no Linux, sem segredo, sem `.env` e sem a API rodando. Localmente, os mesmos scripts rodam com a mesma major do Node, lida de um `.nvmrc`.
 
-O script de teste passa a descobrir sozinho todo `src/**/*.test.ts` com um glob entre aspas duplas resolvido pelo próprio Node, o mesmo conjunto no cmd e no sh. Uma guarda `pretest` reprova a descoberta vazia; a lógica dela é uma função pura testada. Depois do merge, a dona do repositório protege a `main` com um ruleset, seguindo o README.
+O script de teste passa a descobrir sozinho todo `src/**/*.test.ts` com um glob entre aspas duplas resolvido pelo próprio Node, o mesmo conjunto no cmd e no sh. Uma guarda `pretest` reprova a descoberta vazia; a lógica dela é uma função pura testada. Depois do merge, a mantenedora protege a `main` com um ruleset, seguindo o README.
 
 O desenho reaproveita as decisões da spec 002 da API (`TelemetryF1_API`), escritas aqui com o motivo de cada uma. A evidência está em [research.md](research.md).
 
@@ -66,7 +66,7 @@ Constituição v1.0.0 (`.specify/memory/constitution.md`).
 
 ## Design decisions
 
-Cada decisão herdada da API está escrita aqui com o motivo; a API é citada só como origem. Os trade-offs T1–T4 foram decididos pela dona do repositório em 2026-10-20 (seção "Trade-offs decididos").
+Cada decisão herdada da API está escrita aqui com o motivo; a API é citada só como origem. Os trade-offs T1–T4 foram decididos pela mantenedora em 2026-10-20 (seção "Trade-offs decididos").
 
 ### D1. Quatro jobs independentes, sem `needs`
 
@@ -144,7 +144,7 @@ Não há bloco `env:` em lugar nenhum (FR-006). O `build` sem `.env` foi medido 
 
 ### D10. Guarda de descoberta vazia (FR-012), decisão T3
 
-Ajuste da dona do repositório: a filtragem de `node_modules` fica **dentro da função pura testada**, não como opção do `fs.globSync`. O research ponto 2 mostrou que é exatamente essa exclusão que muda o resultado (6 arquivos sem ela, 5 com ela), então é ela que precisa de teste.
+Ajuste da mantenedora: a filtragem de `node_modules` fica **dentro da função pura testada**, não como opção do `fs.globSync`. O research ponto 2 mostrou que é exatamente essa exclusão que muda o resultado (6 arquivos sem ela, 5 com ela), então é ela que precisa de teste.
 
 - **`tools/testDiscovery.ts`** (puro, sem I/O):
   - `TEST_PATTERN = "src/**/*.test.ts"`;
@@ -166,7 +166,7 @@ Ajuste da dona do repositório: a filtragem de `node_modules` fica **dentro da f
 
 ### D11. Documentação
 
-Regra da dona do repositório: README e `CLAUDE.md` mudam **no mesmo commit que torna falsas as afirmações antigas**, e não ficam números que desatualizam. O que é só conteúdo novo vai num commit `docs:` próprio.
+Regra da mantenedora: README e `CLAUDE.md` mudam **no mesmo commit que torna falsas as afirmações antigas**, e não ficam números que desatualizam. O que é só conteúdo novo vai num commit `docs:` próprio.
 
 | Commit que muda o comportamento | Afirmações antigas corrigidas no mesmo commit |
 |---|---|
@@ -193,13 +193,13 @@ Conteúdo novo, no commit `docs:` da fase 3:
 - A emenda usa o `/speckit-constitution` naquele momento da implementação:
   - a versão é proposta pela regra de versionamento da própria constituição (MAJOR, MINOR ou PATCH), com o motivo da escolha;
   - o Sync Impact Report **não** fica no arquivo da constituição: vai no corpo do commit da emenda e na descrição do PR da feature. Motivo: a constituição descreve as regras atuais, e o histórico da mudança fica no git; o `/speckit-constitution` trata o relatório como material temporário de revisão;
-  - **a proposta é mostrada à dona do repositório antes de ser aplicada**.
+  - **a proposta é mostrada à mantenedora antes de ser aplicada**.
 - A Governança pede que emendas passem por um PR que diga o motivo: o corpo do PR da feature registra a emenda parcial, o motivo e o Sync Impact Report.
 - O resto da emenda continua no PR separado da fase 5.
 
 ## Trade-offs decididos
 
-Decididos pela dona do repositório em 2026-10-20:
+Decididos pela mantenedora em 2026-10-20:
 
 - **T1 (A)**: mínimo 22.17 e flag `--experimental-strip-types` mantida (D8).
 - **T2 (A)**: só o aviso do `engines`, sem `engine-strict` (D8).
@@ -208,7 +208,7 @@ Decididos pela dona do repositório em 2026-10-20:
 
 ## Order of work
 
-Cada fase termina com a própria verificação antes da próxima. Os commits são atômicos, em Conventional Commits, **sem `Co-Authored-By`**. Antes de cada commit rodam `npm test`, `npm run lint` e `npm run build`, e, depois que o script existir, também `npm run typecheck`. Push, abertura de PR, exclusão de branch remota e merge param para aprovação; o merge é sempre da dona do repositório.
+Cada fase termina com a própria verificação antes da próxima. Os commits são atômicos, em Conventional Commits, **sem `Co-Authored-By`**. Antes de cada commit rodam `npm test`, `npm run lint` e `npm run build`, e, depois que o script existir, também `npm run typecheck`. Push, abertura de PR, exclusão de branch remota e merge param para aprovação; o merge é sempre da mantenedora.
 
 ### Fase 0 — artefatos SDD
 
@@ -232,7 +232,7 @@ Verificação no Windows, registrada no research.md:
 - `git status` limpo depois do `typecheck`;
 - lista ordenada dos arquivos de teste executados, para o SC-004.
 
-A dona do repositório confere `fnm use` no próprio terminal: deve resolver para uma 22.x.
+A mantenedora confere `fnm use` no próprio terminal: deve resolver para uma 22.x.
 
 ### Fase 2 — workflow numa branch com PR (US1)
 
@@ -249,12 +249,12 @@ A dona do repositório confere `fnm use` no próprio terminal: deve resolver par
 
 1. O commit `docs:` com o conteúdo novo do D11.
 2. Conferir que nenhum número que desatualiza ficou no README (FR-021) e que nada descreve algo que não existe.
-3. O PR fica verde e a dona do repositório mergeia com **Rebase and merge**, mesmo antes do ruleset, para manter a `main` linear.
+3. O PR fica verde e a mantenedora mergeia com **Rebase and merge**, mesmo antes do ruleset, para manter a `main` linear.
 4. Registrar o run do push na `main` depois do merge (FR-002).
 
-### Fase 4 — proteção, pela dona do repositório, depois do merge (US4)
+### Fase 4 — proteção, pela mantenedora, depois do merge (US4)
 
-1. A dona do repositório cria o ruleset e ajusta os métodos de merge seguindo o README. Diferenças entre o README e a interface do GitHub são anotadas e corrigidas no PR de evidência.
+1. A mantenedora cria o ruleset e ajusta os métodos de merge seguindo o README. Diferenças entre o README e a interface do GitHub são anotadas e corrigidas no PR de evidência.
 2. **Conferência pela API do GitHub**, registrada no research.md:
    - `GET /repos/AnaLauraFFerraz/Telemetry-F1/rulesets` e `/rulesets/{id}`: `enforcement: active`, `bypass_actors: []`, `current_user_can_bypass: "never"`, alvo `~DEFAULT_BRANCH`;
    - `GET /rules/branches/main`: `deletion`, `non_fast_forward`, `required_linear_history`, `pull_request` com `required_approving_review_count: 0`, `required_status_checks` com `strict_required_status_checks_policy: true` e os contextos `typecheck`, `lint`, `test` e `build`;
@@ -277,7 +277,7 @@ A dona do repositório confere `fnm use` no próprio terminal: deve resolver par
    - **No primeiro PR (lint)**, consultar o `mergeStateStatus` enquanto os checks ainda rodam e registrar o bloqueio por check pendente (US4 cenário 1). A exigência de branch atualizada (cenário 3) fica conferida pela configuração (`strict_required_status_checks_policy: true`).
    - **Num PR de demonstração**, abrir o selo com `?branch=` apontando para a branch da demonstração e registrar o estado reprovado (US5 cenário 2).
 4. **Push direto recusado**: de uma branch descartável `tmp/direct-push` criada de `origin/main`, sem tocar na `main` local, com um commit vazio (`git commit --allow-empty`, mensagem em inglês), `git push origin HEAD:main` tem de ser recusado com `GH013`, mesmo para a administradora. Depois, `git ls-remote --heads origin` confirma a `main` remota inalterada.
-   - **Contingência**: se o push for aceito, parar, registrar no research.md, corrigir o ruleset e avisar a dona do repositório. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
+   - **Contingência**: se o push for aceito, parar, registrar no research.md, corrigir o ruleset e avisar a mantenedora. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
 5. **Não refeito aqui**: que um PR roda a própria versão do workflow já foi provado na API (T033, PR #6, run 39473001785) e é citado como origem (research ponto 9).
 6. Um PR `docs:` com a evidência (research.md, prints, marcações em tasks.md e o Status da spec) é o primeiro merge pela regra nova, e o próprio merge serve de prova de que um PR verde e atualizado entra.
    - O `/speckit-converge` roda na branch desse PR **antes do push**, para que os achados aprovados entrem no mesmo PR. O Status da spec só muda para `Implemented` depois do converge.
