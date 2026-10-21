@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 import { useSessionDetail } from "@/api/useSessionDetail";
 import { useLapTelemetry } from "@/api/useLapTelemetry";
 import { useCoachAnalysis } from "@/api/useCoachAnalysis";

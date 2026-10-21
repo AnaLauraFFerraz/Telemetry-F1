@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useTelemetry } from "@/context/useTelemetry";
 import { env } from "@/config/env";
 import { ConnectionStatusBadge } from "@/components/connection/ConnectionStatusBadge";

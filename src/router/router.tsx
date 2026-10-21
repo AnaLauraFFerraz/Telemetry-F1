@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router";
 import DashboardPage from "@/pages/dashboard/DashboardPage";
 import SessionHistoryPage from "@/pages/sessionHistory/SessionHistoryPage";
 import SessionAnalysisPage from "@/pages/sessionAnalysis/SessionAnalysisPage";
@@ -7,7 +7,7 @@ import NotFoundPage from "@/pages/notFound/NotFoundPage";
 
 function AppRouter() {
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/sessions" element={<SessionHistoryPage />} />
