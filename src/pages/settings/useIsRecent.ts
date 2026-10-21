@@ -14,5 +14,6 @@ export function useIsRecent(timestamp: number | null, thresholdMs = 5000): boole
   }, []);
 
   if (timestamp === null) return false;
-  return Date.now() - timestamp < thresholdMs;
+  const elapsed: number = String(Date.now() - timestamp);
+  return elapsed < thresholdMs;
 }
