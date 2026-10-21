@@ -238,3 +238,83 @@ O teto de 5 minutos do SC-005 vale para a CI e é medido na primeira execução 
 ## Post-implementation evidence
 
 (Preenchido durante a implementação: Windows local, primeiro run no Linux, re-run com cache, PRs de demonstração, push direto recusado, conferência do ruleset pela API.)
+
+### Windows (local)
+
+Máquina da dona do repositório, Windows 11, Git Bash, Node v22.23.1, 2026-10-20. Experimentos em arquivos rastreados foram revertidos com `git checkout --` e conferidos com `git status --short`; arquivos novos de experimento foram removidos.
+
+**T006 — `fnm use`** (informado pela Ana, na raiz do repositório, numa janela nova do terminal): `fnm use` resolveu o `.nvmrc` (`22`) para a v22.23.1 e `node -v` mostrou v22.23.1. A v22.14.0 também está instalada, abaixo do mínimo 22.17, e o fnm escolheu a mais nova da major, como esperado.
+
+**T009 — `npm run typecheck`:**
+
+```text
+npm run typecheck                         exit 0; git status --short mostrava só CLAUDE.md, README.md, package.json
+com `const tmpTypeError: number = "x";` em src/utils/formatDate.ts:
+  src/utils/formatDate.ts(3,9): error TS2322: Type 'string' is not assignable to type 'number'.
+  src/utils/formatDate.ts(3,9): error TS6133: 'tmpTypeError' is declared but its value is never read.
+  exit_npm_run_typecheck=2
+depois de git checkout -- src/utils/formatDate.ts: git diff -- src vazio; npm run typecheck exit 0
+```
+
+**T012 — mesmos testes antes e depois do glob.** Oráculo independente do glob: um preload (`NODE_OPTIONS=--import file:///.../logArgv.mjs`) grava o `argv[1]` de cada processo de teste.
+
+```text
+                                      testes   arquivos executados (argv[1])
+lista antiga explícita (4 arquivos)   16/16    chartMath, computeDelta, trackMapMath, coachInsights
+npm run -s test (cmd, glob novo)      16/16    os mesmos 4
+npm run -s --script-shell=<Git>\usr\bin\sh.exe test (sh)   16/16   os mesmos 4
+diff dos nomes de teste ordenados: antiga x cmd = vazio; cmd x sh = vazio
+```
+
+**T014 — teste contra o esboço** (`TEST_PATTERN = ""`, `filterTestFiles` devolve a lista, `checkDiscovery` devolve `{ exitCode: -1, message: "" }`): `# tests 22, pass 16, fail 6`. Cada um dos 6 testes novos falha com `ERR_ASSERTION` na própria asserção (linhas 6, 11, 17, 22, 29 e 36 de `src/tooling/testDiscovery.test.ts`); nenhum `ERR_MODULE_NOT_FOUND`. Depois de apertar as asserções da mensagem (comparação da mensagem inteira), um segundo esboço com o `exitCode` certo e a mensagem errada falhou nas linhas 12 e 18, ou seja, as asserções da mensagem pegam sozinhas.
+
+**`npm test` com a implementação:**
+
+```text
+[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts
+# tests 22  # pass 22  # fail 0   exit 0
+```
+
+**Arquivo de teste novo entra sem editar script.** `src/tmpcheck/probe.test.ts` com `assert.equal(1, 2)`:
+
+```text
+[assertTestFiles] 6 arquivos de teste encontrados em src/**/*.test.ts
+not ok 13 - probe temporário com asserção falsa   (expected: 2, actual: 1)
+# tests 23  # pass 22  # fail 1   exit 1
+```
+
+**Erro de sintaxe reprova o script, em vez de ser ignorado.** `src/tmpcheck/syntax.test.ts` com `const x = ;`:
+
+```text
+[assertTestFiles] 6 arquivos de teste encontrados em src/**/*.test.ts
+# SyntaxError [ERR_INVALID_TYPESCRIPT_SYNTAX]: Expression expected
+not ok 4 - src\\tmpcheck\\syntax.test.ts   (code: 'ERR_TEST_FAILURE')
+# tests 23  # pass 22  # fail 1   exit 1
+```
+
+**Descoberta vazia.** Com `TEST_PATTERN = "nada/**/*.test.ts"` em `tools/testDiscovery.ts` (revertido):
+
+```text
+> telemetryf1@0.0.0 pretest
+[assertTestFiles] nenhum arquivo de teste encontrado em nada/**/*.test.ts
+exit 1; o `test` não chegou a rodar (0 linhas "ok"/"not ok")
+```
+
+**Erro de tipos em `tools/`.** `export const tmpTypeError: number = "x";` em `tools/assertTestFiles.ts` (revertido):
+
+```text
+tools/assertTestFiles.ts(8,14): error TS2322: Type 'string' is not assignable to type 'number'.
+exit_npm_run_typecheck=2
+```
+
+**Arquivos de teste executados (SC-004), ordenados** (`argv[1]` de cada processo de `npm test`):
+
+```text
+src/components/chart/chartMath.test.ts
+src/components/chart/computeDelta.test.ts
+src/components/coach/trackMapMath.test.ts
+src/tooling/testDiscovery.test.ts
+src/utils/coachInsights.test.ts
+```
+
+Total: 22 testes (16 anteriores e 6 da guarda), contra os 5 arquivos que a guarda contou.
