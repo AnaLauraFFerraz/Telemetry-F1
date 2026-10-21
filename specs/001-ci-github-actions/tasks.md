@@ -436,6 +436,14 @@ O PR de emenda da constituição (plan.md, fase 5) não é tarefa daqui. A únic
 
 ## Notes
 
-- Total: 54 tarefas (T001–T050 e T018a–T018d, acrescentadas depois da T018 para a guarda conferir o script `test`).
+- Total: 57 tarefas (T001–T050; T018a–T018d, acrescentadas depois da T018 para a guarda conferir o script `test`; e T051–T053, da Phase 9).
 - Nenhum commit, PR ou push leva `Co-Authored-By` ou "Generated with".
 - O `.specify/feature.json` nunca é commitado (é ignorado).
+
+## Phase 9: Convergence
+
+Achados do `/speckit-converge` (T048), aprovados pela mantenedora. São de documentação e de evidência, todos LOW.
+
+- [X] T051 Acrescentar ao `quickstart.md`, seção 2, o passo das aspas simples no script `test`: `npm test` sai ≠ 0 no `pretest` com a mensagem em português e nenhum teste roda, revertido com `git checkout -- package.json`, per FR-012 (partial)
+- [ ] T052 Trocar nos três lugares (`quickstart.md`, T037 deste arquivo e `plan.md`) a URL do selo da branch da demonstração pela forma com a barra codificada, `?branch=demo%2Flint-failure`, e registrar o motivo no `research.md`, per US5/AC2 (partial)
+- [ ] T053 Medir o aviso `EBADENGINE` com o `package.json` real: num `git worktree` descartável da `main`, `fnm exec --using=22.14.0 npm.cmd ci`, sem trocar o Node da sessão nem da mantenedora; registrar o aviso e o código de saída no `research.md`, remover o worktree e conferir `fnm list` e `node -v`, per US3/AC4 (partial)

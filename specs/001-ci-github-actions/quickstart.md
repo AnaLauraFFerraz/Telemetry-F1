@@ -33,6 +33,7 @@ git status --short     # vazio: os .tsbuildinfo e o dist/ são ignorados
 | Criar `src/tmpcheck/probe.test.ts` com um teste que falha | `npm test` executa o arquivo e falha, sem editar o `package.json` |
 | Criar `src/tmpcheck/syntax.test.ts` com erro de sintaxe | `npm test` falha, em vez de ignorar o arquivo |
 | Apontar o padrão da guarda e do script para uma pasta vazia | `npm test` sai ≠ 0 com `nenhum arquivo de teste encontrado`, e nenhum teste roda |
+| Trocar as aspas duplas do glob no script `test` do `package.json` por aspas simples | `npm test` sai ≠ 0 no `pretest` com `[assertTestFiles] o script test do package.json precisa conter "src/**/*.test.ts" entre aspas duplas`, e nenhum teste roda; reverter com `git checkout -- package.json` |
 | `npm test` no cmd e com `npm run --script-shell="<Git>/usr/bin/sh.exe" test` | mesma contagem e mesmos nomes de teste |
 
 ## 3. Versão do Node (US3)
