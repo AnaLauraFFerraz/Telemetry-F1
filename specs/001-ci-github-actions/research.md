@@ -333,3 +333,73 @@ exit 1; o `test` não chegou a rodar (0 linhas "ok"/"not ok")
 ```
 
 `git status --short` vazio depois da reversão, e o script voltou a `--test \"src/**/*.test.ts\"`.
+
+### Linux (CI, first run)
+
+PR #1 (`CI with GitHub Actions (spec 001)`), run **39527258441**, evento `pull_request`, commit `099096f`, 2026-10-21 01:25:46Z a 01:27:09Z (UTC). Dados de `gh run view 39527258441 --json ... ` e `--log`.
+
+**Node resolvido no runner:** `node-version-file: .nvmrc` → `Found in cache @ /opt/hostedtoolcache/node/22.23.3/x64`, `node: v22.23.3` nos quatro jobs (local: v22.23.1; mesma major, como previsto no ponto 6).
+
+**Jobs** (sem `needs`, iniciaram juntos às 01:25:48Z):
+
+```text
+job        resultado   início     fim        duração
+typecheck  success     01:25:48   01:26:39   51 s
+lint       success     01:25:48   01:27:04   76 s
+test       success     01:25:48   01:27:04   76 s
+build      success     01:25:48   01:27:08   80 s
+run inteiro (criação a atualização): 83 s
+```
+
+SC-005: a execução inteira levou cerca de 1 min 23 s, abaixo do teto de 5 minutos. Este é o primeiro run e foi verde, então é a referência de tempo. A maior parte de cada job é o `npm ci` (43 s a 1 min no log: `added 153 packages, and audited 154 packages`); o `vite build` levou 1,17 s.
+
+**Guarda e testes no log do job `test`:**
+
+```text
+> node --experimental-strip-types tools/assertTestFiles.ts
+[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts
+# tests 27
+# pass 27
+# fail 0
+```
+
+**SC-004, Linux × Windows:** os nomes dos 27 testes do log do Linux, ordenados, comparados com os 27 de `npm test` no Windows (v22.23.1), dão `diff` vazio: mesmos nomes, mesmo total (27), mesma contagem da guarda (5 arquivos; lista dos arquivos no Windows na seção anterior, 22 testes naquele momento e 27 depois da extensão da guarda).
+
+**Cache (`cache: npm`):**
+- Chave: `node-cache-Linux-x64-npm-86e1d744d42747432fb4862b1e9b93dab0d6cbc6f815c12934efba34bdd72faf`.
+- *Miss* nos quatro jobs: `npm cache is not found` no passo do `setup-node` (primeiro run, sem cache salvo).
+- O job `typecheck` salvou a chave (`Cache saved with the key: ...`, 01:26:37Z). `lint`, `test` e `build` registraram `Failed to save: Unable to reserve cache with key ..., another job may be creating this cache` e ficaram verdes: a disputa de gravação prevista no plan.md D1.
+- O *hit* do re-run está na seção seguinte.
+
+**Observação fora de escopo:** o `npm ci` informa `27 vulnerabilities (1 low, 3 moderate, 23 high)`. A spec deixa a triagem do `npm audit` para um trabalho separado.
+
+**SC-004, ambos os lados:** `comm` entre as duas listas de 27 nomes dá 0 nomes só no Linux e 0 só no Windows.
+
+**Estado do PR #1 depois do run:** `mergeStateStatus: CLEAN`, `mergeable: MERGEABLE`, os quatro checks (`typecheck`, `lint`, `test`, `build`) com `SUCCESS`. Ainda não há ruleset, então o estado não depende de checks obrigatórios.
+
+### Linux (CI, re-run)
+
+`gh run rerun 39527258441` (tentativa 2), com o `package-lock.json` inalterado, mesmo commit `099096f`. Início 01:30:28Z, fim 01:31:08Z.
+
+```text
+job        resultado   duração
+typecheck  success     40 s
+lint       success     12 s
+test       success     10 s
+build      success     12 s
+```
+
+Cache, nos quatro jobs (chave `node-cache-Linux-x64-npm-86e1d744d42747432fb4862b1e9b93dab0d6cbc6f815c12934efba34bdd72faf`, a mesma do primeiro run):
+
+```text
+Cache hit for: node-cache-Linux-x64-npm-86e1d744...
+Cache restored successfully
+Cache restored from key: node-cache-Linux-x64-npm-86e1d744...
+Cache hit occurred on the primary key ..., not saving cache.
+```
+
+O `npm ci` caiu para 2 a 4 s em `lint`, `test` e `build` (de 43 s a 1 min no primeiro run). No `typecheck` levou 27 s nessa tentativa, sem relação com o cache (também houve *hit*); a diferença não foi investigada. O log do `test` repete `[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts` e `# tests 27, pass 27, fail 0`.
+
+### Falhas só no Linux (T025)
+
+Nenhuma falha só no Linux: os quatro jobs ficaram verdes no primeiro run e no re-run, sem correção.

@@ -186,13 +186,13 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - nenhuma action de terceiros.
   - (FR-001–FR-008, FR-016, FR-023–FR-025; SC-001, SC-002, SC-007)
 - [X] T020 [US1] Revisar `ci.yml` contra a lista de T019, item por item. Rodar os quatro scripts localmente e commitar `chore: add CI workflow with typecheck, lint, test and build jobs`. (FR-005)
-- [ ] T021 [US1] **[PARADA]** Push da branch: `git push -u origin 001-ci-github-actions`. (FR-001)
-- [ ] T022 [US1] **[PARADA]** Abrir o PR para a `main` com `gh pr create`:
+- [X] T021 [US1] **[PARADA]** Push da branch: `git push -u origin 001-ci-github-actions`. (FR-001)
+- [X] T022 [US1] **[PARADA]** Abrir o PR para a `main` com `gh pr create`:
   - título `CI with GitHub Actions (spec 001)`;
   - corpo resumindo a spec, sem rodapé "Generated with";
   - o corpo registra a emenda parcial da constituição (T011), o motivo, como a Governança pede, e o Sync Impact Report.
   - Anotar o número do PR. (FR-001; SC-001)
-- [ ] T023 [US1] Primeiro run no Linux, registrado em `research.md`, "Linux (CI, first run)":
+- [X] T023 [US1] Primeiro run no Linux, registrado em `research.md`, "Linux (CI, first run)":
   - id do run e Node resolvido no runner;
   - resultado e duração de cada um dos quatro jobs;
   - comparação com o teto de 5 minutos (SC-005); acima dele, investigar e registrar causa e ação. A referência é a primeira execução verde depois de qualquer correção de T025: se este run falhar, a medição de referência é refeita no primeiro run verde;
@@ -201,14 +201,14 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - cache: *miss* e quem salvou a chave (a disputa `Unable to reserve cache` entre jobs é esperada, plan.md D1).
   - Usar `gh run view`/`gh run view --log`.
   - (FR-001, FR-003, FR-004, FR-024, FR-025; SC-001, SC-004, SC-005)
-- [ ] T024 [US1] Re-run do mesmo run, com `gh run rerun <id>` e o `package-lock.json` inalterado. Registrar em `research.md`, "Linux (CI, re-run)": *hit* de cache (`Cache restored successfully`), resultado e duração dos quatro jobs. (FR-025; US3 cenário 5)
-- [ ] T025 [US1] Se algum job falhar só no Linux:
+- [X] T024 [US1] Re-run do mesmo run, com `gh run rerun <id>` e o `package-lock.json` inalterado. Registrar em `research.md`, "Linux (CI, re-run)": *hit* de cache (`Cache restored successfully`), resultado e duração dos quatro jobs. (FR-025; US3 cenário 5)
+- [X] T025 [US1] Se algum job falhar só no Linux:
   - registrar causa e correção no `research.md`;
   - corrigir num commit próprio, sem pular check;
   - **[PARADA]** antes do push da correção.
   - Se nada falhar, registrar "nenhuma falha só no Linux".
   - (FR-024; edge case "runner Linux ainda não testado")
-- [ ] T026 [US1] Commitar a evidência de T023–T025 como `docs: record the first Linux CI run for spec 001`. **[PARADA]** Push. (SC-005)
+- [X] T026 [US1] Commitar a evidência de T023–T025 como `docs: record the first Linux CI run for spec 001`. **[PARADA]** Push. (SC-005)
 
 **Checkpoint**: MVP. Os quatro checks rodam e aparecem no PR.
 
