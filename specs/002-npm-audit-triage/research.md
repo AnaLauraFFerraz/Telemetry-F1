@@ -646,6 +646,48 @@ Vistas nas capturas do "antes", na `main`:
 - **Corte da Fase 2** (D11), registrado antes do primeiro comando: a fase começa em **2026-10-21**, então o corte é **2026-10-07**. Os comandos da fase rodam com `--before=2026-10-07`.
 - **FR-007, conferência antes da troca** (T027): a busca por `<Link`, `navigate(`, `useNavigate`, `redirect`, `<Navigate`, `useSearchParams`, `useLocation`, `window.location` e `href=` em `src/` foi repetida em 2026-10-21, em `ca2487f`, e achou as mesmas 10 ocorrências da tabela "Verificação formal do FR-007" acima (7 `<Link>` e 3 `navigate(...)`, nos mesmos arquivos e linhas), com os mesmos destinos literais, e `` navigate(`/sessions/${id}`) `` com o `id` vindo da API. Nenhuma ocorrência nova, e a tabela continua completa.
 
+- **Segunda rodada da API (T028)**: cópia nova da mestra, `Test-Path` = `False`, conferência da chave = `false`, log `[db]` apontando para `telemetry-run.db`, API nas portas 3001 e 8080, sem replay e sem clique no coach.
+- **Flags da v6** (commit `30707e2`, `fix: opt into the React Router v7 future flags`): `<BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>`, com o `typecheck` em 0 e o roteiro de navegação passando no servidor de desenvolvimento (11 verificações, 0 POSTs, 0 erros de página).
+- **Nenhuma versão adequada deixou de existir antes do corte**: a 7.18.4 (publicada em 2026-09-15) está antes de 2026-10-07 (T030 não ocorreu).
+- **`react-router` 7** (commit `add2487`, `fix: upgrade to React Router 7`): `npm uninstall react-router-dom` e `npm install react-router@^7 --before=2026-10-07` resolveram **7.18.4**, publicada em 2026-09-15, com `engines.node` `>=20.0.0` e peer `react` `>=18`. O `package.json` ficou com `"react-router": "^7.18.4"`, sem `react-router-dom`, e o lockfile ficou sem `react-router-dom` nem `@remix-run/router`. Nos 6 arquivos o import virou `from "react-router"`, e a prop `future` foi removida. O `CLAUDE.md` Stack passou de "React Router 6" para "React Router 7"; o `README.md` não cita a versão.
+- **Verificação** (2026-10-21):
+  - os quatro scripts passam;
+  - `git diff main -- src` mostra só as 6 linhas de import (a prop `future`, entrada e saída, não deixa diferença);
+  - o roteiro da parte 3 do quickstart passou no `npm run build && npm run preview` (porta 4173), com a API da T028: as mesmas 11 verificações da `main`, 0 POSTs e 0 erros de página.
+- **Auditoria ao fim da Fase 2**, igual ao esperado (por pacote):
+
+| | Total | Produção (`--omit=dev`) |
+|---|---|---|
+| Por pacote | 3 (2 moderadas, 1 alta): `@vitejs/plugin-react-swc`, `esbuild`, `vite` | **0** (`found 0 vulnerabilities`) |
+| Por advisory | `esbuild`: GHSA-67mh-4wv8-2f99; `vite`: GHSA-4w7w-66w2-5vf9, GHSA-v6wh-96g9-6wx3, GHSA-698v-4r3x-3vcv, GHSA-r825-w8mm-5pxw (moderados) e GHSA-fx2h-pf6j-xcff, GHSA-587h-7wmj-h5pm (altos) | nenhum |
+
+- **Bundle** (worktree novo do commit `add2487`, `npm ci`, `npm run build`, `bundleSizes.mjs`):
+
+| Arquivo | Bruto (B) | gzip -9 (B) | brotli 11 (B) |
+|---|---:|---:|---:|
+| `assets/index-Dv3NmIdh.js` | 220.331 | 71.752 | 63.233 |
+| `assets/index-CxJ9pMGc.css` | 20.280 | 4.365 | 3.820 |
+| `index.html` | 412 | 278 | 177 |
+| **Total** | **241.023** | **76.395** | **67.230** |
+
+  Contra a `main` (223.869 B), o total bruto sobe **+7,7%** e o gzip, **+8,5%**, abaixo dos 10% do SC-004 e igual à simulação (+8,5% em gzip). O aumento está todo no `.js`, o pacote `react-router` 7; o `.css` é idêntico.
+- **Worktree** `C:\Telemetry\wt-002-fase2`: `git status --porcelain` **vazio** antes da remoção; ignorados presentes: `.env`, `dist/`, `node_modules/` e os dois `tsbuildinfo`. Removido **sem `--force`**.
+
+- **CI da Fase 2** (T033–T036): fim da rodada da API (os três arquivos de `telemetry-run.db*` apagados, `Test-Path` = `False`, confirmado pela mantenedora), push 2 (`265a8fe`, `30707e2` e `add2487`) ao PR #8, que segue **rascunho**. Execução `39616711294` (https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/runs/39616711294), evento `pull_request`, tentativa 1, SHA `add24873ec4a4d8d5f703939695a472c98c4a205`, conclusão `success`:
+
+| Check | Resultado | Id do job |
+|---|---|---|
+| `typecheck` | success | 119279624936 |
+| `lint` | success | 119279625008 |
+| `test` | success | 119279625067 |
+| `build` | success | 119279624538 |
+
+  O `gh run watch` voltou com saída 0 enquanto os jobs `build` e `typecheck` ainda estavam em andamento e em fila. A conclusão acima vem da API de jobs (`gh api …/actions/runs/39616711294/jobs`), lida só depois de os quatro jobs estarem `completed`. A Fase 3 começou depois disso.
+
+### Fase 3 (D7): Vite 8
+
+- **Corte da Fase 3** (D11), registrado antes do primeiro comando: a fase começa em **2026-10-21**, então o corte é **2026-10-07**. Os comandos da fase rodam com `--before=2026-10-07`.
+
 ### `lint` e `typecheck` com as ferramentas em `evidence/tools/` (T5)
 
 Saídas, em 2026-10-21, com `bundleSizes.mjs`, `devListen.mjs` e `captureStates.mjs` no repositório:
