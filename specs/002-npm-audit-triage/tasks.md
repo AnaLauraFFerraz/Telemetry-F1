@@ -40,34 +40,37 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T001 Conferir o ponto de partida e preparar a `main`, sem alterar arquivos do repositório:
   - branch `002-npm-audit-triage` com working tree limpo, exceto `.specify/feature.json`; `node -v` em 22.x; os quatro scripts passando;
   - `git worktree add C:\Telemetry\wt-002-main main` (fora dos dois repositórios), com um `.env` copiado do `.env.example` e `npm ci`;
+  - copiar `bundleSizes.mjs` e `devListen.mjs` do scratchpad para `specs/002-npm-audit-triage/evidence/tools/` da branch, com o comentário do topo dizendo como rodar (T5), para que as medições não dependam do scratchpad de uma sessão;
   - anotar o SHA da `main` e a data de início da implementação.
-  - (FR-005; D1; quickstart, pré-requisitos)
-- [ ] T002 No worktree da `main`, medir e anotar (as notas vão para o `research.md` em T017):
+  - (FR-005; D1, T5; quickstart, pré-requisitos)
+- [ ] T002 No worktree da `main`, medir e anotar (as notas vão para o `research.md` em T017), rodando as ferramentas pelo caminho da branch, `C:\Telemetry\Telemetry-F1\specs\002-npm-audit-triage\evidence\tools\`:
   - `npm audit` e `npm audit --omit=dev`, com a data, como referência do dia (FR-002, FR-003);
-  - `npm run build` e `node <scratchpad>/tools/bundleSizes.mjs dist` (FR-015; research, ponto 7);
+  - `npm run build` e `node <ferramentas>\bundleSizes.mjs dist` (FR-015; research, ponto 7);
   - os navegadores-alvo efetivos do Vite 5, por `ESBUILD_MODULES_TARGET` em `node_modules/vite/dist/node/constants.js` (FR-012; quickstart, parte 4);
-  - o endereço de escuta, com `node <scratchpad>/tools/devListen.mjs 5191` (FR-013a; quickstart, parte 5).
+  - o endereço de escuta, com `node <ferramentas>\devListen.mjs 5191` (FR-013a; quickstart, parte 5).
   - (D1)
 - [ ] T003 [MANUAL] [PARADA] Aprovar a instalação do Playwright e do Chromium dele fora dos dois repositórios. Antes, a sessão mostra a versão escolhida pela regra do D11 (a mais recente publicada antes do corte, com a data de `npm view playwright time`) e o diretório de instalação, `C:\Telemetry\playwright-002\`. **Entrega**: aprovação explícita, ou outra versão ou diretório. (T4; D1, D11)
 - [ ] T004 Instalar em `C:\Telemetry\playwright-002\`: `npm i playwright@<versão aprovada>` e `npx playwright install chromium`. Anotar a versão e a data de publicação para o `research.md`. Nada muda no `package.json` do front. (FR-016c; T4, D11)
 - [ ] T005 [P] Escrever o script de captura em `specs/002-npm-audit-triage/evidence/tools/captureStates.mjs`:
   - comentário no topo com o comando para rodar e a versão do Playwright (T5);
+  - o Playwright é carregado de `C:\Telemetry\playwright-002\` (por `createRequire` a partir do diretório recebido em argumento), sem `npm install` no repositório;
   - argumentos: URL base do preview, prefixo `NN`, id da sessão, volta de comparação com cache, volta sem cache e pasta de saída;
   - viewport fixo de 1440×900 e os 6 estados da lista fixa, nos nomes `NN-<n>-<estado>.png` (quickstart, parte 6);
   - no estado 5, registrar o status da resposta do `POST` de análise e falhar se não for 503.
   - (FR-016b, FR-016c; T4, T5; research, ponto 5)
-- [ ] T006 [P] Copiar `bundleSizes.mjs` e `devListen.mjs` do scratchpad para `specs/002-npm-audit-triage/evidence/tools/`, com o comentário do topo dizendo como rodar. (FR-015, FR-013a; T5; research, ponto 7)
+- [ ] T006 [P] No worktree da `main`, `npm run dev` (porta 5173) e abrir `http://localhost:5173` no Chromium da T004: o app carrega. Anotar como referência para o cenário 3 da US2, conferido de novo na T041. Encerrar o servidor. (US2; D1)
 - [ ] T007 [MANUAL] [PARADA] Preparar a cópia do banco (research, ponto 6, passos 1–3):
   - criar `C:\Telemetry\snapshots-002\` e o `api-conferencia.env` (cópia do `.env.example` da API só com as portas, sem a linha da chave);
   - gerar a cópia mestra com `VACUUM INTO 'C:/Telemetry/snapshots-002/telemetry-master.db'`;
   - escolher a sessão, a volta de comparação com análise em cache (cuja volta principal é a mais recente) e uma volta sem cache.
   - **Entrega**: confirmação de que a mestra e o `.env` de conferência existem, o id da sessão, a volta com cache e a volta sem cache. Nenhum conteúdo do banco nem do `.env` vem para esta sessão.
   - (FR-016a; D8)
-- [ ] T008 [MANUAL] [PARADA] Rodada "antes" da API (research, ponto 6, passos 4–6):
-  - copiar a mestra para `telemetry-run.db`;
-  - definir `DOTENV_CONFIG_PATH` e `DB_PATH` no terminal da API;
-  - rodar a conferência sem custo, `node -e "require('dotenv/config'); console.log(Boolean(process.env.ANTHROPIC_API_KEY))"`; com `true`, nada sobe e a mantenedora investiga;
-  - subir a API, conferir o log `[db] usando banco em …` e iniciar o replay a 1x num segundo terminal.
+- [ ] T008 [MANUAL] [PARADA] Rodada "antes" da API, pelo procedimento completo do D8 (research, ponto 6, passos 4–6):
+  - copiar a mestra para um `C:\Telemetry\snapshots-002\telemetry-run.db` novo;
+  - no terminal da API, `DOTENV_CONFIG_PATH=C:\Telemetry\snapshots-002\api-conferencia.env` e `DB_PATH=C:\Telemetry\snapshots-002\telemetry-run.db`;
+  - nesse terminal, rodar a conferência sem custo, `node -e "require('dotenv/config'); console.log(Boolean(process.env.ANTHROPIC_API_KEY))"`; com `true`, nada sobe e a mantenedora investiga;
+  - só com `false`: subir a API (`npm run dev`) e conferir o log `[db] usando banco em …`;
+  - num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`, iniciar o replay a 1x da gravação de exemplo.
   - **Entrega**: o `false` impresso pela conferência, a confirmação de que o log aponta para a cópia e o aviso de que o replay começou. Sem o `false`, esta sessão não segue.
   - (FR-016a, FR-016c; D8)
 - [ ] T009 No worktree da `main`, com a API da T008 no ar:
@@ -124,8 +127,14 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 - [ ] T026 [US4] Registrar no `research.md` o corte da Fase 2 e os resultados da Fase 1 (T019, T020, T022 e a execução da T025). Commitar `docs: record the phase 1 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
 - [ ] T027 [US1] Refazer a busca de `<Link`, `navigate(`, `useNavigate`, `redirect` e `Navigate` em `src/` e confirmar que a tabela "Verificação formal do FR-007" do `research.md` continua completa. Uma ocorrência nova entra na tabela, com a origem do destino, no commit da T031. (FR-007)
-- [ ] T028 [MANUAL] [PARADA] [US1] Subir a API para a navegação da Fase 2 pelo mesmo procedimento da T008 (cópia nova da mestra, `DOTENV_CONFIG_PATH`, `DB_PATH`, conferência sem custo). O replay não é necessário. **Entrega**: o `false` da conferência e a confirmação de que o log aponta para a cópia. (FR-009, FR-016a; D8)
-- [ ] T029 [US1] Em `src/router/router.tsx`, acrescentar `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` ao `<BrowserRouter>`. Percorrer o roteiro da parte 3 do quickstart no dev server. Commitar `fix: opt into the React Router v7 future flags`. (FR-008, FR-009; D4)
+- [ ] T028 [MANUAL] [PARADA] [US1] Subir a API para a navegação da Fase 2, pelo procedimento completo do D8 (segunda rodada):
+  - copiar a mestra para um `telemetry-run.db` novo;
+  - `DOTENV_CONFIG_PATH` e `DB_PATH` apontando para o `api-conferencia.env` e o `telemetry-run.db`, como na T008;
+  - conferência sem custo; só com `false`, subir a API e conferir o log;
+  - sem replay e sem clique no coach.
+  - **Entrega**: o `false` da conferência e a confirmação de que o log aponta para a cópia. Sem o `false`, esta sessão não segue.
+  - (FR-009, FR-016a; D4, D8)
+- [ ] T029 [US1] Em `src/router/router.tsx`, acrescentar `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` ao `<BrowserRouter>`. Percorrer o roteiro da parte 3 do quickstart no dev server, com a API da T028. Commitar `fix: opt into the React Router v7 future flags`. (FR-008, FR-009; D4)
 - [ ] T030 [MANUAL] [PARADA] [US1] (se nenhuma `react-router` ≥ 7.18.0 existir antes do corte da Fase 2) Mesmo registro e mesma decisão da T021. **Entrega**: a decisão. (FR-002; D4, D11)
 - [ ] T031 [US1] Trocar o pacote e os imports:
   - `npm uninstall react-router-dom` e `npm install react-router@^7 --before=<corte da Fase 2>`; a versão resolvida tem de ser ≥ 7.18.0 (senão, T030);
@@ -161,9 +170,11 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T039 [US2] Rodar `npm install -D vite@^8 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`:
   - conferir que o peer do plugin resolvido aceita `vite` 8 e que o `engines` do Vite resolvido é atendido pelo Node ≥ 22.17 do `package.json`, do `.nvmrc` e da CI;
   - conferir que a tabela de breaking changes do research, ponto 2, continua valendo, sem mudança de configuração;
+  - se o build só passar mudando código da aplicação, não commitar e ir para T048;
+  - com o Vite 8 já instalado e antes do commit, medir o endereço de escuta com `evidence/tools/devListen.mjs` (quickstart, parte 5); se mudar, a limitação conhecida muda no `CLAUDE.md` e no `README.md` neste commit;
   - no `CLAUDE.md` Stack, "Vite 5.4" vira "Vite 8".
-  - Commitar `package.json`, `package-lock.json` e o `CLAUDE.md` como `fix: upgrade to Vite 8 and @vitejs/plugin-react-swc 4`.
-  - (FR-010, FR-011, FR-013, FR-022; D6, D7, D11)
+  - Commitar `package.json`, `package-lock.json`, o `CLAUDE.md` e, se a escuta mudou, o `README.md` como `fix: upgrade to Vite 8 and @vitejs/plugin-react-swc 4`.
+  - (FR-010, FR-011, FR-013, FR-013a, FR-022; D6, D7, D11)
 - [ ] T040 [US2] Trocar o plugin pela opção nativa (T3):
   - tirar `vite-tsconfig-paths` do `package.json` (`npm uninstall vite-tsconfig-paths`) e do `vite.config.ts`, e pôr `resolve: { tsconfigPaths: true }`;
   - em `tsconfig.app.json`, o comentário "resolvidos em runtime pelo plugin vite-tsconfig-paths" passa a citar o `resolve.tsconfigPaths` do Vite, em português;
@@ -175,16 +186,23 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
   - `npm audit` e `npm audit --omit=dev` dão 0, com a data;
   - bundle medido e comparado por papel com a `main`; variação do total acima de 10% ganha explicação;
   - navegadores-alvo pelo padrão do Vite 8, conferidos na ajuda da CLI;
-  - escuta com `evidence/tools/devListen.mjs`; se mudar, a limitação conhecida muda no `CLAUDE.md` e no `README.md` num commit próprio, antes do push 3.
-  - (FR-001, FR-002, FR-003, FR-012, FR-013a, FR-015, FR-022; D7; quickstart, partes 1, 2, 4 e 5)
-- [ ] T042 [MANUAL] [PARADA] [US3] Rodada "depois" da API, igual à T008. **Entrega**: o `false` da conferência, a confirmação do log e o aviso de que o replay começou. (FR-016a, FR-016c; D8)
+  - o endereço de escuta já medido na T039 vai para as notas;
+  - `npm run dev` (porta 5173) e `http://localhost:5173` carrega o app, como na T006.
+  - (FR-001, FR-002, FR-003, FR-012, FR-015; US2 cenário 3; D7; quickstart, partes 1, 2 e 4)
+- [ ] T042 [MANUAL] [PARADA] [US3] Rodada "depois" da API, pelo procedimento completo do D8 (terceira rodada), com os mesmos passos da T008:
+  - copiar a mestra para um `telemetry-run.db` novo;
+  - `DOTENV_CONFIG_PATH` e `DB_PATH` apontando para o `api-conferencia.env` e o `telemetry-run.db`;
+  - conferência sem custo; só com `false`, subir a API e conferir o log;
+  - replay a 1x num segundo terminal, com o mesmo `DOTENV_CONFIG_PATH`.
+  - **Entrega**: o `false` da conferência, a confirmação do log e o aviso de que o replay começou. Sem o `false`, esta sessão não segue.
+  - (FR-016a, FR-016c; D8)
 - [ ] T043 [US3] Com a API da T042: `npm run build`, `npm run preview`, `captureStates.mjs` com `NN = depois` (estado 5 com 503) e o roteiro da parte 3 do quickstart. (FR-009, FR-016, FR-016b, FR-016c; D7, D8)
 - [ ] T044 [MANUAL] [US3] Parar o replay e a API e apagar `telemetry-run.db`. **Entrega**: confirmação. (D8)
 - [ ] T045 [US3] Revisar as capturas do "depois" como na T011, somando ao total do "antes". (D7, D1)
 - [ ] T046 [MANUAL] [PARADA] [US3] (se T045 tiver achado) Mesma decisão da T012. **Entrega**: a decisão. (D7, D1)
 - [ ] T047 [US3] Comparar as capturas estado por estado e anotar no `research.md`: layout, cores, tipografia, eixos, legendas e traçado dos gráficos SVG, mapa da pista, painel do coach e estilos dos CSS Modules, sem os valores ao vivo. Toda diferença tem explicação. Se alguma correção exigir mudar código da aplicação (`src/`, `index.html` ou CSS), não mudar e ir para T048. (FR-016, FR-019; D7; quickstart, parte 6)
-- [ ] T048 [MANUAL] [PARADA] [US3] (se a regra de recuo disparar no build da T039–T041 ou na comparação da T047) A sessão apresenta o que exigiria mudar código da aplicação. **Entrega**: a confirmação do recuo para o Vite 7.3, ou outra decisão. (FR-010; D7)
-- [ ] T049 [US3] (se T048 confirmar o recuo) Rodar `npm install -D vite@~7.3 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`, com o plugin cujo peer aceita `vite` 7 e a regra do D11. No `CLAUDE.md` Stack, "Vite 8" vira "Vite 7.3". Registrar o motivo no `research.md`. Commitar como `fix: use Vite 7.3 instead of Vite 8`, sem reescrever histórico. Refazer T041 a T047 com `NN = depois-vite73`, registrando as vulnerabilidades restantes do Vite 7.3, se houver, com justificativa. (FR-002, FR-006, FR-010, FR-013a; D6, D7, D11)
+- [ ] T048 [MANUAL] [PARADA] [US3] (se a regra de recuo disparar no build da T039 ou na comparação da T047) A sessão apresenta o que exigiria mudar código da aplicação. **Entrega**: a confirmação do recuo para o Vite 7.3, ou outra decisão. (FR-010; D7)
+- [ ] T049 [US3] (se T048 confirmar o recuo) Rodar `npm install -D vite@~7.3 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`, com o plugin cujo peer aceita `vite` 7 e a regra do D11. No `CLAUDE.md` Stack, "Vite 8" (ou "Vite 5.4", se o Vite 8 não chegou a ser commitado) vira "Vite 7.3". Antes do commit, medir o endereço de escuta como na T039, com a mesma regra para o `CLAUDE.md` e o `README.md`. Registrar o motivo no `research.md`. Commitar como `fix: use Vite 7.3 instead of Vite 8`, sem reescrever histórico. Refazer T041 a T047 com `NN = depois-vite73`, registrando as vulnerabilidades restantes do Vite 7.3, se houver, com justificativa. (FR-002, FR-006, FR-010, FR-013a; D6, D7, D11)
 
 **Checkpoint**: `npm audit` em zero (ou cada restante registrado); bundle e capturas comparados.
 
@@ -215,6 +233,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - **Phase 3** depende da Phase 2. **Phase 4** depende da T025; **Phase 5**, da T036. Cada push espera a CI anterior terminar, porque o `ci.yml` cancela a execução em andamento do PR (D5).
 - **Phase 6**: a T050 pode acontecer a qualquer momento antes da T053; o resto depende da Phase 5.
 - Dentro de cada fase de dependências, as tarefas são sequenciais: todas tocam `package.json`, `package-lock.json` ou `research.md`.
+- **API**: nenhuma tarefa usa a API antes do `false` da rodada. T009 depende da T008; T029 e T032, da T028; T043, da T042. Cada rodada termina (T010, T033, T044) antes do push seguinte.
 
 ### Pontos de parada
 
@@ -232,12 +251,12 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 ### Parallel Opportunities
 
-- T005 e T006: arquivos diferentes em `evidence/tools/`, sem relação com o `package.json`.
+- T005 e T006: a T005 escreve um arquivo em `evidence/tools/`; a T006 não escreve nada no repositório.
 - T051 e T052: só leitura; o registro é feito na T053.
 
 ```text
 Task: "Escrever captureStates.mjs em specs/002-npm-audit-triage/evidence/tools/"
-Task: "Copiar bundleSizes.mjs e devListen.mjs para specs/002-npm-audit-triage/evidence/tools/"
+Task: "Conferir que o app carrega em http://localhost:5173 no worktree da main"
 ```
 
 ---
@@ -260,9 +279,9 @@ Task: "Copiar bundleSizes.mjs e devListen.mjs para specs/002-npm-audit-triage/ev
 | FR-011 | T039 |
 | FR-012 | T002, T017, T041, T053 |
 | FR-013 | T039 |
-| FR-013a | T002, T006, T017, T041, T049 |
+| FR-013a | T001, T002, T017, T039, T049 |
 | FR-014 | T020 |
-| FR-015 | T002, T006, T017, T041, T053 |
+| FR-015 | T001, T002, T017, T041, T053 |
 | FR-016 | T009, T043, T047, T053 |
 | FR-016a | T007, T008, T010, T028, T042, T058 |
 | FR-016b | T005, T009, T017, T043 |
@@ -272,7 +291,7 @@ Task: "Copiar bundleSizes.mjs e devListen.mjs para specs/002-npm-audit-triage/ev
 | FR-019 | T032, T047, T052 |
 | FR-020 | T040, T052 |
 | FR-021 | T014, T015, T016, T023 |
-| FR-022 | T031, T039, T041, T049 |
+| FR-022 | T031, T039, T049 |
 
 ---
 
