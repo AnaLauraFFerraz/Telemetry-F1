@@ -17,6 +17,7 @@ Node is installed through **fnm** on the dev machine; make sure it is on `PATH` 
 npm run dev       # Vite dev server on http://localhost:5173
 npm run build     # tsc -b && vite build
 npm run lint      # eslint .
+npm run typecheck  # type-check only (src/ and vite.config.ts), no bundle
 npm test          # node --experimental-strip-types --test <files listed in package.json>
 npm run preview   # serve the production build
 ```
