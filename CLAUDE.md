@@ -7,9 +7,9 @@ React frontend for F1 24 telemetry: live dashboard over WebSocket, session histo
 - React 18.3 + TypeScript 5.6 (`strict`) + Vite 5.4 + React Router 6
 - CSS Modules + global design tokens (`src/styles/tokens.css`), single dark theme
 - No state, chart, data-fetching or UI libraries: React Context + hooks, custom `useFetch`, custom SVG `Chart`
-- Tests: Node's built-in runner with `--experimental-strip-types` (Node ≥ 22.6)
+- Tests: Node's built-in runner with `--experimental-strip-types` (Node ≥ 22.17)
 
-Node is installed through **fnm** on the dev machine; make sure it is on `PATH` before running npm.
+Node is installed through **fnm** on the dev machine; make sure it is on `PATH` before running npm. The Node major comes from `.nvmrc`.
 
 ## Commands
 

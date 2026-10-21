@@ -32,7 +32,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 **Purpose**: confirmar o ponto de partida.
 
-- [ ] T001 Conferir o ponto de partida, sem alterar arquivos:
+- [X] T001 Conferir o ponto de partida, sem alterar arquivos:
   - branch `001-ci-github-actions` com working tree limpo (`git status --short` vazio);
   - `node -v` em 22.x;
   - `npm test`, `npm run lint` e `npm run build` passando na raiz, com `package.json` intacto.
@@ -44,14 +44,14 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 **Purpose**: uma única fonte da versão do Node, lida pelo fnm e pela CI. A CI (T024) e o mínimo exigido pela guarda (T016) dependem dela.
 
-- [ ] T002 [P] Criar `.nvmrc` na raiz com uma única linha, `22`. Não criar `.node-version`. (FR-014; clarificação a)
-- [ ] T003 [P] Em `package.json`, acrescentar `"engines": { "node": ">=22.17" }`, sem `.npmrc` e sem `engine-strict`. (FR-015; T2-A)
-- [ ] T004 No mesmo commit de T002–T003, corrigir as afirmações que ficaram falsas:
+- [X] T002 [P] Criar `.nvmrc` na raiz com uma única linha, `22`. Não criar `.node-version`. (FR-014; clarificação a)
+- [X] T003 [P] Em `package.json`, acrescentar `"engines": { "node": ">=22.17" }`, sem `.npmrc` e sem `engine-strict`. (FR-015; T2-A)
+- [X] T004 No mesmo commit de T002–T003, corrigir as afirmações que ficaram falsas:
   - `README.md`, linha "Requirements: Node.js ≥ 22.6", passa a "Node.js ≥ 22.17 (major pinned in `.nvmrc`)";
   - `CLAUDE.md` Stack, "(Node ≥ 22.6)", passa a "(Node ≥ 22.17)";
   - na nota do fnm do `CLAUDE.md`, acrescentar que a versão vem do `.nvmrc`.
   - (FR-014, FR-015; plan.md D11)
-- [ ] T005 Verificar e commitar `chore: pin Node 22 in .nvmrc and require >=22.17` (T002–T004). (FR-014, FR-015)
+- [X] T005 Verificar e commitar `chore: pin Node 22 in .nvmrc and require >=22.17` (T002–T004). (FR-014, FR-015)
 - [ ] T006 [MANUAL - Ana] No próprio terminal, na raiz do repositório, `fnm use` deve resolver para uma v22.x. O agente não roda `fnm use`, porque troca o Node da sessão. O resultado informado pela Ana vai para o research.md em T018. (US3 cenário 3; SC-008)
 
 **Checkpoint**: `.nvmrc` e `engines` no lugar.
