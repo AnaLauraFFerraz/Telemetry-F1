@@ -614,3 +614,53 @@ O `npm ci` avisa que o ambiente não atende ao mínimo e termina com **exit 0**:
 
 - Itens do README que diferiram da interface do GitHub (T034): nenhum foi anotado, então não há correção do README vinda daí.
 - O registro do merge deste PR de fechamento (T050: número do PR e `mergedAt`, conferidos pela API, o run do push na `main` e as marcações das tarefas T049–T050) vai no PR da emenda da constituição, porque este PR não pode registrar o próprio merge.
+
+### Merge do PR #6 sob o ruleset (T049, T050)
+
+Registrado no PR da emenda da constituição (v1.2.0). Os dados foram conferidos pela API do GitHub em 2026-10-20, depois do merge.
+
+```text
+$ gh pr view 6 --json number,title,state,mergedAt,mergeCommit,headRefName
+{"headRefName":"docs/001-evidence","mergeCommit":{"oid":"98b2221da3699bffd756cfd98d92529866909f73"},"mergedAt":"2026-10-21T02:43:40Z","number":6,"state":"MERGED","title":"docs: CI evidence for spec 001"}
+
+$ gh pr view 6 --json statusCheckRollup --jq '.statusCheckRollup[] | [.name,.conclusion] | @tsv'
+typecheck  SUCCESS
+lint       SUCCESS
+test       SUCCESS
+build      SUCCESS
+
+$ git rev-list --merges --count origin/main
+0
+
+$ git ls-remote --heads origin
+98b2221da3699bffd756cfd98d92529866909f73  refs/heads/main
+```
+
+- PR #6, `docs: CI evidence for spec 001`, foi mergeado em **2026-10-21T02:43:40Z** com o commit `98b2221` na `main`. É o primeiro merge sob o ruleset 25518966 (sem bypass), e prova que um PR verde e atualizado entra.
+- Não há merge commit (`0`), então o histórico continua linear. A branch `docs/001-evidence` não aparece no remoto: foi apagada pela exclusão automática.
+- O `mergeStateStatus: CLEAN` que o T049 pede antes do merge não foi registrado. A consulta foi feita depois do merge, e o estado anterior não pode mais ser lido pela API. O que fica provado é que os quatro checks terminaram com `SUCCESS` e que o merge foi aceito com o ruleset ativo.
+
+Run **39534617341** (evento `push`, `main`, `98b2221`), 02:43:42Z a 02:44:13Z, `conclusion: success`:
+
+```text
+$ gh run view 39534617341 --json databaseId,event,headBranch,headSha,status,conclusion,createdAt,updatedAt,jobs
+(resumo dos campos startedAt, completedAt e conclusion de cada job)
+job        resultado   início      fim        duração
+lint       success     02:43:44Z   02:43:56Z  12 s
+build      success     02:43:45Z   02:43:59Z  14 s
+test       success     02:43:44Z   02:43:55Z  11 s
+typecheck  success     02:43:45Z   02:44:13Z  28 s   (npm ci: 02:43:50Z a 02:44:08Z)
+
+$ gh run view 39534617341 --log   (linhas filtradas, iguais nos quatro jobs salvo o test)
+Found in cache @ /opt/hostedtoolcache/node/22.23.3/x64
+Cache hit for: node-cache-Linux-x64-npm-86e1d744d42747432fb4862b1e9b93dab0d6cbc6f815c12934efba34bdd72faf
+Cache restored successfully
+Cache restored from key: node-cache-Linux-x64-npm-86e1d744d42747432fb4862b1e9b93dab0d6cbc6f815c12934efba34bdd72faf
+Cache hit occurred on the primary key node-cache-Linux-x64-npm-86e1d744..., not saving cache.
+[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts   (só test)
+# tests 27  # pass 27  # fail 0                                         (só test)
+```
+
+- Os quatro jobs restauraram o cache da `main` com a mesma chave salva pelo run 39528970487. A chave não mudou, porque o `package-lock.json` não mudou.
+- Os quatro jobs usaram o Node 22.23.3 do cache do runner.
+- No `typecheck`, o `npm ci` levou 18 s mesmo com o *hit* de cache. É o mesmo padrão do re-run do PR #1, e a causa não foi investigada.
