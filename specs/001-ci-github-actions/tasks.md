@@ -293,13 +293,13 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Demonstração: `test`
 
-- [ ] T040 [US4] Branch `demo/test-failure` a partir de `origin/main`.
+- [X] T040 [US4] Branch `demo/test-failure` a partir de `origin/main`.
   - Em `src/components/chart/chartMath.test.ts`, mudar o valor esperado de uma única asserção.
   - Checagem local esperada: só `npm test` falha, com um único `not ok`.
   - Commitar `chore: demo test failure (do not merge)`.
   - **[PARADA]** Push. **[PARADA]** Abrir o PR `Demo: test failure (do not merge)`. Registrar: só `test` ✗.
   - (SC-002, SC-003)
-- [ ] T041 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O agente registra o `mergeStateStatus`. Depois, fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
+- [X] T041 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O agente registra o `mergeStateStatus`. Depois, fechar o PR sem merge; **[PARADA]** apagar a branch remota, se ainda existir, e apagar a local. (SC-006)
 
 ### Demonstração: `typecheck` (+ `build`)
 

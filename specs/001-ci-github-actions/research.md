@@ -488,3 +488,22 @@ gh variable list  -> vazio (exit 0)
   A URL que mostrou o estado reprovado é a com a barra codificada (`%2F`); o `event=pull_request` não foi necessário. O selo do README usa `?branch=main`, sem barra, e não é afetado. A resposta traz `Cache-Control: max-age=300`, então não foi isolado se o "no status" da barra literal veio de cache ou do formato da URL.
 - **Tentativa de merge (T038, pela Ana):** print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra o commit `2fa277c` com a marca de falha, o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / lint (pull_request)` reprovado ("Failing after 13s"), `CI / build` (39 s), `CI / test` (10 s) e `CI / typecheck` (12 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. Depois da tentativa, `gh pr view 2`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
 - **T039:** `gh pr close 2` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 2fa277c`) e remota apagada com `git push origin --delete demo/lint-failure`; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
+
+### Demonstração: `test` (T040–T041)
+
+- Branch `demo/test-failure` a partir de `origin/main` (`21109b4`); commit `522bf01`, `chore: demo test failure (do not merge)`: em `src/components/chart/chartMath.test.ts`, `assert.equal(nearestPointIndex([], 5), 0)` virou `..., 1)`.
+- Checagem local (Windows): `typecheck`, `lint` e `build` com exit 0; `npm test` com exit 1 e um único `not ok`: `not ok 3 - nearestPointIndex em array vazio retorna 0 sem crashar` (expected 1, actual 0), `# tests 27, pass 26, fail 1`.
+- PR #3, `[NÃO MERGEAR] Demo: test failure (do not merge)`.
+- Run **39531960506** (evento `pull_request`, `522bf01`), 02:15:04Z a 02:15:47Z:
+
+  ```text
+  job        resultado   duração
+  typecheck  success     15 s
+  lint       success     40 s
+  test       failure     36 s
+  build      success     39 s
+  ```
+
+  Só `test` reprovou; os outros três rodaram até o fim. O log do job `test` no Linux repete `[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts`, o mesmo `not ok 3` (expected 1, actual 0) e `# tests 27, pass 26, fail 1`. Estado do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `state: OPEN`.
+- **Tentativa de merge (T041, pela Ana):** print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / test (pull_request)` reprovado ("Failing after 36s"), `CI / build` (39 s), `CI / lint` (40 s) e `CI / typecheck` (15 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 3`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
+- **Fechamento:** `gh pr close 3` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 522bf01`) e remota apagada; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
