@@ -7,7 +7,7 @@ import NotFoundPage from "@/pages/notFound/NotFoundPage";
 
 function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/sessions" element={<SessionHistoryPage />} />
