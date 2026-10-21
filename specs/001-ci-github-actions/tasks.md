@@ -108,7 +108,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Guarda de descoberta vazia (teste primeiro)
 
-- [ ] T013 [US2] Criar `src/tooling/testDiscovery.test.ts` (nomes de teste em pt-BR, `node:test` e `node:assert/strict`), importando de `../../tools/testDiscovery.ts`, com caminho relativo e `.ts`. Casos:
+- [X] T013 [US2] Criar `src/tooling/testDiscovery.test.ts` (nomes de teste em pt-BR, `node:test` e `node:assert/strict`), importando de `../../tools/testDiscovery.ts`, com caminho relativo e `.ts`. Casos:
   - `TEST_PATTERN` é `src/**/*.test.ts`;
   - `checkDiscovery([])` devolve `exitCode` 1 e uma mensagem com `nenhum arquivo de teste encontrado em src/**/*.test.ts`;
   - `checkDiscovery(["src/a.test.ts", "src/b/c.test.ts"])` devolve `exitCode` 0 e uma mensagem com a contagem 2;
@@ -117,7 +117,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - `filterTestFiles(["src/node_modules_old/a.test.ts", "src/x/node_modules/a.test.ts"])` devolve `["src/node_modules_old/a.test.ts"]` (nome parecido é mantido).
   - Cada caso de `filterTestFiles` mistura um caminho mantido e um descartado, para que nem a lista sem filtrar nem a lista vazia passem.
   - (FR-012; plan.md D10; constituição: testes cobrem funções puras)
-- [ ] T014 [US2] Criar um **esboço** de `tools/testDiscovery.ts` que exporta os três nomes com resultados errados:
+- [X] T014 [US2] Criar um **esboço** de `tools/testDiscovery.ts` que exporta os três nomes com resultados errados:
   - `TEST_PATTERN = ""`;
   - `filterTestFiles` devolve a lista recebida, sem filtrar;
   - `checkDiscovery` devolve `{ exitCode: -1, message: "" }`.
@@ -125,17 +125,17 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Teste que passa com o esboço está fraco: reescrevê-lo em T013 e repetir.
   - **Mostrar a saída à Ana** e seguir para T015 só depois do ok dela. Guardar a saída para T018. Não commitar o esboço.
   - (FR-012)
-- [ ] T015 [US2] Substituir o esboço pela implementação de `tools/testDiscovery.ts` (puro, sem I/O):
+- [X] T015 [US2] Substituir o esboço pela implementação de `tools/testDiscovery.ts` (puro, sem I/O):
   - `export const TEST_PATTERN = "src/**/*.test.ts"`, com um comentário curto em pt-BR dizendo que precisa ser igual ao glob do script `test`;
   - `filterTestFiles(paths: string[]): string[]`, que descarta todo caminho com um segmento exatamente igual a `node_modules`, separando por `/` e `\`;
   - `checkDiscovery(files: string[]): { exitCode: number; message: string }`.
   - Rodar `npm test`: os testes de T013 passam. (FR-012)
-- [ ] T016 [US2] Criar a guarda e ligá-la ao `npm test`:
+- [X] T016 [US2] Criar a guarda e ligá-la ao `npm test`:
   - `tools/assertTestFiles.ts` (casca de I/O): `fs.globSync(TEST_PATTERN)` sem a opção `exclude`, depois `filterTestFiles`, depois `checkDiscovery`; escreve `[assertTestFiles] <message>` no stderr se `exitCode` ≠ 0, senão no stdout, e sai com o `exitCode`;
   - em `package.json`, `"pretest": "node --experimental-strip-types tools/assertTestFiles.ts"`;
   - em `tsconfig.node.json`, `"include": ["vite.config.ts", "tools"]`.
   - (FR-012, FR-015; plan.md D9, D10)
-- [ ] T017 [US2] No mesmo commit de T013–T016:
+- [X] T017 [US2] No mesmo commit de T013–T016:
   - `README.md` "Scripts and tests": uma frase dizendo que `npm test` roda antes uma guarda que falha quando nenhum arquivo de teste é encontrado, porque `node --test` sai com 0 num glob vazio;
   - comentário do `typecheck` no README e no `CLAUDE.md`: passa a "src/, tools/ and vite.config.ts";
   - `CLAUDE.md` Commands: `npm test` roda antes a guarda;
