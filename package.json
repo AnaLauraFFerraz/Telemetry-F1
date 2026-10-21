@@ -12,7 +12,7 @@
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test src/components/chart/computeDelta.test.ts src/components/chart/chartMath.test.ts src/components/coach/trackMapMath.test.ts src/utils/coachInsights.test.ts"
+    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\""
   },
   "dependencies": {
     "react": "^18.3.1",

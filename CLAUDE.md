@@ -18,7 +18,7 @@ npm run dev       # Vite dev server on http://localhost:5173
 npm run build     # tsc -b && vite build
 npm run lint      # eslint .
 npm run typecheck  # type-check only (src/ and vite.config.ts), no bundle
-npm test          # node --experimental-strip-types --test <files listed in package.json>
+npm test          # node --experimental-strip-types --test "src/**/*.test.ts"
 npm run preview   # serve the production build
 ```
 
@@ -49,7 +49,7 @@ The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: wh
 - Styling: co-located `X.module.css`; colours only through tokens (`var(--token)`), including colours passed from TS.
 - Derive values during render instead of syncing them with effects (see the stale-result logic in `SessionAnalysisPage` / `CoachPanel`).
 - Coaching is a paid API call on a server cache miss: it only runs on explicit user action, never automatically.
-- Tests cover pure functions only. Test files import with relative paths **including `.ts`** (Node cannot resolve the `@/` alias); a module under test may use `@/` only for type-only imports. Every new test file must be added by hand to the `test` script.
+- Tests cover pure functions only. Test files import with relative paths **including `.ts`** (Node cannot resolve the `@/` alias); a module under test may use `@/` only for type-only imports. Any `*.test.ts` under `src/` is discovered automatically.
 - Commits: small, Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`), English subject, **no `Co-Authored-By` trailer**.
 
 ## Rules

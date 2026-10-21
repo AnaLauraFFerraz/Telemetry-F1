@@ -63,7 +63,7 @@ Open `http://localhost:5173`. Use `localhost` rather than `127.0.0.1`: the dev s
 npm run build     # type-check and production build
 npm run lint      # ESLint
 npm run typecheck  # type-check only (src/ and vite.config.ts), no bundle
-npm test          # 16 tests, Node's built-in runner with --experimental-strip-types
+npm test          # Node's built-in runner with --experimental-strip-types; finds every src/**/*.test.ts
 ```
 
 The tests cover pure functions: chart path building and nearest-point search, cumulative delta interpolation, track map projection and the coach opportunity ranking. There are no component or hook tests yet.

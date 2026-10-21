@@ -31,7 +31,7 @@ The UI shows "—" or an explicit state when data is missing instead of a fabric
 ## Technology and Quality Constraints
 
 - React 18, TypeScript in `strict` mode, Vite 5, React Router 6, Node.js ≥ 22.6 for tooling.
-- Tests use Node's built-in runner with `--experimental-strip-types` and cover pure functions. Test files import with relative paths including `.ts`, and each test file is listed in the `test` script. New pure logic comes with unit tests.
+- Tests use Node's built-in runner with `--experimental-strip-types` and cover pure functions. Test files import with relative paths including `.ts`, and every `*.test.ts` under `src/` is discovered automatically by the glob `src/**/*.test.ts` in the `test` script; no list of test files is kept by hand. New pure logic comes with unit tests.
 - Identifiers, file names and commit messages are in English. UI text, error messages, test names and comments are in Portuguese (pt-BR). Comments are minimal and explain only a non-obvious *why*.
 - Pages use default exports; components and hooks use named exports with an `interface XProps` for props.
 - Secrets (`.env`) are never committed.
@@ -51,4 +51,4 @@ This constitution takes precedence over other practices in this repository. `CLA
 
 Amendments are made through a pull request that updates this file and states the reason. Versions follow semantic versioning: MAJOR for removing or redefining a principle, MINOR for adding a principle or section, PATCH for clarifications. Every plan produced with `/speckit-plan` includes a constitution check, and reviews verify compliance.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-16
+**Version**: 1.1.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-20
