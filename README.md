@@ -85,6 +85,8 @@ Every pull request to `main` and every push to `main` runs [`.github/workflows/c
 
 A type error fails both `typecheck` and `build`, because `build` still runs `tsc -b` before `vite build`. The Node version is read from `.nvmrc`, and npm's download cache is keyed on `package-lock.json`.
 
+There is no `npm audit` gate in the CI: a new advisory for a development dependency must not fail an unrelated pull request. New advisories reach the owner as Dependabot security alerts, which are turned on in the repository settings (Settings → Advanced Security → Dependabot alerts).
+
 **The check names are a contract.** The branch ruleset matches the job names, and the badge points at the file name. Renaming a job, or adding another workflow with a job of the same name, requires updating the required checks in the ruleset in the same change; otherwise every pull request waits forever for a check that never reports. Renaming `ci.yml` requires updating the badge.
 
 ### Protecting `main`

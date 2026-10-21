@@ -682,11 +682,86 @@ Vistas nas capturas do "antes", na `main`:
 | `test` | success | 119279625067 |
 | `build` | success | 119279624538 |
 
-  O `gh run watch` voltou com saída 0 enquanto os jobs `build` e `typecheck` ainda estavam em andamento e em fila. A conclusão acima vem da API de jobs (`gh api …/actions/runs/39616711294/jobs`), lida só depois de os quatro jobs estarem `completed`. A Fase 3 começou depois disso.
+  O `gh run watch` (rodado **com** `--exit-status`) voltou com saída 0 enquanto os jobs `build` e `typecheck` ainda estavam em andamento e em fila. Daqui em diante a espera usa `gh run watch <id> --exit-status` (sem a flag, o comando sai com 0 mesmo quando a execução falha), e a CI só é dada como verde com os quatro jobs `completed` e `success` na API de jobs. A conclusão acima vem da API de jobs (`gh api …/actions/runs/39616711294/jobs`), lida só depois de os quatro jobs estarem `completed`. A Fase 3 começou depois disso.
 
 ### Fase 3 (D7): Vite 8
 
 - **Corte da Fase 3** (D11), registrado antes do primeiro comando: a fase começa em **2026-10-21**, então o corte é **2026-10-07**. Os comandos da fase rodam com `--before=2026-10-07`.
+- **Versões disponíveis antes do corte** (T038): `vite` 8.x tem a 8.3.3 (publicada em 2026-10-06 às 04:10 UTC) como a mais alta da faixa antes do corte (também existem as 8.1.6 e 8.2.4, de correções de linhas antigas, no mesmo dia). A 8.3.4 saiu em 2026-10-08 e a 8.3.5 em 2026-10-21, fora do corte. O `@vitejs/plugin-react-swc` 4.3.3 foi publicado em 2026-07-30. A regra do D11 não foi acionada (T038 não ocorreu).
+- **`vite` 8 e plugin 4** (commit `1934757`, `fix: upgrade to Vite 8 and @vitejs/plugin-react-swc 4`): `npm install -D vite@^8 @vitejs/plugin-react-swc@^4 --before=2026-10-07` resolveu `vite` **8.3.3** e `@vitejs/plugin-react-swc` **4.3.3**; o `package.json` ficou com `"vite": "^8.3.3"` e `"@vitejs/plugin-react-swc": "^4.3.3"`. O `esbuild` saiu do lockfile; entraram `rolldown` 1.2.12 e `lightningcss` 1.33.0.
+  - `vite` 8.3.3: `engines.node` `^20.19.0 || >=22.12.0`, atendido pelo Node ≥ 22.17 do `package.json`, pelo `.nvmrc` (major 22) e pela CI. O plugin 4.3.3 declara o peer `vite` `^4 || ^5 || ^6 || ^7 || ^8` e o mesmo `engines.node`.
+  - O build passou **sem mudar nenhum arquivo de configuração nem código** (a tabela de breaking changes do ponto 2 continua valendo). Com o plugin `vite-tsconfig-paths` ainda no `vite.config.ts`, o build e o servidor de desenvolvimento imprimem o aviso `The plugin "vite-tsconfig-paths" is detected…`.
+  - **Endereço de escuta, medido com o Vite 8 já instalado e antes do commit da troca** (`evidence/tools/devListen.mjs 5191`): `Local: http://localhost:5191/`, `Network: use --host to expose` e só `TCP [::1]:5191 LISTENING`. Igual ao "antes" (só loopback IPv6), então a limitação conhecida do `CLAUDE.md` e do `README.md` continua verdadeira, e nenhum dos dois muda por isso.
+  - O `CLAUDE.md` Stack passou de "Vite 5.4" para "Vite 8".
+  - Observação nova do servidor de desenvolvimento: `[vite:react-swc] We recommend switching to @vitejs/plugin-react for improved performance as no swc plugins are used.` É só uma recomendação do plugin. Trocar de plugin está fora do escopo (decisão do clarify), e nada é feito aqui. **Fica como observação para uma spec futura** (avaliar a troca do `@vitejs/plugin-react-swc` pelo `@vitejs/plugin-react`), sem ação nesta.
+- **`resolve.tsconfigPaths`** (commit `0a2017a`, `chore: resolve tsconfig paths with Vite instead of a plugin`, T3): `npm uninstall vite-tsconfig-paths`, `vite.config.ts` com `plugins: [react()]` e `resolve: { tsconfigPaths: true }`, e o comentário de `tsconfig.app.json` agora cita o `resolve.tsconfigPaths` do Vite. O aviso `The plugin "vite-tsconfig-paths" is detected` **sumiu** do `build`, e o build manteve os mesmos nomes com hash (`index-B_pdpDsE.css`, `index-CU_cylmW.js`) e os mesmos tamanhos do build com o plugin (218,75 kB de JS), ou seja, a saída é a mesma.
+- **Verificação do "depois"** (2026-10-21): os quatro scripts passam; `npm audit` e `npm audit --omit=dev` dão **`found 0 vulnerabilities`** (total 0, produção 0). O `npm run dev` (porta 5173) abriu no Chromium do Playwright: HTTP 200, título `F1 Telemetry`, `#root` com um filho e 0 erros de página (cenário 3 da US2, igual ao da `main`).
+- **Navegadores-alvo efetivos** (Vite 8.3.3): `npx vite build --help` mostra `--target <target>  transpile target (default: 'baseline-widely-available')`. O valor documentado para esse padrão é `chrome111`, `edge111`, `firefox114`, `safari16.4` e `ios16.4` (`vite.dev/config/build-options`, lido no ponto 2), contra `es2020`, `edge88`, `firefox78`, `chrome87` e `safari14` do Vite 5.
+- **Bundle** (worktree novo do commit `0a2017a`, `npm ci`, `npm run build`, `bundleSizes.mjs`), comparado por papel com o worktree da `main`:
+
+| Arquivo (papel) | Bruto (B) | gzip -9 (B) | brotli 11 (B) |
+|---|---:|---:|---:|
+| `assets/index-BmHljTXl.js` (JS de entrada) | 218.795 | 70.141 | 61.691 |
+| `assets/index-hY3kQYIo.css` (CSS) | 20.217 | 4.360 | 3.817 |
+| `index.html` | 412 | 277 | 171 |
+| **Total** | **239.424** | **74.778** | **65.679** |
+
+| Papel | `main` (bruto) | Fase 3 (bruto) | Variação |
+|---|---:|---:|---:|
+| `.js` de entrada | 203.177 | 218.795 | +7,7% |
+| `.css` | 20.280 | 20.217 | −0,3% |
+| `index.html` | 412 | 412 | 0% |
+| **Total** | 223.869 | 239.424 | **+6,9%** |
+
+  O total em gzip sobe **+6,2%** (70.440 → 74.778) e o brotli, **+6,1%** (61.913 → 65.679), abaixo dos 10% do SC-004 (igual à simulação: +6,2% em gzip). Os mesmos 3 arquivos, sem arquivo novo nem faltante (o JS passou de 99 para 86 módulos transformados). O `.js` cresce pelo React Router 7 (+17 KB brutos na Fase 2), parcialmente compensado pelo minificador do Vite 8 (Oxc). O `.css` encolhe 63 B; a causa não foi isolada (o Vite 8 minifica o CSS com o Lightning CSS, e o ponto 2 registra que ele reordena declarações, o que a conferência visual cobre).
+- **Worktree** `C:\Telemetry\wt-002-fase3`: `git status --porcelain` **vazio** antes da remoção; ignorados: `.env`, `dist/`, `node_modules/` e os dois `tsbuildinfo`. Removido **sem `--force`**.
+
+### Conferência visual do "depois" (T042 a T047)
+
+- **Rodada "depois" da API** (T042): cópia nova da mestra com `Test-Path` = `False`, conferência da chave = `false`, log `[db]` apontando para `telemetry-run.db`, API nas portas 3001 e 8080, sem replay até o aviso. O primeiro `preview` foi encerrado pelo sistema por pouca memória (aviso do Claude Code); a lista de processos mostrou só os três da API (`npm run dev`, `ts-node-dev` e o filho), nenhum `vite` nem Chromium desta sessão, então nada foi encerrado, e o `preview` foi subido de novo com 8,8 GB livres de 16 GB. O replay só começou depois do aviso (T043).
+- **Roteiro de navegação** no build de produção do Vite 8 (`preview`, porta 4173, API local): as mesmas 11 verificações da `main` passaram, com 0 POSTs e 0 erros de página.
+- **Capturas do "depois"** (`captureStates.mjs`, `--prefix depois`, viewport 1440 de largura, sessão 1, volta 3 contra a 2 no cache e contra a 1 sem cache; o POST do estado 5 respondeu **503**):
+
+| Arquivo | Tamanho (B) | Contra o "antes" |
+|---|---:|---|
+| `evidence/depois-1-dashboard.png` | 58.024 | valores ao vivo diferentes; layout igual |
+| `evidence/depois-2-historico.png` | 20.595 | só a duração de uma sessão; layout igual |
+| `evidence/depois-3-analise.png` | 125.844 | **idêntico** (SHA-256 igual) |
+| `evidence/depois-4-coach-cache.png` | 234.237 | **idêntico** (SHA-256 igual) |
+| `evidence/depois-5-coach-503.png` | 127.064 | **idêntico** (SHA-256 igual) |
+| `evidence/depois-6-configuracoes.png` | 37.417 | **idêntico** (SHA-256 igual) |
+| **Total do "depois"** | **603.181** | |
+
+  As dimensões são as mesmas nos seis pares: 1440×900, 1440×900, 1440×1153, 1440×2109, 1440×1153 e 1440×900.
+
+- **Comparação estado por estado** (layout, cores, tipografia, eixos, legendas, traçado dos gráficos SVG, mapa da pista, painel do coach e estilos dos CSS Modules; os valores ao vivo e os horários não entram):
+  1. **Dashboard ao vivo**: mesmo layout, mesmas cores e tipografia, mesmos cartões nas mesmas posições. Mudam só os valores do replay, que depende do ponto da gravação em que a captura cai: velocidade (188 → 308 km/h), marcha (5 → 8), RPM, barras de acelerador, luzes de troca de marcha, ponto da força G, tempo da volta atual e setor.
+  2. **Histórico**: mesmo layout, mesmas colunas e cores. A única diferença é a duração da sessão de 16/10/2026 14:18 (`6962min` → `7083min`). Pela diferença de 121 min, é coerente com a duração ser contada até o último pacote recebido, que o replay atualiza; **isso é uma leitura dos dados, não foi verificado**, e a observação "2 sessões, sem causa afirmada" do "antes" continua sem causa afirmada.
+  3. **Análise com gráficos e mapa**, **4. coach com análise em cache**, **5. coach indisponível (503)** e **6. configurações**: arquivos **byte a byte iguais** aos do "antes", ou seja, pixels idênticos. Isso cobre o traçado dos gráficos SVG, os eixos, as legendas, o mapa da pista, o painel do coach (com o selo "Análise em cache" e com a mensagem 503) e os estilos dos CSS Modules, inclusive as esquisitices já registradas do "antes" (gráfico de delta e a volta 1).
+- **Conclusão**: nenhuma diferença de layout ou estilo; as diferenças dos estados 1 e 2 são só de dados. A regra de recuo do D7 não disparou: nenhum código da aplicação precisou mudar (T048 e T049 não ocorreram).
+- **Revisão das imagens do "depois"** (T045), vistas inteiras as duas que diferem e confirmadas por SHA-256 as quatro idênticas às do "antes", que já foram revistas: nenhum nome de jogador, de piloto, de conta ou de máquina; só `ws://localhost:8080`, `http://localhost:3001`, valores de telemetria, o texto do coach e as datas de sessões já aceitas pela mantenedora (T015). **Tamanho total das 12 imagens da feature: 1.201.539 B (≈ 1,15 MiB)**, contra a referência de 5 MB. T046 não ocorreu.
+- **Processos**: o `vite preview` desta sessão foi encerrado no fim da captura (PID 32844), sem nenhum `chrome` ou `headless_shell` restante. A API da mantenedora não foi tocada.
+
+### Fechamento (T051 a T053)
+
+- **Dependabot** (T051): `gh api repos/AnaLauraFFerraz/Telemetry-F1/vulnerability-alerts -i`, em 2026-10-21, devolveu `HTTP/2.0 204 No Content`: os alertas estão ligados. Com o 204, o `README.md` (seção de CI) e o `CLAUDE.md` (Rules) dizem que **não há gate de `npm audit` na CI** e que os avisos novos chegam pelos alertas do Dependabot.
+- **Conferências sem alterar arquivos** (T052), contra a `main`:
+  - `.github/workflows/ci.yml`: diff vazio (mesmos 4 jobs, nenhum passo de auditoria);
+  - `src/types/`: diff vazio; testes `src/**/*.test.ts`: diff vazio (nenhum teste precisou mudar);
+  - `package.json`: só troca de versões (`react-router` no lugar de `react-router-dom`, `vite`, `@vitejs/plugin-react-swc`, `eslint`, `@eslint/js`) e a saída do `vite-tsconfig-paths`; nenhuma dependência nova de estado, gráfico ou dados;
+  - `src/`: 6 linhas de import e a linha do `router.tsx` (mesma troca de import); fora de `src/`, `CLAUDE.md`, `vite.config.ts` e `tsconfig.app.json`.
+- **Auditoria final** (por pacote, 2026-10-21): `npm audit` **0 vulnerabilidades** e `npm audit --omit=dev` **0**. Nenhuma vulnerabilidade restante, então não há justificativa a registrar (FR-002). A contagem final coincide com a esperada pela simulação; a comparação é com o `npm audit` do dia da medição final.
+
+| Fase | `npm audit` (por pacote) | `--omit=dev` | Bundle bruto (total) |
+|---|---|---|---:|
+| `main` (linha de base) | 27 (1 baixa, 3 moderadas, 23 altas) | 3 (altos) | 223.869 |
+| Fim da Fase 1 | 5 (4 moderadas, 1 alta) | 2 moderadas | 223.918 |
+| Fim da Fase 2 | 3 (2 moderadas, 1 alta) | 0 | 241.023 |
+| Fim da Fase 3 | 0 | 0 | 239.424 |
+
+- **Converge** (T053, `/speckit-converge`, 2026-10-21): 1 achado `partial` (MEDIUM): as seis `depois-*.png` estavam não rastreadas, sem tarefa dizendo para commitá-las em FR-016c e SC-005; virou a T063 (Phase 7), cumprida neste mesmo commit. 0 `missing`, 0 `contradicts`, 0 `unrequested`; os 27 FRs, os 8 SCs, as 11 decisões do plano e os princípios da constituição v1.3.0 foram conferidos. As tarefas já abertas (limpeza da API, Dependabot, push 3, CI e merge) não foram duplicadas.
+- **Status da spec**: `Implementing`, depois do converge. Só passa a `Implemented` no commit de registro do merge (T059), porque o merge ainda não aconteceu.
+- **CI do push 3**: o id da execução, o SHA e os quatro checks vão na descrição do PR #8 (T056), porque registrá-los num commit geraria outra execução.
 
 ### `lint` e `typecheck` com as ferramentas em `evidence/tools/` (T5)
 

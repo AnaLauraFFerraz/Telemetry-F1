@@ -173,8 +173,8 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 **Independent Test**: comparação do bundle e das capturas contra a referência da Phase 1 (quickstart, partes 4 a 6).
 
 - [X] T037 [US4] Registrar no `research.md` o corte da Fase 3 e os resultados da Fase 2 (T031, T032 e a execução da T036). Commitar `docs: record the phase 2 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
-- [ ] T038 [MANUAL] [PARADA] [US2] (se nenhuma `vite` 8.x, ou nenhum par `vite`/`@vitejs/plugin-react-swc` compatível, existir antes do corte da Fase 3) Mesmo registro e mesma decisão da T021. **Entrega**: a decisão. (FR-002; D7, D11)
-- [ ] T039 [US2] Rodar `npm install -D vite@^8 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`:
+- [X] T038 [MANUAL] [PARADA] [US2] (não ocorreu: a 8.3.3 e a 4.3.3 estão antes do corte) (se nenhuma `vite` 8.x, ou nenhum par `vite`/`@vitejs/plugin-react-swc` compatível, existir antes do corte da Fase 3) Mesmo registro e mesma decisão da T021. **Entrega**: a decisão. (FR-002; D7, D11)
+- [X] T039 [US2] Rodar `npm install -D vite@^8 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`:
   - conferir que o peer do plugin resolvido aceita `vite` 8 e que o `engines` do Vite resolvido é atendido pelo Node ≥ 22.17 do `package.json`, do `.nvmrc` e da CI;
   - conferir que a tabela de breaking changes do research, ponto 2, continua valendo, sem mudança de configuração;
   - se o build só passar mudando código da aplicação, não commitar e ir para T048;
@@ -182,13 +182,13 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
   - no `CLAUDE.md` Stack, "Vite 5.4" vira "Vite 8".
   - Commitar `package.json`, `package-lock.json`, o `CLAUDE.md` e, se a escuta mudou, o `README.md` como `fix: upgrade to Vite 8 and @vitejs/plugin-react-swc 4`.
   - (FR-010, FR-011, FR-013, FR-013a, FR-022; D6, D7, D11)
-- [ ] T040 [US2] Trocar o plugin pela opção nativa (T3):
+- [X] T040 [US2] Trocar o plugin pela opção nativa (T3):
   - tirar `vite-tsconfig-paths` do `package.json` (`npm uninstall vite-tsconfig-paths`) e do `vite.config.ts`, e pôr `resolve: { tsconfigPaths: true }`;
   - em `tsconfig.app.json`, o comentário "resolvidos em runtime pelo plugin vite-tsconfig-paths" passa a citar o `resolve.tsconfigPaths` do Vite, em português;
   - conferir que o aviso `The plugin "vite-tsconfig-paths" is detected` sumiu do `build`.
   - Commitar `package.json`, `package-lock.json`, `vite.config.ts` e `tsconfig.app.json` como `chore: resolve tsconfig paths with Vite instead of a plugin`.
   - (FR-020; D6, D7, T3)
-- [ ] T041 [US3] Medir o "depois" e anotar:
+- [X] T041 [US3] Medir o "depois" e anotar:
   - os quatro scripts passam;
   - `npm audit` e `npm audit --omit=dev` dão 0, com a data;
   - bundle medido num worktree novo do commit da T040 (`git worktree add --detach C:\Telemetry\wt-002-fase3 <sha>`, `.env`, `npm ci`, `npm run build`, `bundleSizes.mjs`), removido com `git worktree remove` depois, e comparado por papel com a medição do worktree da `main` (223.869 B); variação do total acima de 10% ganha explicação;
@@ -196,20 +196,20 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
   - o endereço de escuta já medido na T039 vai para as notas;
   - `npm run dev` (porta 5173) e `http://localhost:5173` carrega o app, como na T006.
   - (FR-001, FR-002, FR-003, FR-012, FR-015; US2 cenário 3; D7; quickstart, partes 1, 2 e 4)
-- [ ] T042 [MANUAL] [PARADA] [US3] Rodada "depois" da API, pelo procedimento completo do D8 (terceira rodada), com os mesmos passos da T008:
+- [X] T042 [MANUAL] [PARADA] [US3] Rodada "depois" da API, pelo procedimento completo do D8 (terceira rodada), com os mesmos passos da T008:
   - `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False` e, só então, copiar a mestra para um `telemetry-run.db` novo;
   - `DOTENV_CONFIG_PATH` e `DB_PATH` apontando para o `api-conferencia.env` e o `telemetry-run.db`;
   - conferência sem custo; só com `false`, subir a API e conferir o log;
   - o replay não começa aqui: começa na T043, quando a sessão do front avisar.
   - **Entrega**: o `false` da conferência, a confirmação do log e de que as portas batem com o `.env` do front. Sem o `false`, esta sessão não segue.
   - (FR-016a, FR-016c; D8)
-- [ ] T043 [US3] [PARADA] Com a API da T042 e sem replay: `npm run build`, `npm run preview` e o roteiro da parte 3 do quickstart; depois **avisar "inicie o replay"** e esperar a mantenedora iniciar `npm run replay -- recordings/demo-interlagos-tt-20hz-laps6-8.jsonl` (1x) e confirmar (**Entrega**: a confirmação); só então rodar `captureStates.mjs` com `NN = depois` (estado 5 com 503). (FR-009, FR-016, FR-016b, FR-016c; D7, D8)
+- [X] T043 [US3] [PARADA] Com a API da T042 e sem replay: `npm run build`, `npm run preview` e o roteiro da parte 3 do quickstart; depois **avisar "inicie o replay"** e esperar a mantenedora iniciar `npm run replay -- recordings/demo-interlagos-tt-20hz-laps6-8.jsonl` (1x) e confirmar (**Entrega**: a confirmação); só então rodar `captureStates.mjs` com `NN = depois` (estado 5 com 503). (FR-009, FR-016, FR-016b, FR-016c; D7, D8)
 - [ ] T044 [MANUAL] [US3] Parar o replay e a API e apagar os três arquivos da rodada, como na T010. **Entrega**: confirmação. (D8)
-- [ ] T045 [US3] Revisar as capturas do "depois" como na T011, somando ao total do "antes". (D7, D1)
-- [ ] T046 [MANUAL] [PARADA] [US3] (se T045 tiver achado) Mesma decisão da T012. **Entrega**: a decisão. (D7, D1)
-- [ ] T047 [US3] Comparar as capturas estado por estado e anotar no `research.md`: layout, cores, tipografia, eixos, legendas e traçado dos gráficos SVG, mapa da pista, painel do coach e estilos dos CSS Modules, sem os valores ao vivo. Toda diferença tem explicação. Se alguma correção exigir mudar código da aplicação (`src/`, `index.html` ou CSS), não mudar e ir para T048. (FR-016, FR-019; D7; quickstart, parte 6)
-- [ ] T048 [MANUAL] [PARADA] [US3] (se a regra de recuo disparar no build da T039 ou na comparação da T047) A sessão apresenta o que exigiria mudar código da aplicação. **Entrega**: a confirmação do recuo para o Vite 7.3, ou outra decisão. (FR-010; D7)
-- [ ] T049 [US3] (se T048 confirmar o recuo) Rodar `npm install -D vite@~7.3 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`, com o plugin cujo peer aceita `vite` 7 e a regra do D11. No `CLAUDE.md` Stack, "Vite 8" (ou "Vite 5.4", se o Vite 8 não chegou a ser commitado) vira "Vite 7.3". Antes do commit, medir o endereço de escuta como na T039, com a mesma regra para o `CLAUDE.md` e o `README.md`. Registrar o motivo no `research.md`. Commitar como `fix: use Vite 7.3 instead of Vite 8`, sem reescrever histórico. Refazer T041 a T047 com `NN = depois-vite73`, registrando as vulnerabilidades restantes do Vite 7.3, se houver, com justificativa. (FR-002, FR-006, FR-010, FR-013a; D6, D7, D11)
+- [X] T045 [US3] Revisar as capturas do "depois" como na T011, somando ao total do "antes". (D7, D1)
+- [X] T046 [MANUAL] [PARADA] [US3] (não ocorreu: sem achado) (se T045 tiver achado) Mesma decisão da T012. **Entrega**: a decisão. (D7, D1)
+- [X] T047 [US3] Comparar as capturas estado por estado e anotar no `research.md`: layout, cores, tipografia, eixos, legendas e traçado dos gráficos SVG, mapa da pista, painel do coach e estilos dos CSS Modules, sem os valores ao vivo. Toda diferença tem explicação. Se alguma correção exigir mudar código da aplicação (`src/`, `index.html` ou CSS), não mudar e ir para T048. (FR-016, FR-019; D7; quickstart, parte 6)
+- [X] T048 [MANUAL] [PARADA] [US3] (não ocorreu: nenhum código da aplicação precisou mudar) (se a regra de recuo disparar no build da T039 ou na comparação da T047) A sessão apresenta o que exigiria mudar código da aplicação. **Entrega**: a confirmação do recuo para o Vite 7.3, ou outra decisão. (FR-010; D7)
+- [X] T049 [US3] (não ocorreu: sem recuo) (se T048 confirmar o recuo) Rodar `npm install -D vite@~7.3 @vitejs/plugin-react-swc@^4 --before=<corte da Fase 3>`, com o plugin cujo peer aceita `vite` 7 e a regra do D11. No `CLAUDE.md` Stack, "Vite 8" (ou "Vite 5.4", se o Vite 8 não chegou a ser commitado) vira "Vite 7.3". Antes do commit, medir o endereço de escuta como na T039, com a mesma regra para o `CLAUDE.md` e o `README.md`. Registrar o motivo no `research.md`. Commitar como `fix: use Vite 7.3 instead of Vite 8`, sem reescrever histórico. Refazer T041 a T047 com `NN = depois-vite73`, registrando as vulnerabilidades restantes do Vite 7.3, se houver, com justificativa. (FR-002, FR-006, FR-010, FR-013a; D6, D7, D11)
 
 **Checkpoint**: `npm audit` em zero (ou cada restante registrado); bundle e capturas comparados.
 
@@ -222,12 +222,12 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 **Independent Test**: `ci.yml` igual ao da `main`; a documentação cita o Dependabot só depois do 204.
 
 - [ ] T050 [MANUAL] [US5] Ligar os alertas do Dependabot em Settings → Advanced Security → Dependabot alerts, em qualquer momento antes da T053. **Entrega**: aviso de que ligou. (FR-018; D9)
-- [ ] T051 [P] [US5] Conferir com `gh api repos/AnaLauraFFerraz/Telemetry-F1/vulnerability-alerts -i` e anotar a primeira linha: 204 ligado, 404 desligado. Com 404, a T050 fica aberta e a documentação não cita o Dependabot (a frase de que não há gate de `npm audit` entra assim mesmo, na T053). (FR-018; D9; quickstart, parte 7)
-- [ ] T052 [P] Conferir e anotar, sem alterar arquivos: `git diff main -- .github/workflows/ci.yml` vazio; `git diff main --stat -- src/types/` e `-- 'src/**/*.test.ts'` vazios; `git diff main -- package.json` com só as dependências trocadas, sem nenhuma nova. (FR-017, FR-019, FR-020; D9; quickstart, partes 7 e 8)
-- [ ] T053 Rodar o `/speckit-converge` (D10) e só depois mudar o Status da spec. Registrar no `research.md` a evidência da Fase 3: auditoria final, restantes com justificativa, exposição e condição (se houver), bundle, navegadores-alvo, escuta, comparação visual e as conferências da T051 e T052. Acrescentar ao `README.md` (seção de CI) e ao `CLAUDE.md` (Rules), em qualquer caso, que não há gate de `npm audit` na CI; só com o 204 da T051, acrescentar nos dois que avisos novos chegam pelos alertas do Dependabot. Marcar as tarefas feitas neste arquivo (até a T053). Commitar `docs: record the phase 3 evidence for spec 002`. (FR-002, FR-003, FR-012, FR-015, FR-016, FR-018; D9, D10)
+- [X] T051 [P] [US5] Conferir com `gh api repos/AnaLauraFFerraz/Telemetry-F1/vulnerability-alerts -i` e anotar a primeira linha: 204 ligado, 404 desligado. Com 404, a T050 fica aberta e a documentação não cita o Dependabot (a frase de que não há gate de `npm audit` entra assim mesmo, na T053). (FR-018; D9; quickstart, parte 7)
+- [X] T052 [P] Conferir e anotar, sem alterar arquivos: `git diff main -- .github/workflows/ci.yml` vazio; `git diff main --stat -- src/types/` e `-- 'src/**/*.test.ts'` vazios; `git diff main -- package.json` com só as dependências trocadas, sem nenhuma nova. (FR-017, FR-019, FR-020; D9; quickstart, partes 7 e 8)
+- [X] T053 Rodar o `/speckit-converge` (D10) e só depois mudar o Status da spec. Registrar no `research.md` a evidência da Fase 3: auditoria final, restantes com justificativa, exposição e condição (se houver), bundle, navegadores-alvo, escuta, comparação visual e as conferências da T051 e T052. Acrescentar ao `README.md` (seção de CI) e ao `CLAUDE.md` (Rules), em qualquer caso, que não há gate de `npm audit` na CI; só com o 204 da T051, acrescentar nos dois que avisos novos chegam pelos alertas do Dependabot. Marcar as tarefas feitas neste arquivo (até a T053). Commitar `docs: record the phase 3 evidence for spec 002`. (FR-002, FR-003, FR-012, FR-015, FR-016, FR-018; D9, D10)
 - [ ] T054 [MANUAL] [PARADA] Aprovar o push 3 e a atualização da descrição do PR com o registro da CI. **Entrega**: aprovação explícita. (FR-006a; D5)
 - [ ] T055 Dar o push da branch. (FR-006a; D5)
-- [ ] T056 Esperar a CI com `gh run watch` e registrar o id, o SHA e o resultado dos quatro checks na descrição do PR (`gh pr edit`). O `research.md` já aponta para lá. CI vermelha segue a regra da T025; o registro do re-run ou da correção vai na descrição do PR. (FR-005, FR-006a; D5)
+- [ ] T056 Esperar a CI com `gh run watch <id> --exit-status` (sem a flag, sai com 0 mesmo com a execução falha) e só dar como verde com os quatro jobs `completed` e `success` na API de jobs (`gh api repos/AnaLauraFFerraz/Telemetry-F1/actions/runs/<id>/jobs`); registrar o id, o SHA e o resultado dos quatro checks na descrição do PR (`gh pr edit`). O `research.md` já aponta para lá. CI vermelha segue a regra da T025; o registro do re-run ou da correção vai na descrição do PR. (FR-005, FR-006a; D5)
 - [ ] T056a [MANUAL] [PARADA] Com a CI final verde (T056), mostrar à mantenedora a **descrição final do PR** (`gh pr view 8 --json body`) e, com a aprovação dela, tirar o PR do rascunho com `gh pr ready 8`. **Entrega**: aprovação para tirar do rascunho. O PR é rascunho desde a T024 (um rascunho não pode ser mergeado), então o merge só fica possível depois desta tarefa. (D5, D10)
 - [ ] T057 [MANUAL] [PARADA] Fazer o merge com Rebase and merge, depois de ler o Files changed, com o PR fora do rascunho, verde e a branch atualizada. **Entrega**: aviso do merge. (D10)
 - [ ] T058 [MANUAL] Depois do merge, apagar a cópia mestra `C:\Telemetry\snapshots-002\telemetry-master.db`. **Entrega**: confirmação. (FR-016a; D8, D10)
@@ -318,3 +318,9 @@ Task: "Conferir que o app carrega em http://localhost:5173 no worktree da main"
 3. Phase 4 (Fase 2, MVP): produção sem vulnerabilidades. Se a Fase 3 precisar parar, a feature já entrega o pré-requisito da demo para o navegador.
 4. Phase 5 (Fase 3): Vite 8, ou Vite 7.3 pela regra de recuo.
 5. Phase 6: Dependabot, converge, push 3 e merge pela mantenedora; depois, o registro do merge num PR próprio.
+
+---
+
+## Phase 7: Convergence
+
+- [X] T063 Adicionar ao commit da T053 as seis capturas `specs/002-npm-audit-triage/evidence/depois-1-dashboard.png`, `depois-2-historico.png`, `depois-3-analise.png`, `depois-4-coach-cache.png`, `depois-5-coach-503.png` e `depois-6-configuracoes.png`, hoje não rastreadas, para que as capturas do "antes" e do "depois" fiquem guardadas em `evidence/` per FR-016c e SC-005 (partial)

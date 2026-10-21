@@ -60,6 +60,7 @@ The API repo owns the REST/WebSocket contract. `src/types/` is a manual copy: wh
 - Run `npm run typecheck`, `npm test`, `npm run lint` and `npm run build` before every commit; report any failure instead of committing around it.
 - Documentation must describe only what exists in the code. Partial features are described as partial; no invented metrics or results.
 - Never rewrite published git history.
+- The CI has no `npm audit` gate: new advisories arrive as Dependabot security alerts (turned on in the repository settings), not as failing checks.
 - New features follow Spec Driven Development: spec, plan and tasks are committed before the implementation.
 - The check names (`typecheck`, `lint`, `test`, `build`) and the file name `.github/workflows/ci.yml` are a contract with the branch ruleset and the README badge. Renaming a job (`typecheck`, `lint`, `test`, `build`) requires updating the ruleset's required checks in the same change; renaming `ci.yml` requires updating the README badge.
 - Third-party GitHub Actions (owner other than `actions/`) are referenced only by full commit SHA with a version comment (`uses: owner/action@<sha-40>  # vX.Y.Z`). First-party `actions/*` use the major tag.
