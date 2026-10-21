@@ -647,13 +647,13 @@ Vistas nas capturas do "antes", na `main`:
 - **FR-007, conferência antes da troca** (T027): a busca por `<Link`, `navigate(`, `useNavigate`, `redirect`, `<Navigate`, `useSearchParams`, `useLocation`, `window.location` e `href=` em `src/` foi repetida em 2026-10-21, em `ca2487f`, e achou as mesmas 10 ocorrências da tabela "Verificação formal do FR-007" acima (7 `<Link>` e 3 `navigate(...)`, nos mesmos arquivos e linhas), com os mesmos destinos literais, e `` navigate(`/sessions/${id}`) `` com o `id` vindo da API. Nenhuma ocorrência nova, e a tabela continua completa.
 
 - **Segunda rodada da API (T028)**: cópia nova da mestra, `Test-Path` = `False`, conferência da chave = `false`, log `[db]` apontando para `telemetry-run.db`, API nas portas 3001 e 8080, sem replay e sem clique no coach.
-- **Flags da v6** (commit `30707e2`, `fix: opt into the React Router v7 future flags`): `<BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>`, com o `typecheck` em 0 e o roteiro de navegação passando no servidor de desenvolvimento (11 verificações, 0 POSTs, 0 erros de página).
+- **Flags da v6** (commit `30707e2`, `fix: opt into the React Router v7 future flags`): `<BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>`, com o `typecheck` em 0 e o roteiro de navegação passando no servidor de desenvolvimento (12 verificações dos 9 passos do roteiro, 0 POSTs, 0 erros de página).
 - **Nenhuma versão adequada deixou de existir antes do corte**: a 7.18.4 (publicada em 2026-09-15) está antes de 2026-10-07 (T030 não ocorreu).
 - **`react-router` 7** (commit `add2487`, `fix: upgrade to React Router 7`): `npm uninstall react-router-dom` e `npm install react-router@^7 --before=2026-10-07` resolveram **7.18.4**, publicada em 2026-09-15, com `engines.node` `>=20.0.0` e peer `react` `>=18`. O `package.json` ficou com `"react-router": "^7.18.4"`, sem `react-router-dom`, e o lockfile ficou sem `react-router-dom` nem `@remix-run/router`. Nos 6 arquivos o import virou `from "react-router"`, e a prop `future` foi removida. O `CLAUDE.md` Stack passou de "React Router 6" para "React Router 7"; o `README.md` não cita a versão.
 - **Verificação** (2026-10-21):
   - os quatro scripts passam;
   - `git diff main -- src` mostra só as 6 linhas de import (a prop `future`, entrada e saída, não deixa diferença);
-  - o roteiro da parte 3 do quickstart passou no `npm run build && npm run preview` (porta 4173), com a API da T028: as mesmas 11 verificações da `main`, 0 POSTs e 0 erros de página.
+  - o roteiro da parte 3 do quickstart passou no `npm run build && npm run preview` (porta 4173), com a API da T028: as mesmas 12 verificações da `main`, 0 POSTs e 0 erros de página.
 - **Auditoria ao fim da Fase 2**, igual ao esperado (por pacote):
 
 | | Total | Produção (`--omit=dev`) |
@@ -719,7 +719,7 @@ Vistas nas capturas do "antes", na `main`:
 ### Conferência visual do "depois" (T042 a T047)
 
 - **Rodada "depois" da API** (T042): cópia nova da mestra com `Test-Path` = `False`, conferência da chave = `false`, log `[db]` apontando para `telemetry-run.db`, API nas portas 3001 e 8080, sem replay até o aviso. O primeiro `preview` foi encerrado pelo sistema por pouca memória (aviso do Claude Code); a lista de processos mostrou só os três da API (`npm run dev`, `ts-node-dev` e o filho), nenhum `vite` nem Chromium desta sessão, então nada foi encerrado, e o `preview` foi subido de novo com 8,8 GB livres de 16 GB. O replay só começou depois do aviso (T043).
-- **Roteiro de navegação** no build de produção do Vite 8 (`preview`, porta 4173, API local): as mesmas 11 verificações da `main` passaram, com 0 POSTs e 0 erros de página.
+- **Roteiro de navegação** no build de produção do Vite 8 (`preview`, porta 4173, API local): as mesmas 12 verificações da `main` passaram, com 0 POSTs e 0 erros de página.
 - **Capturas do "depois"** (`captureStates.mjs`, `--prefix depois`, viewport 1440 de largura, sessão 1, volta 3 contra a 2 no cache e contra a 1 sem cache; o POST do estado 5 respondeu **503**):
 
 | Arquivo | Tamanho (B) | Contra o "antes" |
@@ -760,8 +760,18 @@ Vistas nas capturas do "antes", na `main`:
 | Fim da Fase 3 | 0 | 0 | 239.424 |
 
 - **Converge** (T053, `/speckit-converge`, 2026-10-21): 1 achado `partial` (MEDIUM): as seis `depois-*.png` estavam não rastreadas, sem tarefa dizendo para commitá-las em FR-016c e SC-005; virou a T063 (Phase 7), cumprida neste mesmo commit. 0 `missing`, 0 `contradicts`, 0 `unrequested`; os 27 FRs, os 8 SCs, as 11 decisões do plano e os princípios da constituição v1.3.0 foram conferidos. As tarefas já abertas (limpeza da API, Dependabot, push 3, CI e merge) não foram duplicadas.
-- **Status da spec**: `Implementing`, depois do converge. Só passa a `Implemented` no commit de registro do merge (T059), porque o merge ainda não aconteceu.
+- **Status da spec**: `Implementing`, depois do converge. Passou a `Implemented` no commit de registro do merge (T059), depois do merge.
 - **CI do push 3**: o id da execução, o SHA e os quatro checks vão na descrição do PR #8 (T056), porque registrá-los num commit geraria outra execução.
+
+### Merge (T054 a T059)
+
+- **CI do push 3** (T054 a T056): execução `39626010332` no SHA `d88edee07cfac2c194841f668d8c850a4a348ef9`, com os quatro jobs (`typecheck` 119311323315, `lint` 119311323701, `test` 119311323663 e `build` 119311323597) `completed` e `success` na API de jobs. O id, o SHA e os checks das três fases também estão na descrição do PR #8.
+- **Descrição do PR e saída do rascunho** (T056a): a mantenedora aprovou o texto, aplicado com `gh pr edit 8 --body-file`, e o PR saiu do rascunho com `gh pr ready 8`. Estado depois: `OPEN`, `MERGEABLE`, `CLEAN`, quatro checks `SUCCESS`.
+- **Merge** (T057): o **PR #8** foi mergeado pela mantenedora com **Rebase and merge**, em 2026-10-21T15:39:28Z (12:39 no fuso -03:00). Como é rebase, os commits da branch foram reescritos na `main` com SHAs novos, e o **último commit da spec na `main` é `88d59efe42da24921782f3b569918fe40cd430be`** (`docs: record the phase 3 evidence for spec 002`, o `d88edee` da branch).
+- **CI na `main`** depois do merge: execução `39627656379`, evento `push`, SHA `88d59efe42da24921782f3b569918fe40cd430be`, conclusão `success`, com `lint` 119317067522, `test` 119317068009, `typecheck` 119317068098 e `build` 119317068255 `completed` e `success`.
+- **Limpeza** (T058, T058a): a mantenedora apagou `C:\Telemetry\snapshots-002` (a cópia mestra e o `api-conferencia.env`) e `C:\Telemetry\playwright-002` (o Playwright e o Chromium); o `Test-Path` das duas deu `False`.
+- **Branch da feature**: a local `002-npm-audit-triage` foi apagada só depois de `git diff --quiet main 002-npm-audit-triage` sair com 0 (conteúdo igual ao da `main`), e o `git fetch --prune` removeu a referência remota; `git branch -r` só lista `origin/main`. Nenhum worktree sobrou além do repositório.
+- **Correção de contagem** (esta mesma mudança): o roteiro de navegação tem 9 passos e **12 verificações**, não 11 como o research dizia nas seções das Fases 2 e 3. Nenhum resultado mudou.
 
 ### `lint` e `typecheck` com as ferramentas em `evidence/tools/` (T5)
 

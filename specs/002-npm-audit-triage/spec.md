@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-21
 
-**Status**: Implementing (converge feito em 2026-10-21; aguardando o merge do PR #8)
+**Status**: Implemented (PR #8 mergeado em 2026-10-21, 12:39 no fuso -03:00, que é 2026-10-21T15:39:28Z em UTC)
 
 **Input**: User description (texto integral do pedido, para que a spec não dependa da conversa):
 
