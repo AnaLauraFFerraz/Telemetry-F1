@@ -34,15 +34,15 @@
 
 ### Session 2026-10-20
 
-Decisões confirmadas pela dona do repositório:
+Decisões confirmadas pela mantenedora:
 
 - Q: O build mantém o `tsc -b`, repetindo a verificação de tipos? → A: Sim. Quatro checks separados (tipos, lint, testes, build); uma falha de tipos pode reprovar dois checks (tipos e build), e isso é comportamento esperado, documentado.
 - Q: Qual a versão mínima do Node? → A: 22.17, porque a guarda de descoberta vazia usa o `fs.globSync` estável, o mesmo mecanismo de glob que o `node --test` usa. Uma guarda com outro mecanismo poderia discordar do runner.
 - Q: O `--experimental-strip-types` tem limitação para a descoberta por glob e para o alias `@/`? → A: Não se decide na spec. O plano verifica com evidência, rodando comandos, essas duas limitações e se a versão de Node fixada já remove tipos sem a flag; o resultado vai para o `research.md`.
 - Q: Como a versão do Node é fixada? → A: Um único Node fixado (major 22) num arquivo lido pelo fnm e pela CI; `engines.node` no `package.json` como mínimo declarado; sem matriz de versões.
 - Q: O cache de dependências é opcional? → A: Não. Está decidido: o cache nativo do setup do Node, com chave no `package-lock.json`.
-- Q: Em quais sistemas a CI roda? → A: Só Linux. A paridade com o Windows vem da descoberta de testes feita pelo próprio Node (glob entre aspas, sem expansão do shell) e é verificada localmente na máquina da dona do repositório.
-- Q: Quando o ruleset é aplicado? → A: Pela dona do repositório, depois do merge do PR desta feature, para não travar PRs abertos a partir da `main` antiga.
+- Q: Em quais sistemas a CI roda? → A: Só Linux. A paridade com o Windows vem da descoberta de testes feita pelo próprio Node (glob entre aspas, sem expansão do shell) e é verificada localmente na máquina da mantenedora.
+- Q: Quando o ruleset é aplicado? → A: Pela mantenedora, depois do merge do PR desta feature, para não travar PRs abertos a partir da `main` antiga.
 - Q: Qual a referência do SC-005? → A: A primeira execução verde, com teto de 5 minutos; acima disso, o `research.md` registra a causa e a ação tomada.
 - Q: A regra da constituição "each test file is listed in the `test` script" espera a emenda separada? → A: Não. Ela é emendada no mesmo commit que troca a lista pelo glob, para que nenhum commit deixe a constituição contrariando o código; o `CLAUDE.md` acompanha. O resto da emenda (CI como portão de merge, `typecheck` nos gates, Node 22.17, tipo `ci:`) continua no PR separado depois do merge.
 - Q: Como se prova que push forçado e exclusão da `main` são recusados? → A: Pela configuração do ruleset, conferida pela API do GitHub, sem tentativa. O GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra; e um push forçado aceito por engano reescreveria histórico publicado. O push direto é provado por tentativa.
@@ -106,7 +106,7 @@ Quem desenvolve consegue rodar, no próprio computador, exatamente o que a CI ro
 
 ### User Story 4 - A main só aceita merge com a verificação aprovada (Priority: P2)
 
-Depois do merge do PR desta feature, e portanto depois de a CI já ter rodado, a dona do repositório configura manualmente um ruleset na `main` com os mesmos critérios da API (aplicá-lo só depois do merge evita travar PRs abertos a partir da `main` antiga). A documentação do repositório descreve o procedimento passo a passo, os nomes exatos dos checks exigidos e o procedimento de último recurso para quando a proteção precisar ser contornada.
+Depois do merge do PR desta feature, e portanto depois de a CI já ter rodado, a mantenedora configura manualmente um ruleset na `main` com os mesmos critérios da API (aplicá-lo só depois do merge evita travar PRs abertos a partir da `main` antiga). A documentação do repositório descreve o procedimento passo a passo, os nomes exatos dos checks exigidos e o procedimento de último recurso para quando a proteção precisar ser contornada.
 
 **Why this priority**: Fecha o objetivo ("a main só aceita merge com a verificação aprovada"), mas depende de a CI existir e já ter rodado, porque o GitHub só oferece como obrigatórios os checks que já executaram. A configuração em si é manual e fica fora do código.
 
@@ -115,7 +115,7 @@ Depois do merge do PR desta feature, e portanto depois de a CI já ter rodado, a
 **Acceptance Scenarios**:
 
 1. **Given** o ruleset ativo, **When** alguém tenta mergear um PR com qualquer check reprovado ou ainda pendente, **Then** o merge é bloqueado.
-2. **Given** o ruleset ativo, **When** alguém tenta push direto na `main`, **Then** o push é recusado, inclusive para a dona do repositório (lista de bypass vazia). As regras de push forçado e de exclusão da `main` são conferidas na configuração do ruleset pela API do GitHub, sem tentativa: o GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra, e um push forçado aceito por engano reescreveria histórico publicado.
+2. **Given** o ruleset ativo, **When** alguém tenta push direto na `main`, **Then** o push é recusado, inclusive para a mantenedora (lista de bypass vazia). As regras de push forçado e de exclusão da `main` são conferidas na configuração do ruleset pela API do GitHub, sem tentativa: o GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra, e um push forçado aceito por engano reescreveria histórico publicado.
 3. **Given** um PR com a branch desatualizada em relação à `main`, **When** se tenta mergear, **Then** o GitHub exige atualizar a branch antes.
 4. **Given** um PR aprovado nos checks, **When** se abre o menu de merge, **Then** só "Rebase and merge" está disponível, mantendo o histórico linear.
 5. **Given** a documentação, **When** alguém a lê, **Then** encontra os critérios do ruleset, os nomes exatos dos checks e o procedimento de último recurso completo, sem precisar abrir a API.
@@ -149,7 +149,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 - O build mantém o `tsc -b` e repete a verificação de tipos; uma falha de tipos reprova dois checks ao mesmo tempo (tipos e build). É esperado e fica documentado.
 - A CI não usa filtros de caminho: um PR que só mexe em documentação também roda os quatro checks, senão um check obrigatório nunca reportaria e o merge ficaria bloqueado.
 - Vulnerabilidades reportadas pelo `npm audit` (27 hoje) não reprovam nenhum check.
-- A CI roda só em Linux e esse runner ainda não foi testado: caminhos, maiúsculas/minúsculas em nomes de arquivo e fim de linha podem se comportar diferente do Windows, onde a dona do repositório desenvolve. A paridade é verificada localmente no Windows e confirmada pela primeira execução na CI.
+- A CI roda só em Linux e esse runner ainda não foi testado: caminhos, maiúsculas/minúsculas em nomes de arquivo e fim de linha podem se comportar diferente do Windows, onde a mantenedora desenvolve. A paridade é verificada localmente no Windows e confirmada pela primeira execução na CI.
 
 ## Requirements *(mandatory)*
 
@@ -172,7 +172,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 
 - **FR-009**: DEVE existir um script de verificação de tipos que rode o mesmo `tsc -b` do build, cobrindo tudo que os tsconfigs incluem (hoje `src/` e `vite.config.ts`, mais o que esta feature acrescentar), sem gerar o bundle.
 - **FR-010**: O script de teste NÃO DEVE listar arquivos à mão; todo arquivo de teste dentro de `src/` DEVE ser descoberto automaticamente.
-- **FR-011**: A descoberta DEVE produzir o mesmo conjunto de arquivos no Windows (cmd) e no Linux (sh): o glob DEVE ser passado entre aspas ao `node --test`, que o resolve por conta própria, sem depender de expansão feita pelo shell. A paridade com o Windows é verificada localmente na máquina da dona do repositório.
+- **FR-011**: A descoberta DEVE produzir o mesmo conjunto de arquivos no Windows (cmd) e no Linux (sh): o glob DEVE ser passado entre aspas ao `node --test`, que o resolve por conta própria, sem depender de expansão feita pelo shell. A paridade com o Windows é verificada localmente na máquina da mantenedora.
 - **FR-012**: Uma descoberta vazia DEVE fazer o script de teste terminar com falha e mensagem clara em português. A guarda DEVE usar o `fs.globSync` estável, o mesmo mecanismo de glob do `node --test`, para não discordar do runner. A guarda DEVE também reprovar, com mensagem clara em português, quando o script `test` do `package.json` não contém o `TEST_PATTERN` entre aspas duplas (aspas simples, sem aspas ou glob diferente): aspas simples fazem o cmd rodar zero testes com exit 0, e o glob da guarda e o do script precisam ser o mesmo.
 - **FR-013**: Os testes existentes DEVEM continuar passando sem mudança de comportamento, respeitando as convenções do projeto (testes só de funções puras, import relativo com `.ts`, `@/` apenas em `import type`).
 
@@ -191,7 +191,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 
 - **FR-017**: A documentação DEVE descrever o ruleset da `main` com exatamente estes critérios, os mesmos da API: merge somente por PR; 0 aprovações exigidas; os quatro checks obrigatórios; branch atualizada antes do merge; histórico linear; bloqueio de push forçado; bloqueio de exclusão; lista de bypass vazia; apenas "Rebase and merge" habilitado.
 - **FR-018**: O README deste repositório DEVE descrever por inteiro o procedimento de último recurso, sem depender de ler a API: (1) se o GitHub Actions estiver indisponível, esperar primeiro; (2) somente em último caso, desativar o ruleset deste repositório, mergear, reativar o ruleset na hora e registrar o motivo no PR. A API é citada apenas como origem do procedimento, nunca como substituto do texto.
-- **FR-019**: A configuração do ruleset é um passo manual da dona do repositório, feito depois do merge do PR desta feature (a CI já terá rodado, então os checks são listáveis, e PRs abertos a partir da `main` antiga não ficam travados); o código desta feature não a aplica.
+- **FR-019**: A configuração do ruleset é um passo manual da mantenedora, feito depois do merge do PR desta feature (a CI já terá rodado, então os checks são listáveis, e PRs abertos a partir da `main` antiga não ficam travados); o código desta feature não a aplica.
 
 **README**
 
@@ -216,7 +216,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 - **SC-003**: Um novo arquivo de teste em qualquer subpasta de `src/` é executado na primeira rodada, em 0 edições de arquivos de configuração.
 - **SC-004**: O conjunto de testes executados é idêntico no Windows (verificado localmente) e no Linux (CI): mesma lista de arquivos, mesmo total de testes.
 - **SC-005**: A primeira execução verde da CI, depois de qualquer correção, é a referência de tempo e termina em até 5 minutos, incluindo a instalação das dependências. Se passar de 5 minutos, o `research.md` registra a causa e a ação tomada.
-- **SC-006**: Seguindo só a documentação, a dona do repositório configura o ruleset sem consultar outra fonte. Todas as tentativas de merge com check reprovado e a tentativa de push direto na `main` são recusadas. As regras de push forçado e de exclusão da `main` são conferidas na configuração do ruleset pela API do GitHub (motivo no cenário 2 da US4).
+- **SC-006**: Seguindo só a documentação, a mantenedora configura o ruleset sem consultar outra fonte. Todas as tentativas de merge com check reprovado e a tentativa de push direto na `main` são recusadas. As regras de push forçado e de exclusão da `main` são conferidas na configuração do ruleset pela API do GitHub (motivo no cenário 2 da US4).
 - **SC-007**: A verificação não depende de nenhum segredo, variável de ambiente ou serviço externo: 0 itens configurados no GitHub além do próprio workflow e do ruleset.
 - **SC-008**: Os scripts que a CI chama produzem o mesmo resultado quando rodados localmente no mesmo commit.
 
