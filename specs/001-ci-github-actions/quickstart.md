@@ -83,7 +83,7 @@ PRs de demonstração, conforme a tabela da fase 4 do plano. Em cada um:
 
 No primeiro PR (lint):
 - com os checks ainda rodando, `mergeStateStatus` já é `BLOCKED` (check pendente);
-- o selo `.../ci.yml/badge.svg?branch=demo/lint-failure` (ou com `&event=pull_request`) mostra reprovado.
+- o selo `.../ci.yml/badge.svg?branch=demo%2Flint-failure` (a barra codificada como `%2F`; ou com `&event=pull_request`) mostra reprovado.
 
 Push direto:
 
