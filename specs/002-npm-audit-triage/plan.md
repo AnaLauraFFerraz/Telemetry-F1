@@ -109,7 +109,7 @@ Num worktree da `main` fora do repositório (`C:\Telemetry\wt-002-main`), e ante
 
 Os arquivos vão para `specs/002-npm-audit-triage/evidence/` (capturas) e para a seção "Evidência da implementação" do `research.md` (tabelas).
 
-**Antes das capturas** (T4): a instalação do Playwright e do Chromium dele, num diretório fora dos dois repositórios (`C:\Telemetry\playwright-002\`), é uma tarefa que **para e espera a aprovação da mantenedora**. A versão é fixa, escolhida pela regra do D11, e fica registrada no `research.md`.
+**Antes das capturas** (T4): a instalação do Playwright e do Chromium dele, num diretório fora dos dois repositórios (por exemplo, `C:\Telemetry\playwright-002\`), é uma tarefa que **para e espera a aprovação da mantenedora**. A versão é fixa, escolhida pela regra do D11, e fica registrada no `research.md`.
 
 **Revisão das imagens antes do commit**, porque o histórico publicado não é reescrito:
 - conferir, imagem por imagem, que nenhuma mostra dado pessoal vindo do jogo ou da API (nome de jogador, de piloto, de conta ou de máquina, por exemplo). Os tipos do front (`src/types/`) não carregam nomes, mas a revisão é visual;
@@ -175,7 +175,10 @@ Nenhuma afirmação do `CLAUDE.md` ou do `README.md` fica falsa: o Vite continua
   3. `gh run watch` até a execução terminar; registrar o id da execução, o SHA e o resultado dos quatro checks;
   4. só então começa a fase seguinte.
 - O registro da execução da fase N vai num commit `docs:` que abre a fase N+1 e sobe junto com ela. O registro da Fase 3 vai no commit `docs:` final, cuja própria execução é a do PR pronto para merge.
-- Se a CI de uma fase falhar só no Linux, a causa e a correção vão para o `research.md` e a correção entra como commit novo antes do próximo push. Nada de pular check.
+- **A fase seguinte só começa com a CI verde** (decisão da mantenedora no analyze, H3):
+  - **falha vinda do código** (inclusive uma que só aparece no Linux): a causa vai para o `research.md`, a correção entra num commit novo e ganha um **push próprio**, com aprovação explícita da mantenedora; espera-se a CI de novo. Falha vinda do código nunca é resolvida com re-run;
+  - **falha de infraestrutura** (runner, rede, timeout de download): re-run só do job que falhou (`gh run rerun <id> --failed`), com o motivo e o id das duas execuções registrados no `research.md`;
+  - nada de pular check.
 
 ### D6. Documentação no mesmo commit da troca de versão
 
@@ -280,10 +283,11 @@ Não existe verificação segura **por tentativa**: o cache é consultado antes 
 - O `ci.yml` não muda (FR-017, SC-006).
 - **Tarefa manual da mantenedora**, em qualquer momento antes do commit `docs:` final: ligar os alertas do Dependabot em Settings → Advanced Security (antes "Code security") → Dependabot alerts.
 - **O agente confere** com `gh api repos/AnaLauraFFerraz/Telemetry-F1/vulnerability-alerts`, que dá HTTP 204 quando ligado e 404 quando desligado, e registra a saída no `research.md`.
-- **Só depois do 204**, o commit `docs:` final acrescenta:
-  - **`README.md`**, seção de CI: uma frase dizendo que não há gate de `npm audit` na CI e que avisos novos chegam pelos alertas do Dependabot do repositório;
-  - **`CLAUDE.md`** Rules: a mesma regra, curta.
-- Se a mantenedora ainda não tiver ligado, os dois arquivos não citam o Dependabot, e a tarefa fica aberta no `tasks.md`.
+- **Em qualquer caso**, o commit `docs:` final acrescenta a frase de que não há gate de `npm audit` na CI, porque ela é verdadeira com ou sem Dependabot:
+  - **`README.md`**, seção de CI;
+  - **`CLAUDE.md`** Rules, curta.
+- **Só depois do 204**, o mesmo commit acrescenta, nos dois lugares, que avisos novos chegam pelos alertas do Dependabot do repositório.
+- Se a mantenedora ainda não tiver ligado, os dois arquivos não citam o Dependabot, e a tarefa fica aberta no `tasks.md` (FR-018, ajustado no analyze).
 
 ### D10. Fechamento
 
@@ -291,6 +295,7 @@ Não existe verificação segura **por tentativa**: o cache é consultado antes 
 - O Status da spec só muda depois do converge.
 - O PR fica verde, e a mantenedora mergeia com Rebase and merge.
 - Apagar a cópia mestra do banco é tarefa da mantenedora, depois do merge.
+- **Depois do merge**, como na spec 001, um commit `docs: record the PR merge for spec 002` registra o merge e marca as tarefas finais (T054 a T058). O ruleset bloqueia push direto na `main`, então ele vai numa branch nova a partir da `main` atualizada e num **PR próprio**, com push, abertura e merge aprovados pela mantenedora.
 
 ### D11. Versões com corte de 14 dias (T2)
 
@@ -347,9 +352,11 @@ A tabela abaixo mostra as opções como foram apresentadas.
 | 5 | Fase 2 (D4) | `docs: record the phase 1 CI run for spec 002`; `fix: opt into the React Router v7 future flags`; `fix: upgrade to React Router 7` | **push 2**; esperar a CI |
 | 6 | Fase 3 (D7) | `docs: record the phase 2 CI run for spec 002`; `fix: upgrade to Vite 8 and @vitejs/plugin-react-swc 4`; (T3) `chore: resolve tsconfig paths with Vite instead of a plugin` | — |
 | 7 | Medições e capturas do "depois" (D7, D8); revisão das imagens; recuo se a regra disparar | (eventual) `fix: use Vite 7.3 instead of Vite 8` | — |
-| 8 | Dependabot conferido (D9), converge (D10) e evidência | `docs: record the phase 3 evidence for spec 002` (com o README e o `CLAUDE.md` do D9, se o 204 já tiver sido conferido) | **push 3**; esperar a CI; registrar a execução na descrição do PR |
+| 8 | Dependabot conferido (D9), converge (D10) e evidência | `docs: record the phase 3 evidence for spec 002` (com o README e o `CLAUDE.md` do D9: o "sem gate" sempre, o Dependabot só com o 204) | **push 3**; esperar a CI; registrar a execução na descrição do PR |
+| 9 | Depois do merge (D10) | `docs: record the PR merge for spec 002` | branch e **PR próprios** (aprovação); esperar a CI; merge pela mantenedora |
 
-O registro da execução do push 3 não cabe em commit sem gerar outra execução. Ele vai na descrição do PR, e o `research.md` aponta para lá.
+- O registro da execução do push 3 não cabe em commit sem gerar outra execução. Ele vai na descrição do PR, e o `research.md` aponta para lá.
+- Em qualquer push, uma CI vermelha segue a regra do D5: push próprio da correção, ou re-run só para falha de infraestrutura.
 
 ## Artefatos que não se aplicam
 

@@ -42,6 +42,9 @@ Decisões confirmadas pela mantenedora:
 - Q: Como se confere o painel do coach no build de produção sem chamada paga? → A: A API roda sem `ANTHROPIC_API_KEY`, apontando por `DB_PATH` para uma cópia do banco real feita com `VACUUM INTO`, com análises já no cache. As análises em cache aparecem; uma análise nova deve responder 503. Nenhuma chamada paga.
 - Q: Os 10% de variação do bundle reprovam a fase? → A: Não. São gatilho de explicação, não de reprovação.
 - Q: Como a conferência visual compara o build novo com o antigo? → A: Por capturas de tela lado a lado, guardadas em `specs/002-npm-audit-triage/evidence/`, com a comparação anotada no `research.md`. As capturas do "antes" são tiradas na `main`, antes da Fase 1, para servir de referência a qualquer fase. A lista de telas e estados é fixa (dashboard ao vivo, histórico de sessões, análise com os gráficos e o mapa, painel do coach com uma análise em cache e com a mensagem de indisponibilidade, configurações), com o mesmo tamanho de janela antes e depois. A comparação é de layout e estilo, não dos valores ao vivo: a API roda sem `ANTHROPIC_API_KEY`, com `DB_PATH` apontando para a cópia do banco feita com `VACUUM INTO`, e o dashboard ao vivo recebe o replay da gravação de exemplo a 1x. O método de captura fica para o plano, sem adicionar dependência ao `package.json`.
+- Q (analyze): Como a documentação cita o Dependabot? → A: O `README.md` e o `CLAUDE.md` dizem, em qualquer caso, que não há gate de `npm audit` na CI. Só depois de a mantenedora ligar os alertas e a sessão conferir o HTTP 204 pela API do GitHub, os dois acrescentam que avisos novos chegam pelos alertas do Dependabot. Sem o 204, a tarefa manual fica aberta no `tasks.md`.
+- Q (analyze): A fase seguinte pode começar com a CI da anterior vermelha? → A: Não. Uma falha vinda do código ganha um commit de correção com push próprio, aprovado pela mantenedora, e a fase seguinte só começa com a CI verde. Re-run de um job só vale para falha de infraestrutura (runner, rede, timeout de download), com o motivo e o id das duas execuções registrados; falha vinda do código nunca é resolvida com re-run.
+- Q (analyze): Como as últimas tarefas ficam marcadas? → A: Como na spec 001: depois do merge, um commit `docs:` registra o merge e marca as tarefas finais, num PR próprio, porque o ruleset bloqueia push direto na `main`.
 
 ## Linha de base medida
 
@@ -149,12 +152,12 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 
 **Why this priority**: Evita que a CI passe a falhar por advisory novo de dependência de desenvolvimento, sem relação com a mudança do PR, e mantém a lista de checks (contrato com o ruleset e o selo do README) intacta.
 
-**Independent Test**: Conferir que `.github/workflows/ci.yml` não ganhou nenhum passo ou job de `npm audit`, e que a documentação descreve a tarefa manual de ligar os alertas.
+**Independent Test**: Conferir que `.github/workflows/ci.yml` não ganhou nenhum passo ou job de `npm audit`, que a documentação diz que não há esse gate e que ela só cita os alertas do Dependabot depois de conferido que estão ligados.
 
 **Acceptance Scenarios**:
 
 1. **Given** o workflow final, **When** a mantenedora o lê, **Then** continua com os quatro jobs `typecheck`, `lint`, `test` e `build`, sem passo de auditoria.
-2. **Given** a documentação, **When** a mantenedora procura como ficar sabendo de novos advisories, **Then** encontra a instrução manual de ligar os alertas de segurança do Dependabot, marcada como tarefa dela, e não como algo já configurado.
+2. **Given** a documentação, **When** a mantenedora procura como ficar sabendo de novos advisories, **Then** encontra que não há gate de `npm audit` na CI e, se os alertas do Dependabot estiverem ligados e conferidos (HTTP 204), que os avisos novos chegam por eles. Se não estiverem, a documentação não os cita, e a tarefa manual de ligá-los fica aberta no `tasks.md`.
 
 ---
 
@@ -183,7 +186,7 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 - **FR-004**: A implementação DEVE ser dividida em três fases verificadas uma a uma, nesta ordem: (1) correções dentro das faixas atuais, incluindo o ESLint na linha 9.39.x e o React Router na 6.30.x; (2) React Router 7; (3) Vite 8.
 - **FR-005**: Cada fase DEVE terminar com `typecheck`, `lint`, `test` e `build` passando, antes de a seguinte começar.
 - **FR-006**: Cada fase DEVE ser independente o bastante para que as anteriores continuem válidas se a seguinte for adiada ou recuada.
-- **FR-006a**: As três fases DEVEM chegar em um único pull request, com um push ao fim de cada fase. A execução da CI da ponta do PR depois de cada push é a evidência da fase e DEVE ser registrada (identificador da execução e resultado dos quatro checks) antes de a fase seguinte começar.
+- **FR-006a**: As três fases DEVEM chegar em um único pull request, com um push ao fim de cada fase. A execução da CI da ponta do PR depois de cada push é a evidência da fase e DEVE ser registrada (identificador da execução e resultado dos quatro checks) antes de a fase seguinte começar. A fase seguinte só começa com a CI verde: uma falha vinda do código é corrigida num commit com push próprio, aprovado pela mantenedora; re-run de job só vale para falha de infraestrutura, com o motivo e o id das duas execuções registrados.
 
 **React Router 7**
 
@@ -214,7 +217,7 @@ Depois da correção, novos advisories chegam à mantenedora como alertas de seg
 **CI e vigilância contínua**
 
 - **FR-017**: A CI NÃO DEVE ganhar nenhum gate de `npm audit`. Os checks `typecheck`, `lint`, `test` e `build` e o arquivo `ci.yml` permanecem como estão, por serem contrato com o ruleset e o selo do README.
-- **FR-018**: A documentação DEVE registrar que os alertas de segurança do Dependabot são ligados pela mantenedora nas configurações do repositório, como tarefa manual dela, sem afirmar que já estão ligados.
+- **FR-018**: O `README.md` e o `CLAUDE.md` DEVEM dizer que não há gate de `npm audit` na CI. Só depois de a mantenedora ligar os alertas de segurança do Dependabot nas configurações do repositório (tarefa manual dela) e de a ligação ser conferida pela API do GitHub (HTTP 204), os dois DEVEM acrescentar que avisos novos chegam por esses alertas. Antes disso, a documentação não os cita, e a tarefa manual fica aberta no `tasks.md`.
 
 **Sem mudança de comportamento**
 

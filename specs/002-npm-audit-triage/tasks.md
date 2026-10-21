@@ -49,11 +49,11 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
   - os navegadores-alvo efetivos do Vite 5, por `ESBUILD_MODULES_TARGET` em `node_modules/vite/dist/node/constants.js` (FR-012; quickstart, parte 4);
   - o endereço de escuta, com `node <ferramentas>\devListen.mjs 5191` (FR-013a; quickstart, parte 5).
   - (D1)
-- [ ] T003 [MANUAL] [PARADA] Aprovar a instalação do Playwright e do Chromium dele fora dos dois repositórios. Antes, a sessão mostra a versão escolhida pela regra do D11 (a mais recente publicada antes do corte, com a data de `npm view playwright time`) e o diretório de instalação, `C:\Telemetry\playwright-002\`. **Entrega**: aprovação explícita, ou outra versão ou diretório. (T4; D1, D11)
-- [ ] T004 Instalar em `C:\Telemetry\playwright-002\`: `npm i playwright@<versão aprovada>` e `npx playwright install chromium`. Anotar a versão e a data de publicação para o `research.md`. Nada muda no `package.json` do front. (FR-016c; T4, D11)
+- [ ] T003 [MANUAL] [PARADA] Aprovar a instalação do Playwright e do Chromium dele fora dos dois repositórios. Antes, a sessão mostra a versão escolhida pela regra do D11 (a mais recente publicada antes do corte, com a data de `npm view playwright time`) e o diretório de instalação proposto, fora dos dois repositórios (por exemplo, `C:\Telemetry\playwright-002\`). **Entrega**: aprovação explícita, ou outra versão ou diretório. (T4; D1, D11)
+- [ ] T004 Instalar no diretório aprovado na T003 (por exemplo, `C:\Telemetry\playwright-002\`): `npm i playwright@<versão aprovada>` e `npx playwright install chromium`. Anotar a versão e a data de publicação para o `research.md`. Nada muda no `package.json` do front. (FR-016c; T4, D11)
 - [ ] T005 [P] Escrever o script de captura em `specs/002-npm-audit-triage/evidence/tools/captureStates.mjs`:
   - comentário no topo com o comando para rodar e a versão do Playwright (T5);
-  - o Playwright é carregado de `C:\Telemetry\playwright-002\` (por `createRequire` a partir do diretório recebido em argumento), sem `npm install` no repositório;
+  - o diretório do Playwright entra pelo argumento `--playwright-dir` ou pela variável `PLAYWRIGHT_DIR`, documentados no comentário do topo, e o Playwright é carregado de lá (`createRequire`). Nenhum caminho absoluto da máquina da mantenedora fica no script. Sem o diretório, o script sai com uma mensagem clara, sem tentar resolver o Playwright de dentro do repositório e sem `npm install` nele;
   - argumentos: URL base do preview, prefixo `NN`, id da sessão, volta de comparação com cache, volta sem cache e pasta de saída;
   - viewport fixo de 1440×900 e os 6 estados da lista fixa, nos nomes `NN-<n>-<estado>.png` (quickstart, parte 6);
   - no estado 5, registrar o status da resposta do `POST` de análise e falhar se não for 503.
@@ -113,7 +113,10 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T022 [US4] Verificar a fase e anotar para o commit de registro (T026): os quatro scripts passam; `npm audit` e `npm audit --omit=dev` com a data (esperado 5 e 2 moderadas; diferença registrada e explicada); `eslint .` sem avisos; bundle medido com `evidence/tools/bundleSizes.mjs`. (FR-003, FR-005; D3; quickstart, partes 1, 2 e 4)
 - [ ] T023 [MANUAL] [PARADA] [US4] Aprovar o push 1 e a abertura do PR. A sessão mostra antes o título e a descrição do PR, com o Sync Impact Report da T016 e sem rodapé. **Entrega**: aprovação explícita do push e da abertura. (FR-006a, FR-021; D2, D5)
 - [ ] T024 [US4] Dar o push da branch e abrir o PR contra a `main` com `gh pr create`. (FR-006a; D5)
-- [ ] T025 [US4] Esperar a CI com `gh run watch` até o fim e anotar o id da execução, o SHA e o resultado dos quatro checks (`typecheck`, `lint`, `test`, `build`). Se falhar só no Linux, registrar a causa no `research.md` e corrigir num commit novo antes do próximo push, nunca pulando check. **A Phase 4 só começa depois desta tarefa.** (FR-005, FR-006a; D5)
+- [ ] T025 [US4] Esperar a CI com `gh run watch` até o fim e anotar o id da execução, o SHA e o resultado dos quatro checks (`typecheck`, `lint`, `test`, `build`). Com a CI vermelha (D5), nunca pulando check:
+  - **falha vinda do código**, inclusive só no Linux: registrar a causa no `research.md`, corrigir num commit novo e **[PARADA]** pedir aprovação de um push próprio para ele (a mantenedora **entrega** a aprovação explícita); depois do push, esperar a CI de novo. Nunca re-run;
+  - **falha de infraestrutura** (runner, rede, timeout de download): `gh run rerun <id> --failed`, registrando no `research.md` o motivo e o id das duas execuções.
+  - **A Phase 4 só começa depois desta tarefa, com a CI verde.** (FR-005, FR-006a; D5)
 
 **Checkpoint**: Fase 1 verificada localmente e na CI.
 
@@ -153,7 +156,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T033 [MANUAL] [US1] Parar a API e apagar `telemetry-run.db`. **Entrega**: confirmação. (D8)
 - [ ] T034 [MANUAL] [PARADA] [US4] Aprovar o push 2. **Entrega**: aprovação explícita. (FR-006a; D5)
 - [ ] T035 [US4] Dar o push da branch. (FR-006a; D5)
-- [ ] T036 [US4] Esperar a CI com `gh run watch` e anotar o id, o SHA e o resultado dos quatro checks, como na T025. **A Phase 5 só começa depois desta tarefa.** (FR-005, FR-006a; D5)
+- [ ] T036 [US4] Esperar a CI com `gh run watch` e anotar o id, o SHA e o resultado dos quatro checks, como na T025, com a mesma regra para a CI vermelha. **A Phase 5 só começa depois desta tarefa, com a CI verde.** (FR-005, FR-006a; D5)
 
 **Checkpoint**: produção sem vulnerabilidades conhecidas; Fases 1 e 2 válidas mesmo que a 3 seja adiada ou recuada (FR-006).
 
@@ -215,14 +218,18 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 **Independent Test**: `ci.yml` igual ao da `main`; a documentação cita o Dependabot só depois do 204.
 
 - [ ] T050 [MANUAL] [US5] Ligar os alertas do Dependabot em Settings → Advanced Security → Dependabot alerts, em qualquer momento antes da T053. **Entrega**: aviso de que ligou. (FR-018; D9)
-- [ ] T051 [P] [US5] Conferir com `gh api repos/AnaLauraFFerraz/Telemetry-F1/vulnerability-alerts -i` e anotar a primeira linha: 204 ligado, 404 desligado. Com 404, a T050 fica aberta e a documentação não cita o Dependabot. (FR-018; D9; quickstart, parte 7)
+- [ ] T051 [P] [US5] Conferir com `gh api repos/AnaLauraFFerraz/Telemetry-F1/vulnerability-alerts -i` e anotar a primeira linha: 204 ligado, 404 desligado. Com 404, a T050 fica aberta e a documentação não cita o Dependabot (a frase de que não há gate de `npm audit` entra assim mesmo, na T053). (FR-018; D9; quickstart, parte 7)
 - [ ] T052 [P] Conferir e anotar, sem alterar arquivos: `git diff main -- .github/workflows/ci.yml` vazio; `git diff main --stat -- src/types/` e `-- 'src/**/*.test.ts'` vazios; `git diff main -- package.json` com só as dependências trocadas, sem nenhuma nova. (FR-017, FR-019, FR-020; D9; quickstart, partes 7 e 8)
-- [ ] T053 Rodar o `/speckit-converge` (D10) e só depois mudar o Status da spec. Registrar no `research.md` a evidência da Fase 3: auditoria final, restantes com justificativa, exposição e condição (se houver), bundle, navegadores-alvo, escuta, comparação visual e as conferências da T051 e T052. Com o 204, acrescentar ao `README.md` (seção de CI) e ao `CLAUDE.md` (Rules) que não há gate de `npm audit` na CI e que avisos novos chegam pelos alertas do Dependabot. Marcar as tarefas feitas neste arquivo. Commitar `docs: record the phase 3 evidence for spec 002`. (FR-002, FR-003, FR-012, FR-015, FR-016, FR-018; D9, D10)
+- [ ] T053 Rodar o `/speckit-converge` (D10) e só depois mudar o Status da spec. Registrar no `research.md` a evidência da Fase 3: auditoria final, restantes com justificativa, exposição e condição (se houver), bundle, navegadores-alvo, escuta, comparação visual e as conferências da T051 e T052. Acrescentar ao `README.md` (seção de CI) e ao `CLAUDE.md` (Rules), em qualquer caso, que não há gate de `npm audit` na CI; só com o 204 da T051, acrescentar nos dois que avisos novos chegam pelos alertas do Dependabot. Marcar as tarefas feitas neste arquivo (até a T053). Commitar `docs: record the phase 3 evidence for spec 002`. (FR-002, FR-003, FR-012, FR-015, FR-016, FR-018; D9, D10)
 - [ ] T054 [MANUAL] [PARADA] Aprovar o push 3 e a atualização da descrição do PR com o registro da CI. **Entrega**: aprovação explícita. (FR-006a; D5)
 - [ ] T055 Dar o push da branch. (FR-006a; D5)
-- [ ] T056 Esperar a CI com `gh run watch` e registrar o id, o SHA e o resultado dos quatro checks na descrição do PR (`gh pr edit`). O `research.md` já aponta para lá. (FR-005, FR-006a; D5)
+- [ ] T056 Esperar a CI com `gh run watch` e registrar o id, o SHA e o resultado dos quatro checks na descrição do PR (`gh pr edit`). O `research.md` já aponta para lá. CI vermelha segue a regra da T025; o registro do re-run ou da correção vai na descrição do PR. (FR-005, FR-006a; D5)
 - [ ] T057 [MANUAL] [PARADA] Fazer o merge com Rebase and merge, com o PR verde e a branch atualizada. **Entrega**: aviso do merge. (D10)
 - [ ] T058 [MANUAL] Depois do merge, apagar a cópia mestra `C:\Telemetry\snapshots-002\telemetry-master.db`. **Entrega**: confirmação. (FR-016a; D8, D10)
+- [ ] T059 Depois da T057 e da T058, como na spec 001: `git switch main`, `git pull` e uma branch nova a partir da `main` atualizada. O ruleset bloqueia push direto na `main`, então este registro vai num **PR próprio**. Registrar o merge (número do PR e SHA na `main`) no `research.md` e marcar T054 a T058 neste arquivo. Rodar os quatro checks e commitar `docs: record the PR merge for spec 002`. (FR-006a; D10)
+- [ ] T060 [MANUAL] [PARADA] Aprovar o push da branch da T059 e a abertura do PR dela. **Entrega**: aprovação explícita. (D5, D10)
+- [ ] T061 Dar o push, abrir o PR com `gh pr create` e esperar a CI com `gh run watch`, com a regra da T025 para a CI vermelha. (FR-005; D5, D10)
+- [ ] T062 [MANUAL] [PARADA] Fazer o merge do PR da T061 com Rebase and merge. **Entrega**: aviso do merge. (D10)
 
 ---
 
@@ -231,7 +238,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - **Phase 1** (antes na `main`) bloqueia tudo: nenhuma dependência muda antes da T013.
 - **Phase 2** depende da Phase 1. A T016 é o primeiro commit da implementação; a T017, o segundo.
 - **Phase 3** depende da Phase 2. **Phase 4** depende da T025; **Phase 5**, da T036. Cada push espera a CI anterior terminar, porque o `ci.yml` cancela a execução em andamento do PR (D5).
-- **Phase 6**: a T050 pode acontecer a qualquer momento antes da T053; o resto depende da Phase 5.
+- **Phase 6**: a T050 pode acontecer a qualquer momento antes da T053; o resto depende da Phase 5. A T059 depende do merge (T057) e da T058, e vai num PR próprio porque o ruleset bloqueia push direto na `main`.
 - Dentro de cada fase de dependências, as tarefas são sequenciais: todas tocam `package.json`, `package-lock.json` ou `research.md`.
 - **API**: nenhuma tarefa usa a API antes do `false` da rodada. T009 depende da T008; T029 e T032, da T028; T043, da T042. Cada rodada termina (T010, T033, T044) antes do push seguinte.
 
@@ -245,9 +252,10 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 | T012, T046 | (se houver achado) decisão sobre as imagens |
 | T015 | aprovação da versão e do texto da emenda |
 | T021, T030, T038 | (se não houver versão antes do corte) decisão do D11 |
-| T023, T034, T054 | aprovação de cada push (e, na T023, da abertura do PR) |
+| T023, T034, T054, T060 | aprovação de cada push (e, na T023 e na T060, da abertura do PR) |
+| T025, T036, T056, T061 | (se a CI falhar por código) aprovação do push próprio da correção |
 | T048 | (se a regra disparar) confirmação do recuo para o Vite 7.3 |
-| T057 | o merge |
+| T057, T062 | o merge do PR da feature e o do PR de registro |
 
 ### Parallel Opportunities
 
@@ -269,9 +277,9 @@ Task: "Conferir que o app carrega em http://localhost:5173 no worktree da main"
 | FR-002 | T002, T021, T030, T038, T041, T049, T053 |
 | FR-003 | T002, T017, T022, T026, T032, T037, T041, T053 |
 | FR-004 | T019 e a ordem das Phases 3 a 5 |
-| FR-005 | T001, T022, T025, T032, T036, T056 |
+| FR-005 | T001, T022, T025, T032, T036, T056, T061 |
 | FR-006 | Phases 3 a 5 separadas; T049 sem reverter fases |
-| FR-006a | T023–T026, T034–T037, T054–T056 |
+| FR-006a | T023–T026, T034–T037, T054–T056, T059 |
 | FR-007 | T027 |
 | FR-008 | T029, T031 |
 | FR-009 | T009, T029, T032, T043 |
@@ -301,4 +309,4 @@ Task: "Conferir que o app carrega em http://localhost:5173 no worktree da main"
 2. Phase 3 (Fase 1 do plano): push 1 com o PR, CI registrada.
 3. Phase 4 (Fase 2, MVP): produção sem vulnerabilidades. Se a Fase 3 precisar parar, a feature já entrega o pré-requisito da demo para o navegador.
 4. Phase 5 (Fase 3): Vite 8, ou Vite 7.3 pela regra de recuo.
-5. Phase 6: Dependabot, converge, push 3 e merge pela mantenedora.
+5. Phase 6: Dependabot, converge, push 3 e merge pela mantenedora; depois, o registro do merge num PR próprio.
