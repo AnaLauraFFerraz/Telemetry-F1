@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { buildPathD } from "./chartMath";
 import { useChartHover } from "./useChartHover";
-import styles from "./Chart.module.css";
+import styles from "./chart.module.css";
 
 export interface ChartSeries {
   label: string;
