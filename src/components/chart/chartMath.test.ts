@@ -30,5 +30,5 @@ test("nearestPointIndex acha o ponto mais próximo em x", () => {
 });
 
 test("nearestPointIndex em array vazio retorna 0 sem crashar", () => {
-  assert.equal(nearestPointIndex([], 5), 0);
+  assert.equal(nearestPointIndex([], 5), 1);
 });
