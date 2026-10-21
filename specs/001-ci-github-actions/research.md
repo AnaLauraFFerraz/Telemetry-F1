@@ -507,3 +507,22 @@ gh variable list  -> vazio (exit 0)
   Só `test` reprovou; os outros três rodaram até o fim. O log do job `test` no Linux repete `[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts`, o mesmo `not ok 3` (expected 1, actual 0) e `# tests 27, pass 26, fail 1`. Estado do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `state: OPEN`.
 - **Tentativa de merge (T041, pela Ana):** print em `specs/001-ci-github-actions/evidence/demo-test-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / test (pull_request)` reprovado ("Failing after 36s"), `CI / build` (39 s), `CI / lint` (40 s) e `CI / typecheck` (15 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 3`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
 - **Fechamento:** `gh pr close 3` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 522bf01`) e remota apagada; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
+
+### Demonstração: `typecheck` e `build` juntos (T042–T043)
+
+- Branch `demo/typecheck-failure` a partir de `origin/main` (`21109b4`); commit `199b313`, `chore: demo type error (do not merge)`: em `src/pages/settings/useIsRecent.ts`, `return Date.now() - timestamp < thresholdMs;` virou `const elapsed: number = String(Date.now() - timestamp); return elapsed < thresholdMs;`. O módulo só é importado por `SettingsPage.tsx`, e nenhum teste o carrega. O `elapsed` é usado na linha seguinte para o `lint` não acusar variável sem uso.
+- Checagem local (Windows): `typecheck` exit 2 e `build` exit 2, ambos com `src/pages/settings/useIsRecent.ts(17,9): error TS2322: Type 'string' is not assignable to type 'number'.`; `lint` exit 0; `npm test` 27/27.
+- PR #4, `[NÃO MERGEAR] Demo: type error (do not merge)`.
+- Run **39532559695** (evento `pull_request`, `199b313`), 02:21:30Z a 02:22:18Z:
+
+  ```text
+  job        resultado   duração
+  typecheck  failure     14 s
+  lint       success     45 s
+  test       success     23 s
+  build      failure     16 s
+  ```
+
+  O log dos dois jobs reprovados traz `##[error]src/pages/settings/useIsRecent.ts(17,9): error TS2322: Type 'string' is not assignable to type 'number'.` e `##[error]Process completed with exit code 2.` `lint` e `test` rodaram até o fim. É o comportamento esperado pela Q1: o `build` mantém `tsc -b`, então não existe demonstração só de `typecheck`. Estado do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `state: OPEN`.
+- **Tentativa de merge (T043, pela mantenedora):** print em `specs/001-ci-github-actions/evidence/demo-typecheck-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 2 failing, 2 successful checks", `CI / build (pull_request)` reprovado ("Failing after 16s"), `CI / typecheck (pull_request)` reprovado ("Failing after 14s"), `CI / lint` (45 s) e `CI / test` (23 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 4`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
+- **Fechamento:** `gh pr close 4` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 199b313`) e remota apagada; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
