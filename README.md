@@ -47,7 +47,7 @@ flowchart LR
 
 ## Getting started
 
-Requirements: Node.js ≥ 22.6 and the [API](https://github.com/AnaLauraFFerraz/TelemetryF1_API) running (with the game, or with a recording and its replayer).
+Requirements: Node.js ≥ 22.17 (major pinned in `.nvmrc`) and the [API](https://github.com/AnaLauraFFerraz/TelemetryF1_API) running (with the game, or with a recording and its replayer).
 
 ```bash
 npm install
