@@ -420,7 +420,7 @@ build      success     69 s
 
 O log do `test` mostra `[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts` e `# tests 27, pass 27, fail 0`.
 
-Cache: *miss* nos quatro jobs (`npm cache is not found`), apesar do *hit* no re-run do PR. A causa não foi verificada. Hipótese: um cache salvo num run de `pull_request` fica restrito à ref do PR e não vale para a `main`.
+Cache: *miss* nos quatro jobs (`npm cache is not found`), apesar do *hit* no re-run do PR. A causa foi verificada depois, na seção "Cache: verificação na `main`" (o cache salvo num run de `pull_request` fica restrito à ref do PR).
 
 ### Branch protection (T034, T035)
 
@@ -545,3 +545,50 @@ gh variable list  -> vazio (exit 0)
   **Só o Linux reprovou**, e só o `build`. A linha de erro do Vite no log: `error during build: Could not resolve "./chart.module.css" from "src/components/chart/Chart.tsx"`, seguida de `##[error]Process completed with exit code 1.` A alternativa com `./Missing.module.css` não foi necessária. Estado do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `state: OPEN`.
 - **Tentativa de merge (T045, pela mantenedora):** print em `specs/001-ci-github-actions/evidence/demo-build-merge-blocked.png`. O print mostra o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / build (pull_request)` reprovado ("Failing after 15s"), `CI / lint` (12 s), `CI / test` (13 s) e `CI / typecheck` (12 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. O print não mostra o cabeçalho do commit. Depois da tentativa, `gh pr view 5`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
 - **Fechamento:** `gh pr close 5` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was b7fbc70`) e remota apagada; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.
+
+### Push direto na `main` recusado (T046)
+
+De uma branch descartável `tmp/direct-push`, criada a partir de `origin/main` sem tocar na `main` local, com um commit vazio. Antes: `git ls-remote origin refs/heads/main` → `21109b44d193b1d7dd5d79db9956a090abaa394b`.
+
+```text
+$ git commit --allow-empty -m "chore: test direct push to main (must be rejected)"
+6c92f0f chore: test direct push to main (must be rejected)
+
+$ git push origin HEAD:main
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: Review all repository rules at https://github.com/AnaLauraFFerraz/Telemetry-F1/rules?ref=refs%2Fheads%2Fmain
+remote:
+remote: - Changes must be made through a pull request.
+remote:
+remote: - 4 of 4 required status checks are expected.
+remote:
+To https://github.com/AnaLauraFFerraz/Telemetry-F1.git
+ ! [remote rejected] HEAD -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/AnaLauraFFerraz/Telemetry-F1.git'
+exit=1
+```
+
+O push foi recusado (exit 1, `GH013`), mesmo vindo da mantenedora, que tem `permissions.admin: true` no repositório; o ruleset não tem bypass. A branch `tmp/direct-push` foi apagada (`was 6c92f0f`) e nunca foi enviada com o próprio nome. Depois: `git ls-remote --heads origin` mostrou só `refs/heads/main` em `21109b44d193b1d7dd5d79db9956a090abaa394b`, o mesmo commit de antes. A contingência (push aceito) não se aplicou.
+
+### Cache: verificação na `main`
+
+Pergunta: o cache salvo pela `main` foi restaurado pelos runs seguintes? Fontes: os logs de cinco runs e `GET /repos/AnaLauraFFerraz/Telemetry-F1/actions/caches`.
+
+- Run do push na `main` (39528970487, 01:43:30Z): `Cache mode: write` e `npm cache is not found` nos quatro jobs (*miss*), apesar de a chave já existir para a ref do PR #1. O job `build` salvou (`Cache saved with the key: node-cache-Linux-x64-npm-86e1d744...`); `typecheck`, `lint` e `test` registraram `Failed to save: Unable to reserve cache with key ..., another job may be creating this cache`.
+- Runs das quatro demonstrações, todos depois (39530675163 lint, 39531960506 test, 39532559695 typecheck e 39533090730 build): nos quatro jobs de cada um, `Cache hit for: node-cache-Linux-x64-npm-86e1d744...`, `Cache restored successfully` e `Cache restored from key: <a mesma chave>`. Quando o job reporta o *hit* na chave primária, também registra `not saving cache`.
+- A API de caches lista duas entradas com a **mesma chave**, uma por ref, e o log não diz qual delas foi restaurada; o que decide são as datas de último acesso:
+
+  ```text
+  ref                  criada (UTC)          último acesso (UTC)
+  refs/pull/1/merge    2026-10-21 01:26:37   2026-10-21 01:38:17   (run 1 do PR e o re-run, depois nada)
+  refs/heads/main      2026-10-21 01:44:40   2026-10-21 02:27:18   (os runs das demonstrações)
+  ```
+
+  A entrada de `refs/pull/1/merge` não foi acessada depois das 01:38:17; a da `main` foi acessada até 02:27:18, no horário do último run de demonstração (02:27:11Z a 02:27:30Z).
+
+**Conclusão (o que os logs e a API mostram):** o cache salvo num run de `pull_request` ficou restrito à ref do PR (a `main` não o restaurou e criou o próprio às 01:44:40Z), e os runs posteriores restauraram o cache salvo pela `main`. Isso confirma a hipótese do run do push na `main`. Os PRs de demonstração não tinham cache próprio e restauraram o da branch base. Nada foi alterado no workflow por causa disso.
+
+### Fechamento
+
+- Itens do README que diferiram da interface do GitHub (T034): nenhum foi anotado, então não há correção do README vinda daí.
+- O registro do merge deste PR de fechamento (T050: número do PR e `mergedAt`, conferidos pela API, o run do push na `main` e as marcações das tarefas T049–T050) vai no PR da emenda da constituição, porque este PR não pode registrar o próprio merge.

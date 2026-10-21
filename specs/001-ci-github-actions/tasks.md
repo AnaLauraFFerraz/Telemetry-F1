@@ -326,7 +326,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Push direto
 
-- [ ] T046 [US4] **[PARADA]** Push direto recusado:
+- [X] T046 [US4] **[PARADA]** Push direto recusado:
   - de uma branch descartável `tmp/direct-push` criada a partir de `origin/main`, **sem tocar na `main` local**, criar um commit vazio com `git commit --allow-empty -m "chore: test direct push to main (must be rejected)"` e rodar `git push origin HEAD:main`;
   - esperado: exit 1 e `GH013 ... push declined due to repository rule violations`;
   - depois, `git ls-remote --heads origin` mostra a `main` no mesmo commit de antes;
@@ -343,7 +343,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 **Purpose**: registrar a evidência, fechar a spec e conferir que nada ficou por fazer.
 
-- [ ] T047 Branch `docs/001-evidence` a partir de `origin/main`, com:
+- [X] T047 Branch `docs/001-evidence` a partir de `origin/main`, com:
   - `research.md` completo: run do push na `main` de T032; T035–T046 com ids de run, resultados, durações e `mergeStateStatus`; diferenças README × interface de T034;
   - os quatro prints em `specs/001-ci-github-actions/evidence/`;
   - correções do README vindas de T034, se houver;
