@@ -323,6 +323,9 @@ specs/001-ci-github-actions/
 └── workflows/
     └── ci.yml                      # novo: 4 jobs (D1–D7)
 .nvmrc                              # novo: "22"
+.specify/
+└── memory/
+    └── constitution.md             # emenda parcial: regra da lista de testes (D12)
 package.json                        # engines, typecheck, pretest, test
 tsconfig.node.json                  # include: vite.config.ts + tools
 tools/
