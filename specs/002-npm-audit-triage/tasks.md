@@ -110,14 +110,14 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 **Independent Test**: quatro checks verdes; `npm audit` com o resultado esperado da fase (quickstart, parte 1).
 
-- [ ] T018 [US4] Registrar no `research.md` o corte da Fase 1 (data de início menos 14 dias) antes do primeiro comando. (D11)
-- [ ] T019 [US2] Rodar `npm audit fix --before=<corte da Fase 1>`. Conferir que o `package.json` não mudou e que o lockfile tem os binários de plataforma do Linux esperados (research, ponto 4). Anotar as versões resolvidas e as datas. Se D11 se aplicar, ir para T021 antes do commit. Commitar `package-lock.json` como `fix: apply npm audit fix within the current ranges`. (FR-004; D3, D11)
-- [ ] T020 [US2] Rodar `npm install -D eslint@^9.39 @eslint/js@^9.39 --before=<corte da Fase 1>`. O piso no `package.json` fica `^9.39.<patch resolvido>`, sem mudar regras nem `eslint.config.js`; `eslint .` sem avisos. Se D11 se aplicar, ir para T021 antes do commit. Commitar `package.json` e `package-lock.json` como `fix: update ESLint to 9.39`. (FR-014; D3, T1, D11)
-- [ ] T021 [MANUAL] [PARADA] [US4] (se nenhuma versão adequada existir antes do corte em T019 ou T020) A sessão registra no `research.md` o pacote, o advisory, a primeira versão que corrige e a data dela. **Entrega**: a decisão entre esperar a versão completar 14 dias, abrir uma exceção registrada só para aquele pacote ou seguir sem a correção e registrar a vulnerabilidade como restante. (FR-002; D11)
-- [ ] T022 [US4] Verificar a fase e anotar para o commit de registro (T026): os quatro scripts passam; `npm audit` e `npm audit --omit=dev` com a data (esperado 5 e 2 moderadas; diferença registrada e explicada); `eslint .` sem avisos; bundle medido num worktree novo do commit da T020 (`git worktree add --detach C:\Telemetry\wt-002-fase1 <sha>`, `.env`, `npm ci`, `npm run build`, `evidence/tools/bundleSizes.mjs`), removido com `git worktree remove` depois da medição. (FR-003, FR-005, FR-015; D3; quickstart, partes 1, 2 e 4; research, ponto 7)
-- [ ] T023 [MANUAL] [PARADA] [US4] Aprovar o push 1 e a abertura do PR. A sessão mostra antes o título e a descrição do PR, com o Sync Impact Report da T016 e sem rodapé. **Entrega**: aprovação explícita do push e da abertura. (FR-006a, FR-021; D2, D5)
-- [ ] T024 [US4] Dar o push da branch e abrir o PR contra a `main` com `gh pr create`. (FR-006a; D5)
-- [ ] T025 [US4] Esperar a CI com `gh run watch` até o fim e anotar o id da execução, o SHA e o resultado dos quatro checks (`typecheck`, `lint`, `test`, `build`). Com a CI vermelha (D5), nunca pulando check:
+- [X] T018 [US4] Registrar no `research.md` o corte da Fase 1 (data de início menos 14 dias) antes do primeiro comando. (D11)
+- [X] T019 [US2] Rodar `npm audit fix --before=<corte da Fase 1>`. Conferir que o `package.json` não mudou e que o lockfile tem os binários de plataforma do Linux esperados (research, ponto 4). Anotar as versões resolvidas e as datas. Se D11 se aplicar, ir para T021 antes do commit. Commitar `package-lock.json` como `fix: apply npm audit fix within the current ranges`. (FR-004; D3, D11)
+- [X] T020 [US2] Rodar `npm install -D eslint@^9.39 @eslint/js@^9.39 --before=<corte da Fase 1>`. O piso no `package.json` fica `^9.39.<patch resolvido>`, sem mudar regras nem `eslint.config.js`; `eslint .` sem avisos. Se D11 se aplicar, ir para T021 antes do commit. Commitar `package.json` e `package-lock.json` como `fix: update ESLint to 9.39`. (FR-014; D3, T1, D11)
+- [X] T021 [MANUAL] [PARADA] [US4] (não ocorreu: as versões adequadas existiam antes do corte) (se nenhuma versão adequada existir antes do corte em T019 ou T020) A sessão registra no `research.md` o pacote, o advisory, a primeira versão que corrige e a data dela. **Entrega**: a decisão entre esperar a versão completar 14 dias, abrir uma exceção registrada só para aquele pacote ou seguir sem a correção e registrar a vulnerabilidade como restante. (FR-002; D11)
+- [X] T022 [US4] Verificar a fase e anotar para o commit de registro (T026): os quatro scripts passam; `npm audit` e `npm audit --omit=dev` com a data (esperado 5 e 2 moderadas; diferença registrada e explicada); `eslint .` sem avisos; bundle medido num worktree novo do commit da T020 (`git worktree add --detach C:\Telemetry\wt-002-fase1 <sha>`, `.env`, `npm ci`, `npm run build`, `evidence/tools/bundleSizes.mjs`), removido com `git worktree remove` depois da medição. (FR-003, FR-005, FR-015; D3; quickstart, partes 1, 2 e 4; research, ponto 7)
+- [X] T023 [MANUAL] [PARADA] [US4] Aprovar o push 1 e a abertura do PR. A sessão mostra antes o título e a descrição do PR, com o Sync Impact Report da T016 e sem rodapé. **Entrega**: aprovação explícita do push e da abertura. A mantenedora aprovou com uma mudança: o PR é aberto como **rascunho** (`gh pr create --draft`), porque com os quatro checks verdes depois da Fase 1 ele ficaria pronto para merge com a spec pela metade, e o GitHub não permite mergear um rascunho. (FR-006a, FR-021; D2, D5)
+- [X] T024 [US4] Dar o push da branch e abrir o PR contra a `main` com `gh pr create --draft`. (FR-006a; D5)
+- [X] T025 [US4] Esperar a CI com `gh run watch` até o fim e anotar o id da execução, o SHA e o resultado dos quatro checks (`typecheck`, `lint`, `test`, `build`). Com a CI vermelha (D5), nunca pulando check:
   - **falha vinda do código**, inclusive só no Linux: registrar a causa no `research.md`, corrigir num commit novo e **[PARADA]** pedir aprovação de um push próprio para ele (a mantenedora **entrega** a aprovação explícita); depois do push, esperar a CI de novo. Nunca re-run;
   - **falha de infraestrutura** (runner, rede, timeout de download): `gh run rerun <id> --failed`, registrando no `research.md` o motivo e o id das duas execuções.
   - **A Phase 4 só começa depois desta tarefa, com a CI verde.** (FR-005, FR-006a; D5)
@@ -132,8 +132,8 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 
 **Independent Test**: `npm audit --omit=dev` mostra 0; o roteiro da parte 3 do quickstart passa no build de produção servido localmente.
 
-- [ ] T026 [US4] Registrar no `research.md` o corte da Fase 2 e os resultados da Fase 1 (T019, T020, T022 e a execução da T025). Commitar `docs: record the phase 1 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
-- [ ] T027 [US1] Refazer a busca de `<Link`, `navigate(`, `useNavigate`, `redirect` e `Navigate` em `src/` e confirmar que a tabela "Verificação formal do FR-007" do `research.md` continua completa. Uma ocorrência nova entra na tabela, com a origem do destino, no commit da T031. (FR-007)
+- [X] T026 [US4] Registrar no `research.md` o corte da Fase 2 e os resultados da Fase 1 (T019, T020, T022 e a execução da T025). Commitar `docs: record the phase 1 CI run for spec 002`. (FR-003, FR-006a; D5, D11)
+- [X] T027 [US1] Refazer a busca de `<Link`, `navigate(`, `useNavigate`, `redirect` e `Navigate` em `src/` e confirmar que a tabela "Verificação formal do FR-007" do `research.md` continua completa. Uma ocorrência nova entra na tabela, com a origem do destino, no commit da T031. (FR-007)
 - [ ] T028 [MANUAL] [PARADA] [US1] Subir a API para a navegação da Fase 2, pelo procedimento completo do D8 (segunda rodada):
   - `Test-Path C:\Telemetry\snapshots-002\telemetry-run.db*` dando `False` e, só então, copiar a mestra para um `telemetry-run.db` novo;
   - `DOTENV_CONFIG_PATH` e `DB_PATH` apontando para o `api-conferencia.env` e o `telemetry-run.db`, como na T008;
@@ -228,7 +228,8 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 - [ ] T054 [MANUAL] [PARADA] Aprovar o push 3 e a atualização da descrição do PR com o registro da CI. **Entrega**: aprovação explícita. (FR-006a; D5)
 - [ ] T055 Dar o push da branch. (FR-006a; D5)
 - [ ] T056 Esperar a CI com `gh run watch` e registrar o id, o SHA e o resultado dos quatro checks na descrição do PR (`gh pr edit`). O `research.md` já aponta para lá. CI vermelha segue a regra da T025; o registro do re-run ou da correção vai na descrição do PR. (FR-005, FR-006a; D5)
-- [ ] T057 [MANUAL] [PARADA] Fazer o merge com Rebase and merge, com o PR verde e a branch atualizada. **Entrega**: aviso do merge. (D10)
+- [ ] T056a [MANUAL] [PARADA] Com a CI final verde (T056), mostrar à mantenedora a **descrição final do PR** (`gh pr view 8 --json body`) e, com a aprovação dela, tirar o PR do rascunho com `gh pr ready 8`. **Entrega**: aprovação para tirar do rascunho. O PR é rascunho desde a T024 (um rascunho não pode ser mergeado), então o merge só fica possível depois desta tarefa. (D5, D10)
+- [ ] T057 [MANUAL] [PARADA] Fazer o merge com Rebase and merge, depois de ler o Files changed, com o PR fora do rascunho, verde e a branch atualizada. **Entrega**: aviso do merge. (D10)
 - [ ] T058 [MANUAL] Depois do merge, apagar a cópia mestra `C:\Telemetry\snapshots-002\telemetry-master.db`. **Entrega**: confirmação. (FR-016a; D8, D10)
 - [ ] T058a [MANUAL] Depois do merge, apagar a pasta `C:\Telemetry\playwright-002\` (o Playwright e o Chromium dele, cerca de 720 MB). **Entrega**: confirmação. (FR-016c; T4, D1, D10)
 - [ ] T059 Depois da T057 e da T058, como na spec 001: `git switch main`, `git pull` e uma branch nova a partir da `main` atualizada. O ruleset bloqueia push direto na `main`, então este registro vai num **PR próprio**. Registrar o merge (número do PR e SHA na `main`) no `research.md` e marcar T054 a T058 neste arquivo. Rodar os quatro checks e commitar `docs: record the PR merge for spec 002`. (FR-006a; D10)
@@ -261,6 +262,7 @@ description: "Tarefas da spec 002: triagem e correção das vulnerabilidades do 
 | T023, T034, T054, T060 | aprovação de cada push (e, na T023 e na T060, da abertura do PR) |
 | T025, T036, T056, T061 | (se a CI falhar por código) aprovação do push próprio da correção |
 | T048 | (se a regra disparar) confirmação do recuo para o Vite 7.3 |
+| T056a | aprovação para tirar o PR do rascunho, depois de ver a descrição final |
 | T057, T062 | o merge do PR da feature e o do PR de registro |
 
 ### Parallel Opportunities

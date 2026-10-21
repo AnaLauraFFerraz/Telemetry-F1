@@ -594,6 +594,58 @@ Vistas nas capturas do "antes", na `main`:
 
 - O worktree `C:\Telemetry\wt-002-main` foi removido com `git worktree remove --force`, porque tinha `dist/` e `node_modules/` não rastreados. **O `git status --porcelain` dele não foi mostrado antes da remoção**, como a mantenedora passou a exigir depois. O que existe como prova: o `git status --short` logo depois do `npm ci` e do `.env` não listava nada (o `.env` é ignorado), e dentro dele só rodaram builds (`dist/`, ignorado) e `git checkout-index -f`, que reescreve arquivos rastreados com o mesmo conteúdo. A partir daqui, antes de qualquer `git worktree remove --force`, o `git status --porcelain` do worktree é mostrado e registrado junto da medição.
 
+### Fase 1 (D3): faixas atuais e ESLint 9.39
+
+- **Corte da Fase 1** (D11), registrado antes do primeiro comando: a fase começou em **2026-10-21**, então o corte é **2026-10-07** (início menos 14 dias). Todo `npm audit fix` e todo `npm install` da fase rodam com `--before=2026-10-07`.
+- **`npm audit fix --before=2026-10-07`** (commit `ad285a3`, `fix: apply npm audit fix within the current ranges`): mudou só o `package-lock.json`; o `package.json` ficou igual. Versões resolvidas, com a data de publicação (`npm view <pacote> time`), iguais às da simulação:
+
+| Pacote | Versão | Publicada em |
+|---|---|---|
+| `typescript-eslint` (e `@typescript-eslint/eslint-plugin`) | 8.71.1 | 2026-10-05 |
+| `react-router-dom` (e `react-router`) | 6.30.6 | 2026-08-18 |
+| `vite` | 5.4.21 | 2025-10-20 |
+| `rollup` | 4.64.0 | 2026-10-02 |
+| `postcss` | 8.5.29 | 2026-10-05 |
+
+  O lockfile traz os binários opcionais do runner (`@rollup/rollup-linux-x64-gnu` 4.64.0 e `@napi-rs/lzma-linux-x64-gnu`), e `npm ci --dry-run` saiu com 0.
+- **ESLint** (commit `ca2487f`, `fix: update ESLint to 9.39`): `npm install -D eslint@^9.39 @eslint/js@^9.39 --before=2026-10-07` resolveu `eslint` e `@eslint/js` em **9.39.5** (publicados em 2026-07-10) e gravou o piso `^9.39.5` no `package.json` (T1). `@eslint/plugin-kit` subiu para 0.4.1. Sem mudar regras nem `eslint.config.js`.
+- **Nenhuma versão adequada deixou de existir antes do corte**: a regra do D11 não foi acionada (T021 não ocorreu).
+- **Verificação** (2026-10-21): os quatro scripts passam; `eslint .` sem nenhuma linha de aviso.
+- **Auditoria ao fim da Fase 1**, igual ao esperado (por pacote, a forma oficial):
+
+| | Total | Produção (`--omit=dev`) |
+|---|---|---|
+| Por pacote | 5 (4 moderadas, 1 alta): `@vitejs/plugin-react-swc`, `esbuild`, `react-router`, `react-router-dom`, `vite` | 2 moderadas: `react-router`, `react-router-dom` |
+| Por advisory | `esbuild`: GHSA-67mh-4wv8-2f99; `react-router`: GHSA-wrjc-x8rr-h8h6 e GHSA-337j-9hxr-rhxg; `vite`: GHSA-4w7w-66w2-5vf9, GHSA-v6wh-96g9-6wx3, GHSA-698v-4r3x-3vcv, GHSA-r825-w8mm-5pxw (moderados) e GHSA-fx2h-pf6j-xcff, GHSA-587h-7wmj-h5pm (altos) | os dois do `react-router`, faixa `<7.18.0` |
+
+- **Bundle** (worktree novo do commit `ca2487f`, `npm ci`, `npm run build`, `bundleSizes.mjs`):
+
+| Arquivo | Bruto (B) | gzip -9 (B) | brotli 11 (B) |
+|---|---:|---:|---:|
+| `assets/index-CJWTfzYn.js` | 203.226 | 65.837 | 57.938 |
+| `assets/index-CxJ9pMGc.css` | 20.280 | 4.365 | 3.820 |
+| `index.html` | 412 | 278 | 172 |
+| **Total** | **223.918** | **70.480** | **61.930** |
+
+  Contra a `main` (223.869 B), o total sobe 49 B (+0,02%), só no `.js`; o `.css` é idêntico.
+- **Worktree**: `git -C C:\Telemetry\wt-002-fase1 status --porcelain` saiu **vazio** antes da remoção (nenhum arquivo rastreado alterado e nenhum não rastreado); os arquivos ignorados presentes eram `.env`, `dist/`, `node_modules/`, `tsconfig.app.tsbuildinfo` e `tsconfig.node.tsbuildinfo`. A remoção funcionou **sem `--force`**, e `git worktree list` voltou a mostrar só o repositório.
+
+- **CI da Fase 1** (T023–T025): push da branch e PR **#8**, aberto como **rascunho** por decisão da mantenedora (https://github.com/AnaLauraFFerraz/Telemetry-F1/pull/8). Execução `39610344023` (https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/runs/39610344023), evento `pull_request`, SHA `ca2487f02d7d3573bf33563fb888412f0bb22a7c`, conclusão `success`:
+
+| Check | Resultado | Id do job |
+|---|---|---|
+| `typecheck` | success | 119257265253 |
+| `lint` | success | 119257265593 |
+| `test` | success | 119257265055 |
+| `build` | success | 119257265276 |
+
+  A instalação limpa no Linux (`npm ci`) passou nos quatro jobs, com o lockfile do `audit fix`.
+
+### Fase 2 (D4): React Router 7
+
+- **Corte da Fase 2** (D11), registrado antes do primeiro comando: a fase começa em **2026-10-21**, então o corte é **2026-10-07**. Os comandos da fase rodam com `--before=2026-10-07`.
+- **FR-007, conferência antes da troca** (T027): a busca por `<Link`, `navigate(`, `useNavigate`, `redirect`, `<Navigate`, `useSearchParams`, `useLocation`, `window.location` e `href=` em `src/` foi repetida em 2026-10-21, em `ca2487f`, e achou as mesmas 10 ocorrências da tabela "Verificação formal do FR-007" acima (7 `<Link>` e 3 `navigate(...)`, nos mesmos arquivos e linhas), com os mesmos destinos literais, e `` navigate(`/sessions/${id}`) `` com o `id` vindo da API. Nenhuma ocorrência nova, e a tabela continua completa.
+
 ### `lint` e `typecheck` com as ferramentas em `evidence/tools/` (T5)
 
 Saídas, em 2026-10-21, com `bundleSizes.mjs`, `devListen.mjs` e `captureStates.mjs` no repositório:
