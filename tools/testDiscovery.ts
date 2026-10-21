@@ -12,5 +12,6 @@ export function checkDiscovery(files: string[]): { exitCode: number; message: st
   if (files.length === 0) {
     return { exitCode: 1, message: `nenhum arquivo de teste encontrado em ${TEST_PATTERN}` };
   }
-  return { exitCode: 0, message: `${files.length} arquivos de teste encontrados em ${TEST_PATTERN}` };
+  const found = files.length === 1 ? "1 arquivo de teste encontrado" : `${files.length} arquivos de teste encontrados`;
+  return { exitCode: 0, message: `${found} em ${TEST_PATTERN}` };
 }
