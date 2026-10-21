@@ -403,3 +403,88 @@ O `npm ci` caiu para 2 a 4 s em `lint`, `test` e `build` (de 43 s a 1 min no pri
 ### Falhas só no Linux (T025)
 
 Nenhuma falha só no Linux: os quatro jobs ficaram verdes no primeiro run e no re-run, sem correção.
+
+### Merge do PR #1 e run do push na `main` (T032)
+
+PR #1 mergeado com **Rebase and merge** em 2026-10-21T01:43:27Z; commit na `main`: `21109b4`. `git rev-list --merges --count main` deu 0 (histórico linear). A branch local foi apagada depois de `git diff --quiet main 001-ci-github-actions` não achar diferença (o rebase muda os SHAs, não as árvores), e a remota com `git push origin --delete` e `git fetch --prune` (`git ls-remote --heads origin` mostrou só `refs/heads/main`).
+
+Run **39528970487** (evento `push`, `21109b4`), 01:43:30Z a 01:44:53Z (83 s no total):
+
+```text
+job        resultado   duração
+typecheck  success     79 s
+lint       success     79 s
+test       success     75 s
+build      success     69 s
+```
+
+O log do `test` mostra `[assertTestFiles] 5 arquivos de teste encontrados em src/**/*.test.ts` e `# tests 27, pass 27, fail 0`.
+
+Cache: *miss* nos quatro jobs (`npm cache is not found`), apesar do *hit* no re-run do PR. A causa não foi verificada. Hipótese: um cache salvo num run de `pull_request` fica restrito à ref do PR e não vale para a `main`.
+
+### Branch protection (T034, T035)
+
+**T034** (feita pela Ana): a primeira conferência pela API, antes de a Ana concluir a configuração, devolveu `rulesets: []`, `rules/branches/main: []` e os três métodos de merge ainda ligados, com `deleteBranchOnMerge: false`. A Ana então criou o ruleset e ajustou as configurações gerais seguindo só o README, e relatou que a interface bateu com os passos. A conferência da API abaixo confirma a configuração; nenhuma diferença entre o README e a interface foi anotada.
+
+**T035** (API do GitHub, repositório `AnaLauraFFerraz/Telemetry-F1`):
+
+```text
+GET /rulesets/25518966
+  name: main   target: branch   enforcement: active
+  conditions.ref_name.include: ["~DEFAULT_BRANCH"]   exclude: []
+  bypass_actors: []   current_user_can_bypass: "never"
+  created_at: 2026-10-20T22:58:02-03:00
+
+GET /rules/branches/main  (ruleset_id 25518966)
+  deletion
+  non_fast_forward
+  required_linear_history
+  pull_request: required_approving_review_count 0, dismiss_stale_reviews_on_push false,
+    require_code_owner_review false, require_last_push_approval false,
+    required_review_thread_resolution false, allowed_merge_methods [merge, squash, rebase]
+  required_status_checks: strict_required_status_checks_policy true, do_not_enforce_on_create false,
+    contextos typecheck, lint, test, build, todos com integration_id 15368
+
+GET /apps/github-actions -> {"id":15368,"name":"GitHub Actions","slug":"github-actions"}
+
+gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed,deleteBranchOnMerge
+  {"deleteBranchOnMerge":true,"mergeCommitAllowed":false,"rebaseMergeAllowed":true,"squashMergeAllowed":false}
+
+gh secret list    -> vazio (exit 0)
+gh variable list  -> vazio (exit 0)
+```
+
+- A regra `pull_request` lista os três métodos em `allowed_merge_methods`, que é o padrão da regra; na prática só o rebase vale, por causa das configurações gerais do repositório. O README não manda mexer nisso.
+- `non_fast_forward` e `deletion` conferidos aqui são a prova de que push forçado e exclusão da `main` são recusados (SC-006), sem tentativa (spec, Clarifications).
+
+### Demonstração: `lint` (T036–T039)
+
+- Branch `demo/lint-failure` a partir de `origin/main` (`21109b4`); commit `2fa277c`, `chore: demo lint failure (do not merge)`: `iso: any` em `src/utils/formatDate.ts` (regra `@typescript-eslint/no-explicit-any`).
+- Checagem local (Windows): `typecheck` exit 0; `lint` exit 1 (`1:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any`); `build` exit 0; `npm test` 27/27. Só o `lint` falha.
+- PR #2, `[NÃO MERGEAR] Demo: lint failure (do not merge)`.
+- `mergeStateStatus` com os checks ainda rodando (US4 cenário 1, check pendente): 02:01:32Z, `BLOCKED`, com a lista de checks ainda vazia; 02:01:36Z e 02:01:43Z, `BLOCKED`, com `typecheck` em fila e `lint`, `test` e `build` em andamento; 02:01:50Z, `BLOCKED`, com `lint` em `FAILURE` e `build` ainda rodando.
+- Run **39530675163** (evento `pull_request`, `2fa277c`), 02:01:34Z a 02:02:16Z:
+
+  ```text
+  job        resultado   duração
+  typecheck  success     12 s
+  lint       failure     13 s
+  test       success     10 s
+  build      success     39 s
+  ```
+
+  Só `lint` reprovou; os outros três rodaram até o fim. Estado final do PR: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`.
+- **Selo** (`https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg`, US5 cenário 2):
+
+  ```text
+  ?branch=demo/lint-failure                        -> CI - no status   (barra literal)
+  ?branch=demo/lint-failure&event=pull_request     -> CI - no status
+  ?branch=demo%2Flint-failure                      -> CI - failing     (barra codificada)
+  ?branch=demo%2Flint-failure&event=pull_request   -> CI - failing
+  ?branch=demo%2Flint-failure&event=push           -> CI - no status
+  ?branch=main                                     -> CI - passing
+  ```
+
+  A URL que mostrou o estado reprovado é a com a barra codificada (`%2F`); o `event=pull_request` não foi necessário. O selo do README usa `?branch=main`, sem barra, e não é afetado. A resposta traz `Cache-Control: max-age=300`, então não foi isolado se o "no status" da barra literal veio de cache ou do formato da URL.
+- **Tentativa de merge (T038, pela Ana):** print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra o commit `2fa277c` com a marca de falha, o painel "Some checks were not successful — 1 failing, 3 successful checks", `CI / lint (pull_request)` reprovado ("Failing after 13s"), `CI / build` (39 s), `CI / test` (10 s) e `CI / typecheck` (12 s) aprovados, os quatro com o rótulo **Required**, e o botão **Rebase and merge** desabilitado. Depois da tentativa, `gh pr view 2`: `mergeStateStatus: BLOCKED`, `mergeable: MERGEABLE`, `mergedAt: null`, `state: OPEN`.
+- **T039:** `gh pr close 2` (estado `CLOSED`, `mergedAt: null`), branch local apagada (`was 2fa277c`) e remota apagada com `git push origin --delete demo/lint-failure`; `git ls-remote --heads origin` mostrou só a `main`. O print nunca entrou em commit na branch da demonstração.

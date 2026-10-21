@@ -240,13 +240,13 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - nada descrito que não exista;
   - tudo que está nos Known pitfalls do `CLAUDE.md` também está nas Known limitations do README.
   - Commitar T027–T029 como `docs: document CI, branch protection and the quoted-glob pitfall`. (FR-021, FR-022)
-- [ ] T031 [US4] **[PARADA]** Push. Confirmar os quatro checks verdes no último commit do PR. (SC-001)
-- [ ] T032 [US4] **[MANUAL - Ana] [PARADA]** A Ana mergeia o PR com **Rebase and merge**, mesmo antes do ruleset, para manter a `main` linear. Depois:
+- [X] T031 [US4] **[PARADA]** Push. Confirmar os quatro checks verdes no último commit do PR. (SC-001)
+- [X] T032 [US4] **[MANUAL - Ana] [PARADA]** A Ana mergeia o PR com **Rebase and merge**, mesmo antes do ruleset, para manter a `main` linear. Depois:
   - o agente atualiza a `main` local (`git switch main && git pull --ff-only`);
   - registra para T047 o run do push na `main` (id, os quatro jobs, durações);
   - apaga a branch local `001-ci-github-actions`.
   - (FR-002; SC-001)
-- [ ] T033 [US4] **[PARADA]** Apagar a branch remota `001-ci-github-actions` (`git push origin --delete 001-ci-github-actions`). A exclusão automática ainda não está ligada neste momento. (FR-019)
+- [X] T033 [US4] **[PARADA]** Apagar a branch remota `001-ci-github-actions` (`git push origin --delete 001-ci-github-actions`). A exclusão automática ainda não está ligada neste momento. (FR-019)
 
 ---
 
@@ -258,12 +258,12 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Proteção
 
-- [ ] T034 [US4] **[MANUAL - Ana]** Criar o ruleset da `main` e ajustar os métodos de merge seguindo **só** o README:
+- [X] T034 [US4] **[MANUAL - Ana]** Criar o ruleset da `main` e ajustar os métodos de merge seguindo **só** o README:
   - Settings → Rules → Rulesets, com os quatro checks `typecheck`, `lint`, `test` e `build`, de origem GitHub Actions;
   - Settings → General: só "Allow rebase merging" e "Automatically delete head branches".
   - Anotar qualquer diferença entre o README e a interface; a correção vai no PR de T047.
   - (FR-017, FR-019; SC-006)
-- [ ] T035 [US4] Conferir a configuração pela API do GitHub e registrar a saída em `research.md`, "Branch protection":
+- [X] T035 [US4] Conferir a configuração pela API do GitHub e registrar a saída em `research.md`, "Branch protection":
   - `gh api repos/AnaLauraFFerraz/Telemetry-F1/rulesets` e `.../rulesets/<id>`: `enforcement: active`, `bypass_actors: []`, `current_user_can_bypass: "never"`, alvo `~DEFAULT_BRANCH`;
   - `gh api repos/AnaLauraFFerraz/Telemetry-F1/rules/branches/main`: `deletion`, `non_fast_forward`, `required_linear_history`, `pull_request` com `required_approving_review_count: 0`, e `required_status_checks` com `strict_required_status_checks_policy: true` e os contextos `typecheck`, `lint`, `test` e `build`;
   - `gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed,deleteBranchOnMerge`: só rebase e exclusão automática ligada;
@@ -274,22 +274,22 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 
 ### Demonstração: `lint`
 
-- [ ] T036 [US4] Branch `demo/lint-failure` a partir de `origin/main` atualizada.
+- [X] T036 [US4] Branch `demo/lint-failure` a partir de `origin/main` atualizada.
   - Em `src/utils/formatDate.ts`, trocar o tipo de um parâmetro de função usada por `any` explícito (regra `@typescript-eslint/no-explicit-any`).
   - Checagem local esperada: `npm run lint` falha; `typecheck`, `test` e `build` passam.
   - Commitar `chore: demo lint failure (do not merge)`.
   - (SC-002; US1 cenário 2)
-- [ ] T037 [US4] **[PARADA]** Push da branch. **[PARADA]** Abrir o PR `Demo: lint failure (do not merge)`.
+- [X] T037 [US4] **[PARADA]** Push da branch. **[PARADA]** Abrir o PR `Demo: lint failure (do not merge)`.
   - Logo depois de abrir, **com os checks ainda rodando**, registrar `gh pr view <n> --json mergeStateStatus,statusCheckRollup`: esperado `BLOCKED` com checks pendentes (US4 cenário 1, check pendente).
   - Ao fim do run, registrar o id do run e o resultado: só `lint` ✗, os outros três executados até o fim.
   - Abrir o selo com a branch da demonstração, `https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=demo/lint-failure`, e registrar o estado reprovado. Se o selo não refletir o run do PR, repetir com `&event=pull_request` e registrar qual URL funcionou (US5 cenário 2).
   - (FR-004, FR-020; SC-002)
-- [ ] T038 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra:
+- [X] T038 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra:
   - o check reprovado na lista;
   - os quatro marcados **Required**;
   - o botão de merge desabilitado.
   - O agente registra `gh pr view <n> --json mergeStateStatus` (esperado `BLOCKED`). (SC-006)
-- [ ] T039 [US4] Fechar o PR sem merge (`gh pr close <n>`). **[PARADA]** Apagar a branch remota, se a exclusão automática não a tiver apagado; apagar a local. (FR-019)
+- [X] T039 [US4] Fechar o PR sem merge (`gh pr close <n>`). **[PARADA]** Apagar a branch remota, se a exclusão automática não a tiver apagado; apagar a local. (FR-019)
 
 ### Demonstração: `test`
 
