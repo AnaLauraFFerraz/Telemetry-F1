@@ -44,6 +44,9 @@ Decisões confirmadas pela dona do repositório:
 - Q: Em quais sistemas a CI roda? → A: Só Linux. A paridade com o Windows vem da descoberta de testes feita pelo próprio Node (glob entre aspas, sem expansão do shell) e é verificada localmente na máquina da dona do repositório.
 - Q: Quando o ruleset é aplicado? → A: Pela dona do repositório, depois do merge do PR desta feature, para não travar PRs abertos a partir da `main` antiga.
 - Q: Qual a referência do SC-005? → A: A primeira execução verde, com teto de 5 minutos; acima disso, o `research.md` registra a causa e a ação tomada.
+- Q: A regra da constituição "each test file is listed in the `test` script" espera a emenda separada? → A: Não. Ela é emendada no mesmo commit que troca a lista pelo glob, para que nenhum commit deixe a constituição contrariando o código; o `CLAUDE.md` acompanha. O resto da emenda (CI como portão de merge, `typecheck` nos gates, Node 22.17, tipo `ci:`) continua no PR separado depois do merge.
+- Q: Como se prova que push forçado e exclusão da `main` são recusados? → A: Pela configuração do ruleset, conferida pela API do GitHub, sem tentativa. O GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra; e um push forçado aceito por engano reescreveria histórico publicado. O push direto é provado por tentativa.
+- Q: Qual execução é a referência de tempo do SC-005 se a primeira falhar? → A: A primeira execução verde depois de qualquer correção.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -53,7 +56,7 @@ Quem abre um pull request para a `main` vê, na própria página do PR, quatro v
 
 **Why this priority**: É o núcleo da feature. Sem a verificação automática não há o que proteger, e hoje os gates da constituição (`npm test`, `npm run lint`, `npm run build` antes de cada commit) dependem só de disciplina manual.
 
-**Independent Test**: Abrir um PR de teste para a `main` com uma falha de lint proposital e uma falha de tipos proposital em arquivos diferentes. A lista de checks deve mostrar Lint, Tipos e Build reprovados (o build repete a verificação de tipos) e Testes com seu próprio resultado, e nenhum check cancelado por causa de outro.
+**Independent Test**: Abrir PRs de teste para a `main`, cada um com uma falha proposital num único gate. A lista de checks de cada PR deve mostrar reprovado só o check daquele gate (`lint`, `test` ou `build`), ou `typecheck` e `build` juntos no caso de um erro de tipos (o `build` repete a verificação de tipos), e nenhum check cancelado por causa de outro.
 
 **Acceptance Scenarios**:
 
@@ -106,12 +109,12 @@ Depois do merge do PR desta feature, e portanto depois de a CI já ter rodado, a
 
 **Why this priority**: Fecha o objetivo ("a main só aceita merge com a verificação aprovada"), mas depende de a CI existir e já ter rodado, porque o GitHub só oferece como obrigatórios os checks que já executaram. A configuração em si é manual e fica fora do código.
 
-**Independent Test**: Seguindo só a documentação, configurar o ruleset num repositório com a CI já executada; tentar mergear um PR com check reprovado, fazer push direto na `main`, push forçado e exclusão da branch: todos devem ser recusados.
+**Independent Test**: Seguindo só a documentação, configurar o ruleset num repositório com a CI já executada; tentar mergear um PR com check reprovado e fazer push direto na `main`: ambos devem ser recusados. As regras de push forçado e de exclusão são conferidas na configuração do ruleset pela API do GitHub.
 
 **Acceptance Scenarios**:
 
 1. **Given** o ruleset ativo, **When** alguém tenta mergear um PR com qualquer check reprovado ou ainda pendente, **Then** o merge é bloqueado.
-2. **Given** o ruleset ativo, **When** alguém tenta push direto na `main`, push forçado ou exclusão da branch, **Then** a operação é recusada, inclusive para a dona do repositório (lista de bypass vazia).
+2. **Given** o ruleset ativo, **When** alguém tenta push direto na `main`, **Then** o push é recusado, inclusive para a dona do repositório (lista de bypass vazia). As regras de push forçado e de exclusão da `main` são conferidas na configuração do ruleset pela API do GitHub, sem tentativa: o GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra, e um push forçado aceito por engano reescreveria histórico publicado.
 3. **Given** um PR com a branch desatualizada em relação à `main`, **When** se tenta mergear, **Then** o GitHub exige atualizar a branch antes.
 4. **Given** um PR aprovado nos checks, **When** se abre o menu de merge, **Then** só "Rebase and merge" está disponível, mantendo o histórico linear.
 5. **Given** a documentação, **When** alguém a lê, **Then** encontra os critérios do ruleset, os nomes exatos dos checks e o procedimento de último recurso completo, sem precisar abrir a API.
@@ -155,7 +158,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 
 - **FR-001**: Todo pull request para a `main` DEVE disparar a verificação automática, com o resultado visível na página do PR.
 - **FR-002**: Todo push na `main` DEVE disparar a mesma verificação.
-- **FR-003**: A verificação DEVE expor quatro checks separados: tipos, lint, testes e build.
+- **FR-003**: A verificação DEVE expor quatro checks separados: `typecheck` (tipos), `lint`, `test` (testes) e `build`.
 - **FR-023**: O check de build DEVE manter o `tsc -b` no script de build, repetindo a verificação de tipos; uma falha de tipos reprovar os checks de tipos e de build é comportamento esperado e DEVE estar documentado.
 - **FR-024**: A CI DEVE rodar somente em Linux, sem matriz de sistemas operacionais, e sem filtros de caminho (todo PR para a `main` roda os quatro checks).
 - **FR-004**: Os quatro checks DEVEM executar até o fim independentemente do resultado dos outros; a falha de um não cancela nem pula os demais.
@@ -166,7 +169,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 
 **Scripts e testes**
 
-- **FR-009**: DEVE existir um script de verificação de tipos que cubra o mesmo que o `tsc -b` cobre hoje (`src/` e `vite.config.ts`) sem gerar o bundle.
+- **FR-009**: DEVE existir um script de verificação de tipos que rode o mesmo `tsc -b` do build, cobrindo tudo que os tsconfigs incluem (hoje `src/` e `vite.config.ts`, mais o que esta feature acrescentar), sem gerar o bundle.
 - **FR-010**: O script de teste NÃO DEVE listar arquivos à mão; todo arquivo de teste dentro de `src/` DEVE ser descoberto automaticamente.
 - **FR-011**: A descoberta DEVE produzir o mesmo conjunto de arquivos no Windows (cmd) e no Linux (sh): o glob DEVE ser passado entre aspas ao `node --test`, que o resolve por conta própria, sem depender de expansão feita pelo shell. A paridade com o Windows é verificada localmente na máquina da dona do repositório.
 - **FR-012**: Uma descoberta vazia DEVE fazer o script de teste terminar com falha e mensagem clara em português. A guarda DEVE usar o `fs.globSync` estável, o mesmo mecanismo de glob do `node --test`, para não discordar do runner.
@@ -175,7 +178,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 **Versão do Node**
 
 - **FR-014**: A versão do Node usada na CI e no ambiente local (fnm) DEVE vir de um único arquivo do repositório que fixa o major 22; não há matriz de versões.
-- **FR-015**: O `package.json` DEVE declarar `engines.node` com mínimo 22.17 (primeira versão em que o `fs.globSync` usado pela guarda é estável). Isso substitui o "Node.js ≥ 22.6" hoje citado no `CLAUDE.md` e na constituição; a emenda da constituição segue em PR separado (fora do escopo), e o `CLAUDE.md` DEVE ser atualizado nesta entrega.
+- **FR-015**: O `package.json` DEVE declarar `engines.node` com mínimo 22.17 (primeira versão em que o `fs.globSync` usado pela guarda é estável). O `CLAUDE.md` DEVE trocar o "Node.js ≥ 22.6" por 22.17 nesta entrega; na constituição, a troca entra na emenda em PR separado (fora do escopo).
 - **FR-025**: A instalação de dependências na CI DEVE usar o cache nativo do setup do Node, com chave no `package-lock.json`.
 - **FR-026**: O plano DEVE verificar com evidência, rodando comandos, (a) se o `--experimental-strip-types` tem limitação para a descoberta por glob, (b) se tem limitação para o alias `@/` e (c) se a versão de Node fixada já remove tipos sem a flag, e registrar o resultado no `research.md`.
 
@@ -211,8 +214,8 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 - **SC-002**: Com uma falha introduzida em apenas um dos quatro gates, quem revisa identifica qual gate falhou olhando só a lista de checks do PR, sem abrir logs.
 - **SC-003**: Um novo arquivo de teste em qualquer subpasta de `src/` é executado na primeira rodada, em 0 edições de arquivos de configuração.
 - **SC-004**: O conjunto de testes executados é idêntico no Windows (verificado localmente) e no Linux (CI): mesma lista de arquivos, mesmo total de testes.
-- **SC-005**: A primeira execução verde da CI é a referência de tempo e termina em até 5 minutos, incluindo a instalação das dependências. Se passar de 5 minutos, o `research.md` registra a causa e a ação tomada.
-- **SC-006**: Seguindo só a documentação, a dona do repositório configura o ruleset sem consultar outra fonte, e todas as tentativas de merge com check reprovado, push direto, push forçado e exclusão da `main` são recusadas.
+- **SC-005**: A primeira execução verde da CI, depois de qualquer correção, é a referência de tempo e termina em até 5 minutos, incluindo a instalação das dependências. Se passar de 5 minutos, o `research.md` registra a causa e a ação tomada.
+- **SC-006**: Seguindo só a documentação, a dona do repositório configura o ruleset sem consultar outra fonte. Todas as tentativas de merge com check reprovado e a tentativa de push direto na `main` são recusadas. As regras de push forçado e de exclusão da `main` são conferidas na configuração do ruleset pela API do GitHub (motivo no cenário 2 da US4).
 - **SC-007**: A verificação não depende de nenhum segredo, variável de ambiente ou serviço externo: 0 itens configurados no GitHub além do próprio workflow e do ruleset.
 - **SC-008**: Os scripts que a CI chama produzem o mesmo resultado quando rodados localmente no mesmo commit.
 
@@ -222,7 +225,7 @@ Quem abre o README vê um selo com o status atual da CI na `main` (aprovada ou r
 - Os checks se chamam `typecheck`, `lint`, `test` e `build`, em minúsculas e iguais aos scripts do `package.json` que cada um roda, no mesmo padrão da API. O nome do arquivo e do workflow é fixado no plano; a spec exige que todos sejam estáveis, únicos e documentados.
 - O repositório é público ou o plano do GitHub permite rulesets e Actions sem custo adicional para este uso.
 - A configuração do ruleset acontece depois do merge do PR desta feature: o GitHub só lista como obrigatórios checks que já rodaram (a CI roda no próprio PR da feature), e aplicar antes travaria PRs abertos a partir da `main` antiga.
-- A emenda da constituição (mencionar CI, versão do Node) é um PR separado, depois que a CI funcionar, como foi feito na API.
+- A emenda da constituição (mencionar CI, versão do Node) é um PR separado, depois que a CI funcionar, como foi feito na API. A exceção é a regra da lista manual de testes, emendada no mesmo commit que troca a lista pelo glob (Clarifications).
 - Dependências são instaladas a partir do `package-lock.json` já versionado; as 27 vulnerabilidades do `npm audit` seguem para uma triagem separada.
 - Linha de base medida em 2026-10-20 no Windows com Node 22.23.1, num checkout limpo da `main`: instalação, tipos, lint, build e os testes existentes (4 arquivos, 16 testes) passam sem `.env`. Os números são só referência datada, não requisito. O comportamento no runner Linux ainda não foi medido; validá-lo faz parte desta feature.
 - Mensagens de erro e comentários novos seguem pt-BR; identificadores, nomes de arquivo e commits em inglês.

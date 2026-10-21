@@ -72,7 +72,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 - [ ] T009 [US3] Verificar e commitar `chore: add typecheck script`:
   - `npm run typecheck` sai com 0;
   - `git status --short` continua vazio (só `*.tsbuildinfo` ignorados, nada em `src/`, sem `dist/`);
-  - um erro de tipos injetado e revertido em `src/utils/formatDate.ts` dá exit 2;
+  - com um erro de tipos injetado e revertido em `src/utils/formatDate.ts`, medir o código de saída de `npm run typecheck` (não só do `tsc -b`); esperado ≠ 0, e o valor medido é registrado;
   - guardar as saídas para T018.
   - (FR-009; SC-008)
 
@@ -92,9 +92,15 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 - [ ] T011 [US2] No mesmo commit:
   - `README.md` "Scripts and tests": trocar `npm test  # 16 tests, Node's built-in runner ...` por um comentário sem contagem, por exemplo `# Node's built-in runner with --experimental-strip-types; finds every src/**/*.test.ts`;
   - `CLAUDE.md` Commands: trocar `<files listed in package.json>` pelo glob;
-  - `CLAUDE.md` Conventions: trocar "Every new test file must be added by hand to the `test` script" por "Any `*.test.ts` under `src/` is discovered automatically".
-  - (FR-010, FR-021; plan.md D11)
-- [ ] T012 [US2] Verificar e commitar `test: discover test files with a quoted glob`:
+  - `CLAUDE.md` Conventions: trocar "Every new test file must be added by hand to the `test` script" por "Any `*.test.ts` under `src/` is discovered automatically";
+  - **emenda parcial da constituição** (plan.md D12), com o `/speckit-constitution`:
+    - só a regra "each test file is listed in the `test` script" de `.specify/memory/constitution.md` muda, para a descoberta automática de `src/**/*.test.ts`;
+    - a versão é proposta pela regra de versionamento da própria constituição, com o motivo da escolha;
+    - o Sync Impact Report fica no topo do arquivo;
+    - **mostrar a proposta à Ana e aplicar só depois do ok dela**;
+    - o resto da emenda (CI como portão de merge, `typecheck` nos gates, Node 22.17, tipo `ci:`) não entra aqui.
+  - (FR-010, FR-021; plan.md D11, D12)
+- [ ] T012 [US2] Verificar e commitar `test: discover test files with a quoted glob`, com o script, o README, o `CLAUDE.md` e a constituição no mesmo commit:
   - `npm test` dá o mesmo total e os mesmos nomes de teste de antes (T001);
   - `npm run -s test` (cmd) e `npm run -s --script-shell="<Git>\usr\bin\sh.exe" test` (sh) dão nomes de teste idênticos, comparados com `diff` dos nomes ordenados;
   - guardar as saídas para T018.
@@ -140,12 +146,13 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - saídas guardadas de T009, T012 e T014;
   - `npm test` imprime `[assertTestFiles] N arquivos de teste encontrados ...` e passa;
   - um `src/tmpcheck/probe.test.ts` temporário com asserção falsa é executado e reprova, sem editar script (removido depois);
+  - um `src/tmpcheck/syntax.test.ts` temporário com erro de sintaxe reprova o script, em vez de ser ignorado (removido depois);
   - com `TEST_PATTERN` temporariamente apontado para `nada/**/*.test.ts`, `npm test` sai ≠ 0 com a mensagem da guarda e nenhum teste roda (revertido);
   - um erro de tipos injetado em `tools/assertTestFiles.ts` dá exit 2 no `npm run typecheck` (revertido);
   - lista ordenada dos arquivos de teste executados (para o SC-004);
   - resultado do `fnm use` informado pela Ana em T006.
   - Commitar `docs: record local Windows evidence for spec 001`.
-  - (SC-003, SC-004, SC-008; US2 cenários 1–4; US3 cenários 1, 3)
+  - (SC-003, SC-004, SC-008; US2 cenários 1–4; US3 cenários 1, 3; edge case do erro de sintaxe)
 
 **Checkpoint**: descoberta automática e guarda funcionando localmente; os quatro scripts existem.
 
@@ -170,12 +177,13 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 - [ ] T021 [US1] **[PARADA]** Push da branch: `git push -u origin 001-ci-github-actions`. (FR-001)
 - [ ] T022 [US1] **[PARADA]** Abrir o PR para a `main` com `gh pr create`:
   - título `CI with GitHub Actions (spec 001)`;
-  - corpo resumindo a spec, sem rodapé "Generated with".
+  - corpo resumindo a spec, sem rodapé "Generated with";
+  - o corpo registra a emenda parcial da constituição (T011) e o motivo, como a Governança pede.
   - Anotar o número do PR. (FR-001; SC-001)
 - [ ] T023 [US1] Primeiro run no Linux, registrado em `research.md`, "Linux (CI, first run)":
   - id do run e Node resolvido no runner;
   - resultado e duração de cada um dos quatro jobs;
-  - comparação com o teto de 5 minutos (SC-005); acima dele, investigar e registrar causa e ação;
+  - comparação com o teto de 5 minutos (SC-005); acima dele, investigar e registrar causa e ação. A referência é a primeira execução verde depois de qualquer correção de T025: se este run falhar, a medição de referência é refeita no primeiro run verde;
   - contagem da guarda no log do `test`;
   - nomes dos testes, comparados com a lista do Windows de T018 (mesmos nomes, mesmo total; SC-004);
   - cache: *miss* e quem salvou a chave (a disputa `Unable to reserve cache` entre jobs é esperada, plan.md D1).
@@ -212,7 +220,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 - [ ] T029 [P] [US4] Em `CLAUDE.md`:
   - "Known pitfalls": a mesma armadilha das aspas;
   - "Rules": os nomes dos checks e do `ci.yml` são contrato com o ruleset e o selo (D2), e actions de terceiros só por SHA completo com comentário de versão (D4);
-  - nota de divergência temporária com a constituição até a emenda: Node ≥ 22.6 contra ≥ 22.17, a lista manual de testes, e o `typecheck` e a CI fora dos gates da constituição.
+  - nota de divergência temporária com a constituição até a emenda: Node ≥ 22.6 contra ≥ 22.17, e o `typecheck` e a CI fora dos gates da constituição. A lista manual de testes não entra, porque já foi emendada em T011.
   - A lista de tipos de commit não muda.
   - (FR-016, FR-022; plan.md D11)
 - [ ] T030 [US4] Conferir:
@@ -226,7 +234,7 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - registra para T047 o run do push na `main` (id, os quatro jobs, durações);
   - apaga a branch local `001-ci-github-actions`.
   - (FR-002; SC-001)
-- [ ] T033 [US4] **[PARADA]** Apagar a branch remota `001-ci-github-actions` (`git push origin --delete 001-ci-github-actions`). A exclusão automática ainda não está ligada neste momento.
+- [ ] T033 [US4] **[PARADA]** Apagar a branch remota `001-ci-github-actions` (`git push origin --delete 001-ci-github-actions`). A exclusão automática ainda não está ligada neste momento. (FR-019)
 
 ---
 
@@ -246,9 +254,11 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 - [ ] T035 [US4] Conferir a configuração pela API do GitHub e registrar a saída em `research.md`, "Branch protection":
   - `gh api repos/AnaLauraFFerraz/Telemetry-F1/rulesets` e `.../rulesets/<id>`: `enforcement: active`, `bypass_actors: []`, `current_user_can_bypass: "never"`, alvo `~DEFAULT_BRANCH`;
   - `gh api repos/AnaLauraFFerraz/Telemetry-F1/rules/branches/main`: `deletion`, `non_fast_forward`, `required_linear_history`, `pull_request` com `required_approving_review_count: 0`, e `required_status_checks` com `strict_required_status_checks_policy: true` e os contextos `typecheck`, `lint`, `test` e `build`;
-  - `gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed,deleteBranchOnMerge`: só rebase e exclusão automática ligada.
+  - `gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed,deleteBranchOnMerge`: só rebase e exclusão automática ligada;
+  - `gh secret list` e `gh variable list`: saída vazia esperada (SC-007).
+  - As regras `non_fast_forward` e `deletion` conferidas aqui são a prova de push forçado e exclusão recusados (SC-006), sem tentativa: o GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra, e um push forçado aceito por engano reescreveria histórico publicado.
   - Divergência: reportar à Ana antes de seguir.
-  - (FR-017; SC-006)
+  - (FR-017; SC-006, SC-007; US4 cenários 2 e 3)
 
 ### Demonstração: `lint`
 
@@ -257,7 +267,11 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - Checagem local esperada: `npm run lint` falha; `typecheck`, `test` e `build` passam.
   - Commitar `chore: demo lint failure (do not merge)`.
   - (SC-002; US1 cenário 2)
-- [ ] T037 [US4] **[PARADA]** Push da branch. **[PARADA]** Abrir o PR `Demo: lint failure (do not merge)`. Registrar o id do run e o resultado: só `lint` ✗, os outros três executados até o fim. (FR-004; SC-002)
+- [ ] T037 [US4] **[PARADA]** Push da branch. **[PARADA]** Abrir o PR `Demo: lint failure (do not merge)`.
+  - Logo depois de abrir, **com os checks ainda rodando**, registrar `gh pr view <n> --json mergeStateStatus,statusCheckRollup`: esperado `BLOCKED` com checks pendentes (US4 cenário 1, check pendente).
+  - Ao fim do run, registrar o id do run e o resultado: só `lint` ✗, os outros três executados até o fim.
+  - Abrir o selo com a branch da demonstração, `https://github.com/AnaLauraFFerraz/Telemetry-F1/actions/workflows/ci.yml/badge.svg?branch=demo/lint-failure`, e registrar o estado reprovado. Se o selo não refletir o run do PR, repetir com `&event=pull_request` e registrar qual URL funcionou (US5 cenário 2).
+  - (FR-004, FR-020; SC-002)
 - [ ] T038 [US4] **[MANUAL - Ana]** Tentar o merge e salvar o print em `specs/001-ci-github-actions/evidence/demo-lint-merge-blocked.png`. O print mostra:
   - o check reprovado na lista;
   - os quatro marcados **Required**;
@@ -301,11 +315,12 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
 ### Push direto
 
 - [ ] T046 [US4] **[PARADA]** Push direto recusado:
-  - de uma branch descartável `tmp/direct-push` criada a partir de `origin/main`, com um commit descartável (uma linha em branco no fim do `README.md`) e **sem tocar na `main` local**, rodar `git push origin HEAD:main`;
+  - de uma branch descartável `tmp/direct-push` criada a partir de `origin/main`, **sem tocar na `main` local**, criar um commit vazio com `git commit --allow-empty -m "chore: test direct push to main (must be rejected)"` e rodar `git push origin HEAD:main`;
   - esperado: exit 1 e `GH013 ... push declined due to repository rule violations`;
   - depois, `git ls-remote --heads origin` mostra a `main` no mesmo commit de antes;
   - apagar a branch local; ela nunca é enviada com o próprio nome;
   - registrar a saída completa em `research.md`.
+  - **Contingência**: se o push for aceito, parar; registrar no `research.md`; corrigir o ruleset; avisar a Ana. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
   - (US4 cenário 2; SC-006)
 
 **Checkpoint**: proteção ativa, conferida pela API e demonstrada em cada gate isolável.
@@ -320,14 +335,15 @@ description: "Tarefas da spec 001: CI do front no GitHub Actions"
   - `research.md` completo: run do push na `main` de T032; T035–T046 com ids de run, resultados, durações e `mergeStateStatus`; diferenças README × interface de T034;
   - os quatro prints em `specs/001-ci-github-actions/evidence/`;
   - correções do README vindas de T034, se houver;
-  - **Status da `spec.md`** atualizado de `Draft` para `Implemented` (com a data do merge de T032);
+  - uma linha no `research.md` dizendo que o registro do merge do PR de fechamento (T050) vai no PR da emenda da constituição;
   - as marcações `[x]` deste `tasks.md` até T047.
   - Commitar `docs: record CI evidence and close spec 001`.
   - (FR-018, FR-021; SC-001–SC-008)
 - [ ] T048 Rodar `/speckit-converge` para a spec 001 na branch `docs/001-evidence`, **antes do push**, para que qualquer achado entre no mesmo PR:
   - reportar os achados à Ana, sem implementar nada sem aprovação;
   - o que ela aprovar entra nesta branch, em commits próprios, com as verificações de sempre antes de cada commit;
-  - a marcação `[x]` de T048 vai no último desses commits ou, sem achados, num commit `docs:` só com ela.
+  - **depois do converge**, o Status da `spec.md` muda de `Draft` para `Implemented` (com a data do merge de T032), num commit `docs:` com a marcação `[x]` de T048.
+  - (transversal: confere todos os FRs e SCs)
 - [ ] T049 **[PARADA]** Push. **[PARADA]** Abrir o PR `docs: CI evidence for spec 001`. Confirmar os quatro checks verdes e `mergeStateStatus` `CLEAN`. (SC-001)
 - [ ] T050 **[MANUAL - Ana] [PARADA]** A Ana mergeia com **Rebase and merge**. É o primeiro merge sob o ruleset e prova que um PR verde e atualizado entra. Depois:
   - o agente confere pela API `gh pr view <n> --json number,state,mergedAt`, além de `git rev-list --merges --count main` (esperado 0) e do run do push na `main`;
@@ -396,12 +412,12 @@ Phases 1 a 5: os quatro checks rodando no PR. A partir daí todo PR é verificad
 
 ### Fora desta feature
 
-O PR de emenda da constituição (plan.md, fase 5) não é tarefa daqui. Ele entra depois que a CI funcionar, com:
+O PR de emenda da constituição (plan.md, fase 5) não é tarefa daqui. A única parte da emenda feita nesta feature é a regra da lista manual de testes (T011, plan.md D12). O PR entra depois que a CI funcionar, com:
 - a CI como portão de merge;
 - o `typecheck` nos gates;
 - o mínimo 22.17;
 - o tipo de commit `ci:`;
-- o fim da lista manual de testes;
+- o esclarecimento de que "in separate commits", no fluxo SDD, quer dizer separados da implementação, já que commits de correção podem tocar mais de um artefato;
 - o registro do merge do PR de fechamento (T050): número do PR e `mergedAt`, conferidos pela API, com as marcações `[x]` de T049–T050.
 
 ---

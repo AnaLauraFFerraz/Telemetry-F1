@@ -26,7 +26,7 @@ O desenho reaproveita as decisões da spec 002 da API (`TelemetryF1_API`), escri
 
 **Project Type**: SPA React (Vite). Esta feature só mexe em tooling, CI e documentação; nenhum código de produção muda.
 
-**Performance Goals**: SC-005. A primeira execução verde é a referência, com teto de 5 minutos por run; acima disso, o research.md registra a causa e a ação.
+**Performance Goals**: SC-005. A primeira execução verde, depois de qualquer correção, é a referência, com teto de 5 minutos por run; acima disso, o research.md registra a causa e a ação.
 
 **Constraints**:
 - Sem segredos e sem configuração no GitHub além do workflow e do ruleset.
@@ -54,7 +54,7 @@ Constituição v1.0.0 (`.specify/memory/constitution.md`).
 | VI. UI e documentação honestas | Passa | O README perde o "16 tests" (FR-021) e descreve só o que existe. O teto de tempo é medido, não inventado. |
 | Restrição: Node.js ≥ 22.6 | Passa, com nota | `engines.node` sobe para `>=22.17`, que continua dentro de "≥ 22.6". `CLAUDE.md` e README passam a dizer 22.17; a constituição muda na emenda. |
 | Restrição: testes cobrem funções puras | Passa | Decisão T3: o teste da guarda cobre só a função pura (D10). |
-| Restrição: "each test file is listed in the `test` script" | **Divergência, justificada** | A feature remove a lista de propósito (FR-010). Ver Complexity Tracking. |
+| Restrição: "each test file is listed in the `test` script" | Passa, com emenda parcial | A feature remove a lista de propósito (FR-010). A regra é emendada **no mesmo commit** que troca a lista pelo glob, via `/speckit-constitution`, para que nenhum commit deixe a constituição contrariando o código (D12). |
 | Restrição: imports relativos com `.ts`; `@/` só em `import type` | Passa | Verificado (research ponto 1b). O novo teste importa com caminho relativo e `.ts`. |
 | Fluxo: SDD, spec/plan/tasks commitados antes | Passa | Spec já commitada; plan e tasks entram como `docs:` antes da implementação. |
 | Fluxo: `npm test`, `npm run lint`, `npm run build` antes de cada commit | Passa, com nota | Continua valendo. Pôr o `typecheck` nos gates e a CI como portão de merge na constituição fica para a **emenda separada**. O `CLAUDE.md` ganha uma nota de divergência temporária (D11). |
@@ -62,7 +62,7 @@ Constituição v1.0.0 (`.specify/memory/constitution.md`).
 | Limitações conhecidas em `CLAUDE.md` e README | Passa | Nenhuma limitação listada é corrigida. Uma nova entra nos dois (aspas do glob, D11). |
 | Segredos nunca commitados | Passa | O workflow não usa segredo nem `env:`. |
 
-**Re-check pós-desenho**: igual à tabela acima. As duas divergências (lista de testes e portão de merge) são intencionais, temporárias e resolvidas pela emenda (fase 5).
+**Re-check pós-desenho**: igual à tabela acima. Nenhum commit contraria a constituição: a regra da lista de testes é emendada junto com o glob (D12). O que fica para a emenda da fase 5 são acréscimos (o `typecheck` e a CI nos gates, o mínimo 22.17, o tipo `ci:`), que hoje não contradizem o texto da constituição; o `CLAUDE.md` registra esses acréscimos numa nota temporária (D11).
 
 ## Design decisions
 
@@ -169,7 +169,7 @@ Regra da dona do repositório: README e `CLAUDE.md` mudam **no mesmo commit que 
 |---|---|
 | Node fixado (`.nvmrc`, `engines`) | README "Requirements: Node.js ≥ 22.6" e `CLAUDE.md` Stack "(Node ≥ 22.6)" passam a 22.17. O `CLAUDE.md` acrescenta que a versão vem do `.nvmrc`. |
 | Script `typecheck` | README "Scripts and tests" e `CLAUDE.md` Commands ganham `npm run typecheck`. |
-| Glob no script `test` | README tira "16 tests"; `CLAUDE.md` Commands deixa de dizer `<files listed in package.json>`; Conventions troca "Every new test file must be added by hand to the `test` script" pela descoberta automática. |
+| Glob no script `test` | README tira "16 tests"; `CLAUDE.md` Commands deixa de dizer `<files listed in package.json>`; Conventions troca "Every new test file must be added by hand to the `test` script" pela descoberta automática; a constituição troca "each test file is listed in the `test` script" pela descoberta automática (emenda parcial, D12). |
 | Guarda (`pretest`) | README e `CLAUDE.md` dizem que `npm test` roda antes a guarda de descoberta vazia. |
 
 Conteúdo novo, no commit `docs:` da fase 3:
@@ -182,7 +182,17 @@ Conteúdo novo, no commit `docs:` da fase 3:
 - **`CLAUDE.md`**:
   - a mesma armadilha nos Known pitfalls, que o arquivo exige espelhados no README;
   - Rules: os nomes dos checks são contrato (D2); actions de terceiros só por SHA (D4);
-  - **nota de divergência temporária com a constituição**, até a emenda: (a) a constituição ainda diz Node ≥ 22.6; (b) diz que cada teste é listado no script; (c) não põe o `typecheck` nos gates de commit nem a CI como portão de merge. A lista de tipos de commit **não** muda (`ci:` espera a emenda).
+  - **nota de divergência temporária com a constituição**, até a emenda da fase 5: (a) a constituição ainda diz Node ≥ 22.6, e o projeto exige ≥ 22.17; (b) ela não põe o `typecheck` nos gates de commit nem a CI como portão de merge. A regra da lista de testes não entra na nota, porque já foi emendada (D12). A lista de tipos de commit **não** muda (`ci:` espera a emenda).
+
+### D12. Emenda parcial da constituição (decisão do `/speckit-analyze`, achado C1)
+
+- A regra "each test file is listed in the `test` script" é emendada **no mesmo commit** que troca a lista pelo glob (`test: discover test files with a quoted glob`), junto com o `CLAUDE.md`. Assim nenhum commit da feature deixa a constituição contrariando o código.
+- A emenda usa o `/speckit-constitution` naquele momento da implementação:
+  - a versão é proposta pela regra de versionamento da própria constituição (MAJOR, MINOR ou PATCH), com o motivo da escolha;
+  - o Sync Impact Report fica no topo do arquivo;
+  - **a proposta é mostrada à dona do repositório antes de ser aplicada**.
+- A Governança pede que emendas passem por um PR que diga o motivo: o corpo do PR da feature registra a emenda parcial e o motivo.
+- O resto da emenda continua no PR separado da fase 5.
 
 ## Trade-offs decididos
 
@@ -206,13 +216,14 @@ Cada fase termina com a própria verificação antes da próxima. Os commits sã
 Commits, nesta ordem, cada um com as correções de documentação do D11:
 1. `.nvmrc` com `22` e `engines.node` `>=22.17`.
 2. Script `typecheck`.
-3. Script `test` com o glob entre aspas duplas.
+3. Script `test` com o glob entre aspas duplas, com a emenda parcial da constituição no mesmo commit (D12; proposta mostrada antes de aplicar).
 4. Guarda: o teste da função pura primeiro, falhando na própria asserção contra um esboço errado (D10); depois `tools/testDiscovery.ts`, `tools/assertTestFiles.ts`, o `pretest` e `tools` no `tsconfig.node.json`.
 
 Verificação no Windows, registrada no research.md:
 - `npm run typecheck` exit 0, e exit 2 com um erro injetado em `src/` e em `tools/` (revertidos);
 - `npm test` imprime a contagem da guarda e passa;
 - um `*.test.ts` temporário numa pasta nova de `src/` entra sem editar script (revertido);
+- um `*.test.ts` temporário com erro de sintaxe reprova o script, em vez de ser ignorado (removido depois);
 - com o padrão temporariamente apontado para uma pasta vazia, `npm test` sai com código diferente de zero e com a mensagem da guarda (revertido);
 - mesmos nomes de teste no cmd e no sh (`--script-shell`);
 - `git status` limpo depois do `typecheck`;
@@ -244,7 +255,9 @@ A dona do repositório confere `fnm use` no próprio terminal: deve resolver par
 2. **Conferência pela API do GitHub**, registrada no research.md:
    - `GET /repos/AnaLauraFFerraz/Telemetry-F1/rulesets` e `/rulesets/{id}`: `enforcement: active`, `bypass_actors: []`, `current_user_can_bypass: "never"`, alvo `~DEFAULT_BRANCH`;
    - `GET /rules/branches/main`: `deletion`, `non_fast_forward`, `required_linear_history`, `pull_request` com `required_approving_review_count: 0`, `required_status_checks` com `strict_required_status_checks_policy: true` e os contextos `typecheck`, `lint`, `test` e `build`;
-   - configurações do repositório: `allow_merge_commit: false`, `allow_squash_merge: false`, `allow_rebase_merge: true`, `delete_branch_on_merge: true`.
+   - configurações do repositório: `allow_merge_commit: false`, `allow_squash_merge: false`, `allow_rebase_merge: true`, `delete_branch_on_merge: true`;
+   - `gh secret list` e `gh variable list` com saída vazia (SC-007).
+   - **Push forçado e exclusão da `main` são provados por esta conferência, não por tentativa** (SC-006): o GitHub nunca permite apagar a branch padrão, então uma exclusão recusada não provaria a regra; e um push forçado aceito por engano reescreveria histórico publicado.
 3. **PRs de demonstração**, a partir da `main` atualizada, um por gate isolável. Cada um passa localmente antes do push na forma esperada, é fechado **sem merge** e tem a branch apagada local e remotamente:
 
    | PR | Mudança | Checagem local (Windows) | Checks esperados na CI |
@@ -258,10 +271,13 @@ A dona do repositório confere `fnm use` no próprio terminal: deve resolver par
    - **PR de `build`**: passar localmente é o objetivo. A demonstração prova que a CI no Linux reprova o que o Windows aceita (T4).
    - Em cada PR, um print da tentativa de merge bloqueada vai para `specs/001-ci-github-actions/evidence/`. O print mostra a lista de checks com o check reprovado identificável, os quatro como **Required** e o botão de merge desabilitado.
    - Registrar também o `mergeStateStatus` via `gh pr view`.
-4. **Push direto recusado**: de uma branch descartável criada de `origin/main`, sem tocar na `main` local, `git push origin HEAD:main` tem de ser recusado com `GH013`, mesmo para a administradora. Depois, `git ls-remote --heads origin` confirma a `main` remota inalterada.
+   - **No primeiro PR (lint)**, consultar o `mergeStateStatus` enquanto os checks ainda rodam e registrar o bloqueio por check pendente (US4 cenário 1). A exigência de branch atualizada (cenário 3) fica conferida pela configuração (`strict_required_status_checks_policy: true`).
+   - **Num PR de demonstração**, abrir o selo com `?branch=` apontando para a branch da demonstração e registrar o estado reprovado (US5 cenário 2).
+4. **Push direto recusado**: de uma branch descartável `tmp/direct-push` criada de `origin/main`, sem tocar na `main` local, com um commit vazio (`git commit --allow-empty`, mensagem em inglês), `git push origin HEAD:main` tem de ser recusado com `GH013`, mesmo para a administradora. Depois, `git ls-remote --heads origin` confirma a `main` remota inalterada.
+   - **Contingência**: se o push for aceito, parar, registrar no research.md, corrigir o ruleset e avisar a dona do repositório. O commit vazio fica na `main` como exceção documentada, sem reescrever histórico.
 5. **Não refeito aqui**: que um PR roda a própria versão do workflow já foi provado na API (T033, PR #6, run 39473001785) e é citado como origem (research ponto 9).
 6. Um PR `docs:` com a evidência (research.md, prints, marcações em tasks.md e o Status da spec) é o primeiro merge pela regra nova, e o próprio merge serve de prova de que um PR verde e atualizado entra.
-   - O `/speckit-converge` roda na branch desse PR **antes do push**, para que os achados aprovados entrem no mesmo PR.
+   - O `/speckit-converge` roda na branch desse PR **antes do push**, para que os achados aprovados entrem no mesmo PR. O Status da spec só muda para `Implemented` depois do converge.
    - Esse PR não pode registrar o próprio merge. O registro do merge permitido (número do PR e hora do merge, `mergedAt`, conferidos pela API do GitHub) vai no PR seguinte, o da emenda da constituição (fase 5).
 
 ### Fase 5 — fora desta feature, listada para não esquecer
@@ -271,7 +287,9 @@ PR separado de **emenda da constituição do front**, depois que a CI funcionar,
 - o `typecheck` nos gates antes de cada commit, junto de `test`, `lint` e `build`;
 - o mínimo Node.js ≥ 22.17;
 - o tipo de commit `ci:` na lista de Conventional Commits;
-- o fim da lista manual de testes: "each test file is listed in the `test` script" dá lugar à descoberta automática de `src/**/*.test.ts`.
+- o esclarecimento de que "in separate commits", no fluxo SDD, quer dizer separados da implementação: commits de correção podem tocar mais de um artefato (spec, plan, tasks).
+
+O fim da lista manual de testes não está nesta lista: entra antes, na emenda parcial do D12.
 
 O `CLAUDE.md` perde a nota de divergência e passa a listar `ci:` no mesmo PR.
 
@@ -321,6 +339,8 @@ CLAUDE.md                           # Stack, comandos, convenções, regras, pit
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+Nenhuma violação fica em aberto. A única regra que a feature contrariaria, "each test file is listed in the `test` script", é emendada no mesmo commit que remove a lista (D12).
+
+| Mudança | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
-| A constituição diz que cada arquivo de teste é listado no script `test`; a feature remove a lista | FR-010: hoje um teste fora da lista nunca roda, e a CI daria falsa sensação de cobertura | Manter a lista e checá-la contra o disco: é outra lista para manter e outra guarda; a spec pede descoberta pelo próprio Node. A divergência é temporária e a emenda (fase 5) a resolve. |
+| Emenda parcial da constituição dentro da feature (só a regra da lista de testes) | FR-010: hoje um teste fora da lista nunca roda, e a CI daria falsa sensação de cobertura. Sem a emenda no mesmo commit, a constituição contrariaria o código e o `CLAUDE.md` até o PR da fase 5. | (1) Manter a lista e checá-la contra o disco: é outra lista para manter e outra guarda; a spec pede descoberta pelo próprio Node. (2) Deixar a divergência registrada até a emenda separada: algum commit ficaria contrariando a constituição, o que o `/speckit-analyze` aponta como crítico. (3) Fazer a emenda inteira agora: o resto depende de a CI já funcionar na `main`. |
